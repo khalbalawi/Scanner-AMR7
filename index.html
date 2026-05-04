@@ -54,160 +54,121 @@
     --yellow: #d29922;
     --yellow-dim: #d299221a;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
   html, body {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--bg); color: var(--text);
     font-family: 'IBM Plex Sans Arabic', sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
-    min-height: 100vh;
+    font-size: 15px; line-height: 1.5; min-height: 100vh;
     overscroll-behavior: none;
   }
-
   body {
     background-image:
       radial-gradient(circle at 0% 0%, rgba(255, 182, 39, 0.08) 0%, transparent 40%),
       radial-gradient(circle at 100% 100%, rgba(88, 166, 255, 0.05) 0%, transparent 40%);
     background-attachment: fixed;
   }
-
-  .app {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 16px;
-    padding-bottom: 120px;
-  }
-
-  /* Header */
+  .app { max-width: 720px; margin: 0 auto; padding: 16px; padding-bottom: 120px; }
   header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 4px 20px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 4px 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px;
   }
-  header .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  header .brand { display: flex; align-items: center; gap: 10px; }
   header .logo {
-    width: 36px; height: 36px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: grid; place-items: center;
-    color: var(--bg);
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
+    width: 36px; height: 36px; background: var(--accent); border-radius: 8px;
+    display: grid; place-items: center; color: var(--bg);
+    font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 14px;
   }
-  header h1 {
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
+  header h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
   header .sub {
-    font-size: 11px;
-    color: var(--text-dim);
+    font-size: 11px; color: var(--text-dim);
     font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    letter-spacing: 0.05em; text-transform: uppercase;
   }
   header .count {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
+    background: var(--panel); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
   }
-  header .count b {
-    color: var(--accent);
-    font-size: 18px;
+  header .count b { color: var(--accent); font-size: 18px; }
+
+  /* Scan step hint */
+  .scan-hint {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--accent-dim); border: 1px solid var(--accent);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;
+  }
+  .hint-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: var(--bg);
+    display: grid; place-items: center;
+    font-weight: 700; font-family: 'JetBrains Mono', monospace; flex-shrink: 0;
+  }
+  .hint-num.done { background: var(--green); color: #fff; }
+  .hint-text { flex: 1; display: flex; flex-direction: column; }
+  .hint-text strong { font-size: 13px; color: var(--text); }
+  .hint-text span { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; word-break: break-all; }
+  .hint-skip {
+    background: transparent; border: 1px solid var(--text-dim);
+    color: var(--text-dim); padding: 6px 10px; border-radius: 6px;
+    font-family: inherit; font-size: 11px; cursor: pointer;
+  }
+  .hint-skip:active { background: var(--panel-2); }
+
+  .serial-row { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; font-size: 14px; }
+  .serial-row + .serial-row { border-top: 1px dashed var(--border); }
+  .mini-label {
+    color: var(--text-dim); font-size: 11px; font-weight: 500;
+    min-width: 90px; font-family: 'IBM Plex Sans Arabic', sans-serif;
+  }
+  .mini-val {
+    font-family: 'JetBrains Mono', monospace; font-weight: 700;
+    color: var(--text); word-break: break-all; flex: 1;
+  }
+  .mini-val.muted {
+    color: var(--text-dim); font-weight: 400; font-style: italic;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
   }
 
-  /* Scanner */
   .scanner-wrap {
-    position: relative;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
-    margin-bottom: 16px;
+    position: relative; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin-bottom: 16px;
   }
   .scanner-empty {
-    aspect-ratio: 4/3;
-    display: grid;
-    place-items: center;
-    text-align: center;
-    padding: 30px;
+    aspect-ratio: 4/3; display: grid; place-items: center;
+    text-align: center; padding: 30px;
     background:
       linear-gradient(var(--panel), var(--panel)) padding-box,
       repeating-linear-gradient(45deg, var(--border), var(--border) 1px, transparent 1px, transparent 12px);
   }
   .scanner-empty .icon {
-    width: 64px; height: 64px;
-    margin: 0 auto 14px;
-    border: 2px dashed var(--accent);
-    border-radius: 12px;
-    display: grid; place-items: center;
-    color: var(--accent);
+    width: 64px; height: 64px; margin: 0 auto 14px;
+    border: 2px dashed var(--accent); border-radius: 12px;
+    display: grid; place-items: center; color: var(--accent);
   }
-  .scanner-empty p {
-    color: var(--text-dim);
-    font-size: 13px;
-    margin-top: 4px;
-  }
+  .scanner-empty p { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
 
-  #reader {
-    width: 100% !important;
-    border: none !important;
-  }
-  #reader video {
-    width: 100% !important;
-    border-radius: 0 !important;
-  }
-  /* hide library default UI we don't want */
+  #reader { width: 100% !important; border: none !important; }
+  #reader video { width: 100% !important; border-radius: 0 !important; }
   #reader__dashboard_section_csr button,
   #reader__dashboard_section_swaplink,
   #reader__status_span,
-  #reader__header_message {
-    display: none !important;
-  }
+  #reader__header_message { display: none !important; }
   #reader__dashboard {
-    padding: 8px !important;
-    background: var(--panel-2) !important;
+    padding: 8px !important; background: var(--panel-2) !important;
     border-top: 1px solid var(--border);
   }
   #reader__dashboard select {
-    background: var(--panel) !important;
-    color: var(--text) !important;
-    border: 1px solid var(--border) !important;
-    padding: 6px 8px !important;
-    border-radius: 6px !important;
-    font-family: inherit !important;
-    font-size: 12px !important;
-    width: 100% !important;
+    background: var(--panel) !important; color: var(--text) !important;
+    border: 1px solid var(--border) !important; padding: 6px 8px !important;
+    border-radius: 6px !important; font-family: inherit !important;
+    font-size: 12px !important; width: 100% !important;
   }
   #reader__camera_selection { width: 100% !important; }
 
-  .scan-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none;
-    display: none;
-  }
+  .scan-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; display: none; }
   .scan-overlay.active { display: block; }
   .scan-overlay::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 10%;
-    right: 10%;
+    content: ''; position: absolute; top: 50%; left: 10%; right: 10%;
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
     box-shadow: 0 0 12px var(--accent);
@@ -218,52 +179,29 @@
     50% { transform: translateY(60px); opacity: 1; }
   }
 
-  /* Buttons */
-  .btn-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+  .btn-row { display: flex; gap: 10px; margin-bottom: 20px; }
   .btn {
-    flex: 1;
-    padding: 14px 16px;
-    border: 1px solid var(--border);
-    background: var(--panel);
-    color: var(--text);
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    flex: 1; padding: 14px 16px; border: 1px solid var(--border);
+    background: var(--panel); color: var(--text); border-radius: 10px;
+    font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
     transition: all 0.15s;
   }
   .btn:active { transform: scale(0.98); }
   .btn.primary {
-    background: var(--accent);
-    color: var(--bg);
-    border-color: var(--accent);
-    font-weight: 600;
+    background: var(--accent); color: var(--bg);
+    border-color: var(--accent); font-weight: 600;
   }
   .btn.primary:hover { background: #ffc757; }
   .btn.danger {
-    background: var(--red-dim);
-    color: var(--red);
-    border-color: var(--red);
+    background: var(--red-dim); color: var(--red); border-color: var(--red);
   }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn svg { flex-shrink: 0; }
 
-  /* Last scan preview */
   .last-scan {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 16px;
     animation: slideIn 0.3s ease;
   }
   @keyframes slideIn {
@@ -271,74 +209,32 @@
     to { opacity: 1; transform: translateY(0); }
   }
   .last-scan .label {
-    font-size: 11px;
-    color: var(--accent);
+    font-size: 11px; color: var(--accent);
     font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;
   }
-  .last-scan .serial {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    word-break: break-all;
-    margin-bottom: 14px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border);
-  }
-  .field {
-    margin-bottom: 12px;
-  }
+  .field { margin-bottom: 12px; }
   .field label {
-    display: block;
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-bottom: 6px;
-    font-weight: 500;
+    display: block; font-size: 12px; color: var(--text-dim);
+    margin-bottom: 6px; font-weight: 500;
   }
   .field input, .field select {
-    width: 100%;
-    padding: 12px 14px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 15px;
-    transition: border-color 0.15s;
+    width: 100%; padding: 12px 14px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: inherit; font-size: 15px; transition: border-color 0.15s;
   }
-  .field input:focus, .field select:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-  .status-options {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
+  .status-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .status-chip {
-    padding: 10px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--panel-2);
-    color: var(--text-dim);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: center;
+    padding: 10px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--panel-2); color: var(--text-dim);
+    font-size: 13px; font-weight: 500; cursor: pointer; text-align: center;
     transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
   }
   .status-chip::before {
-    content: '';
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: currentColor;
+    content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor;
   }
   .status-chip[data-val="جديد"] { color: var(--blue); }
   .status-chip[data-val="مستعمل"] { color: var(--green); }
@@ -351,119 +247,63 @@
 
   .save-row { display: flex; gap: 8px; margin-top: 14px; }
 
-  /* Records list */
   .records {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
   }
   .records-header {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
     background: var(--panel-2);
   }
-  .records-header h2 {
-    font-size: 14px;
-    font-weight: 600;
-  }
+  .records-header h2 { font-size: 14px; font-weight: 600; }
   .records-header .meta {
-    font-size: 11px;
-    color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
   }
-  .records-empty {
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 13px;
-  }
+  .records-empty { padding: 40px 20px; text-align: center; color: var(--text-dim); font-size: 13px; }
   .record {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 4px 12px;
-    align-items: center;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 4px 12px; align-items: center;
   }
   .record:last-child { border-bottom: none; }
   .record .serial {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    word-break: break-all;
+    font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    font-weight: 600; color: var(--text); word-break: break-all;
   }
-  .record .model {
-    font-size: 12px;
-    color: var(--text-dim);
-    grid-column: 1;
-  }
+  .record .model { font-size: 12px; color: var(--text-dim); grid-column: 1; }
   .record .status-pill {
-    grid-row: 1 / 3;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-    white-space: nowrap;
-    border: 1px solid;
+    grid-row: 1 / 3; font-size: 11px; font-weight: 600;
+    padding: 4px 10px; border-radius: 20px; white-space: nowrap; border: 1px solid;
   }
   .record .status-pill[data-val="جديد"] { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
   .record .status-pill[data-val="مستعمل"] { color: var(--green); border-color: var(--green); background: var(--green-dim); }
   .record .status-pill[data-val="للصيانة"] { color: var(--yellow); border-color: var(--yellow); background: var(--yellow-dim); }
   .record .status-pill[data-val="تالف"] { color: var(--red); border-color: var(--red); background: var(--red-dim); }
   .record .del-btn {
-    grid-column: 1 / -1;
-    margin-top: 8px;
-    background: none;
-    border: none;
-    color: var(--red);
-    font-family: inherit;
-    font-size: 12px;
-    cursor: pointer;
-    padding: 4px 0;
-    text-align: start;
-    display: none;
+    grid-column: 1 / -1; margin-top: 8px; background: none; border: none;
+    color: var(--red); font-family: inherit; font-size: 12px; cursor: pointer;
+    padding: 4px 0; text-align: start; display: none;
   }
   .record.expanded .del-btn { display: inline-flex; align-items: center; gap: 4px; }
 
-  /* Sticky export bar */
   .sticky-bar {
-    position: fixed;
-    bottom: 16px;
-    left: 16px;
-    right: 16px;
-    max-width: 688px;
-    margin: 0 auto;
-    z-index: 10;
+    position: fixed; bottom: 16px; left: 16px; right: 16px;
+    max-width: 688px; margin: 0 auto; z-index: 10;
   }
-  .sticky-bar .btn {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  }
+  .sticky-bar .btn { box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
 
-  /* Toast */
   .toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
+    position: fixed; top: 20px; left: 50%;
     transform: translateX(-50%) translateY(-100px);
-    background: var(--green);
-    color: #000;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 13px;
-    z-index: 100;
-    transition: transform 0.3s;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    background: var(--green); color: #000;
+    padding: 10px 18px; border-radius: 8px;
+    font-weight: 600; font-size: 13px; z-index: 100;
+    transition: transform 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.error { background: var(--red); color: #fff; }
 
-  /* Hide on small screens overlapping fix */
   @media (max-width: 380px) {
     .app { padding: 12px; }
     header .sub { display: none; }
@@ -480,12 +320,11 @@
         <div class="sub">Asset Scanner</div>
       </div>
     </div>
-    <div class="count">
-      <b id="totalCount">0</b> جهاز
-    </div>
+    <div class="count"><b id="totalCount">0</b> جهاز</div>
   </header>
 
-  <!-- Scanner -->
+  <div id="scanHint" class="scan-hint" style="display:none;"></div>
+
   <div class="scanner-wrap">
     <div id="scannerEmpty" class="scanner-empty">
       <div class="icon">
@@ -495,7 +334,7 @@
         </svg>
       </div>
       <strong>اضغط "تشغيل الكاميرا"</strong>
-      <p>وجّه الكاميرا على الباركود أو QR</p>
+      <p>سكان الرقم التسلسلي ثم رقم الأصل (ZATCA)</p>
     </div>
     <div id="reader" style="display:none;"></div>
     <div id="scanOverlay" class="scan-overlay"></div>
@@ -509,15 +348,11 @@
       </svg>
       تشغيل الكاميرا
     </button>
-    <button id="stopBtn" class="btn" style="display:none; flex: 0 0 auto;">
-      إيقاف
-    </button>
+    <button id="stopBtn" class="btn" style="display:none; flex: 0 0 auto;">إيقاف</button>
   </div>
 
-  <!-- Last scan card (appears after a scan) -->
   <div id="lastScanCard" style="display:none;"></div>
 
-  <!-- Records -->
   <div class="records">
     <div class="records-header">
       <h2>السجل</h2>
@@ -529,7 +364,6 @@
   </div>
 </div>
 
-<!-- Sticky export -->
 <div class="sticky-bar">
   <div class="btn-row" style="margin: 0;">
     <button id="exportBtn" class="btn primary" disabled>
@@ -540,27 +374,23 @@
       </svg>
       تصدير Excel
     </button>
-    <button id="clearBtn" class="btn danger" style="flex: 0 0 auto;" disabled>
-      مسح الكل
-    </button>
+    <button id="clearBtn" class="btn danger" style="flex: 0 0 auto;" disabled>مسح الكل</button>
   </div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
-  // ==========================================
-  // STATE
-  // ==========================================
-  const STORAGE_KEY = 'asset_scanner_records_v1';
+  const STORAGE_KEY = 'asset_scanner_records_v2';
   let records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   let html5QrCode = null;
   let isScanning = false;
   let lastScanTime = 0;
 
-  // ==========================================
-  // ELEMENTS
-  // ==========================================
+  let scanStep = 'serial';
+  let pendingSerial = null;
+  let pendingAsset = null;
+
   const $ = (id) => document.getElementById(id);
   const startBtn = $('startBtn');
   const stopBtn = $('stopBtn');
@@ -575,37 +405,21 @@
   const clearBtn = $('clearBtn');
   const toast = $('toast');
 
-  // ==========================================
-  // TOAST
-  // ==========================================
   function showToast(msg, type = 'success') {
     toast.textContent = msg;
     toast.className = 'toast show' + (type === 'error' ? ' error' : '');
     setTimeout(() => toast.classList.remove('show'), 2200);
   }
 
-  // ==========================================
-  // SAVE / RENDER
-  // ==========================================
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  }
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
 
   function updateCounts() {
     totalCount.textContent = records.length;
     exportBtn.disabled = records.length === 0;
     clearBtn.disabled = records.length === 0;
-
-    if (records.length === 0) {
-      recordsMeta.textContent = '—';
-    } else {
-      const stats = records.reduce((acc, r) => {
-        acc[r.status] = (acc[r.status] || 0) + 1;
-        return acc;
-      }, {});
-      recordsMeta.textContent = Object.entries(stats)
-        .map(([k, v]) => `${k}: ${v}`).join(' • ');
-    }
+    if (records.length === 0) { recordsMeta.textContent = '—'; return; }
+    const stats = records.reduce((acc, r) => { acc[r.status] = (acc[r.status] || 0) + 1; return acc; }, {});
+    recordsMeta.textContent = Object.entries(stats).map(([k, v]) => `${k}: ${v}`).join(' • ');
   }
 
   function renderRecords() {
@@ -615,9 +429,13 @@
     }
     recordsList.innerHTML = records.slice().reverse().map((r, i) => {
       const realIdx = records.length - 1 - i;
+      const assetLine = r.asset
+        ? `<div class="model" style="font-family:'JetBrains Mono',monospace;color:var(--accent);">${escapeHtml(r.asset)}</div>`
+        : '';
       return `
         <div class="record" data-idx="${realIdx}">
           <div class="serial">${escapeHtml(r.serial)}</div>
+          ${assetLine}
           <div class="model">${escapeHtml(r.model || '—')}</div>
           <span class="status-pill" data-val="${r.status}">${r.status}</span>
           <button class="del-btn" data-del="${realIdx}">
@@ -631,7 +449,6 @@
       `;
     }).join('');
 
-    // Click to expand, button to delete
     recordsList.querySelectorAll('.record').forEach(el => {
       el.addEventListener('click', (e) => {
         if (e.target.closest('.del-btn')) return;
@@ -644,9 +461,7 @@
         const idx = +btn.dataset.del;
         if (confirm(`حذف الجهاز ${records[idx].serial}؟`)) {
           records.splice(idx, 1);
-          save();
-          renderRecords();
-          updateCounts();
+          save(); renderRecords(); updateCounts();
         }
       });
     });
@@ -658,28 +473,67 @@
     }[c]));
   }
 
-  // ==========================================
-  // LAST-SCAN FORM
-  // ==========================================
-  function showScanForm(serial) {
-    // If already exists in records, warn
+  function updateScanHint() {
+    const hintEl = $('scanHint');
+    if (!hintEl) return;
+    if (!isScanning) { hintEl.style.display = 'none'; return; }
+    hintEl.style.display = 'flex';
+    if (scanStep === 'serial') {
+      hintEl.innerHTML = `
+        <div class="hint-num">1</div>
+        <div class="hint-text">
+          <strong>سكان الرقم التسلسلي</strong>
+          <span>وجّه الكاميرا على Serial Number</span>
+        </div>
+      `;
+    } else if (scanStep === 'asset') {
+      hintEl.innerHTML = `
+        <div class="hint-num done">✓</div>
+        <div class="hint-text">
+          <strong>سكان رقم الأصل (ZATCA)</strong>
+          <span>السيريال: ${escapeHtml(pendingSerial)}</span>
+        </div>
+        <button class="hint-skip" id="skipAssetBtn">تخطي</button>
+      `;
+      const skip = $('skipAssetBtn');
+      if (skip) skip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        pendingAsset = '';
+        proceedToForm();
+      });
+    }
+  }
+
+  function proceedToForm() {
+    scanStep = 'paused';
+    updateScanHint();
+    showScanForm(pendingSerial, pendingAsset);
+  }
+
+  function showScanForm(serial, asset) {
     const exists = records.find(r => r.serial === serial);
     const warning = exists
-      ? `<div style="background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:12px;">⚠ هذا السيريال مسجّل سابقاً</div>`
+      ? `<div style="background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:12px;">⚠ هذا السيريال مسجّل سابقاً (سيتم التحديث)</div>`
       : '';
+    const assetDisplay = asset
+      ? `<div class="serial-row"><span class="mini-label">رقم الأصل:</span><span class="mini-val">${escapeHtml(asset)}</span></div>`
+      : `<div class="serial-row"><span class="mini-label">رقم الأصل:</span><span class="mini-val muted">— لم يُسكن —</span></div>`;
 
     lastScanCard.className = 'last-scan';
     lastScanCard.style.display = 'block';
     lastScanCard.innerHTML = `
       ${warning}
-      <div class="label">آخر سكان</div>
-      <div class="serial">${escapeHtml(serial)}</div>
-
+      <div class="label">السكان الجديد</div>
+      <div class="serial-row"><span class="mini-label">السيريال:</span><span class="mini-val">${escapeHtml(serial)}</span></div>
+      ${assetDisplay}
+      <div class="field" style="margin-top:14px;">
+        <label for="assetEditInput">رقم الأصل (يدوي إذا لزم)</label>
+        <input type="text" id="assetEditInput" placeholder="ZATCA-XXXXX" autocomplete="off" value="${escapeHtml(asset || '')}">
+      </div>
       <div class="field">
         <label for="modelInput">الموديل</label>
         <input type="text" id="modelInput" placeholder="مثال: HP EliteBook 840 G8" autocomplete="off">
       </div>
-
       <div class="field">
         <label>الحالة</label>
         <div class="status-options">
@@ -689,24 +543,21 @@
           <div class="status-chip" data-val="تالف">تالف</div>
         </div>
       </div>
-
       <div class="field">
         <label for="notesInput">ملاحظات (اختياري)</label>
         <input type="text" id="notesInput" placeholder="مكان الجهاز، اسم المستخدم، إلخ" autocomplete="off">
       </div>
-
       <div class="save-row">
         <button class="btn primary" id="saveBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
-          حفظ
+          حفظ والتالي
         </button>
         <button class="btn" id="cancelBtn" style="flex: 0 0 auto;">إلغاء</button>
       </div>
     `;
 
-    // Status chip selection
     let selectedStatus = null;
     lastScanCard.querySelectorAll('.status-chip').forEach(chip => {
       chip.addEventListener('click', () => {
@@ -716,52 +567,35 @@
       });
     });
 
-    // Save
     $('saveBtn').addEventListener('click', () => {
-      if (!selectedStatus) {
-        showToast('اختر الحالة أولاً', 'error');
-        return;
-      }
+      if (!selectedStatus) { showToast('اختر الحالة أولاً', 'error'); return; }
+      const finalAsset = $('assetEditInput').value.trim();
       const model = $('modelInput').value.trim();
       const notes = $('notesInput').value.trim();
       const record = {
-        serial,
-        model,
-        status: selectedStatus,
-        notes,
+        serial, asset: finalAsset, model, status: selectedStatus, notes,
         scannedAt: new Date().toISOString()
       };
-      // If exists, replace
       const existsIdx = records.findIndex(r => r.serial === serial);
-      if (existsIdx >= 0) {
-        records[existsIdx] = record;
-        showToast('تم تحديث السجل');
-      } else {
-        records.push(record);
-        showToast('تم الحفظ ✓');
-      }
-      save();
-      renderRecords();
-      updateCounts();
+      if (existsIdx >= 0) { records[existsIdx] = record; showToast('تم تحديث السجل'); }
+      else { records.push(record); showToast('تم الحفظ ✓ — سكان جهاز جديد'); }
+      save(); renderRecords(); updateCounts();
       lastScanCard.style.display = 'none';
-      // tiny vibration if supported
+      pendingSerial = null; pendingAsset = null; scanStep = 'serial';
+      updateScanHint();
       if (navigator.vibrate) navigator.vibrate(50);
     });
 
-    // Cancel
     $('cancelBtn').addEventListener('click', () => {
       lastScanCard.style.display = 'none';
+      pendingSerial = null; pendingAsset = null; scanStep = 'serial';
+      updateScanHint();
     });
 
-    // Scroll into view
     lastScanCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  // ==========================================
-  // SCANNER
-  // ==========================================
   async function waitForLib() {
-    // Wait up to 8 seconds for library to load
     for (let i = 0; i < 80; i++) {
       if (typeof Html5Qrcode !== 'undefined') return true;
       if (window._libsLoaded.qrFailed) return false;
@@ -772,24 +606,21 @@
 
   async function startScanner() {
     if (isScanning) return;
-
-    // Make sure the library is loaded
     startBtn.disabled = true;
     startBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg> جاري التحميل...';
     const ok = await waitForLib();
     startBtn.disabled = false;
     startBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> تشغيل الكاميرا';
-
-    if (!ok) {
-      showToast('فشل تحميل المكتبة. تحقق من الإنترنت وأعد المحاولة', 'error');
-      return;
-    }
+    if (!ok) { showToast('فشل تحميل المكتبة. تحقق من الإنترنت', 'error'); return; }
 
     scannerEmpty.style.display = 'none';
     reader.style.display = 'block';
     scanOverlay.classList.add('active');
     startBtn.style.display = 'none';
     stopBtn.style.display = 'flex';
+    isScanning = true;
+    if (!pendingSerial) scanStep = 'serial';
+    updateScanHint();
 
     try {
       html5QrCode = new Html5Qrcode('reader');
@@ -811,14 +642,7 @@
           Html5QrcodeSupportedFormats.PDF_417,
         ]
       };
-
-      await html5QrCode.start(
-        { facingMode: 'environment' },
-        config,
-        onScanSuccess,
-        () => {} // ignore continuous "no qr" errors
-      );
-      isScanning = true;
+      await html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess, () => {});
     } catch (err) {
       console.error(err);
       showToast('تعذّر فتح الكاميرا. تأكد من السماح بالإذن', 'error');
@@ -828,10 +652,8 @@
 
   async function stopScanner() {
     if (html5QrCode && isScanning) {
-      try {
-        await html5QrCode.stop();
-        await html5QrCode.clear();
-      } catch (e) { console.warn(e); }
+      try { await html5QrCode.stop(); await html5QrCode.clear(); }
+      catch (e) { console.warn(e); }
     }
     isScanning = false;
     scannerEmpty.style.display = 'grid';
@@ -839,19 +661,31 @@
     scanOverlay.classList.remove('active');
     startBtn.style.display = 'flex';
     stopBtn.style.display = 'none';
+    updateScanHint();
   }
 
   function onScanSuccess(decodedText) {
-    // Debounce: ignore scans within 1.5s of each other
+    if (scanStep === 'paused') return;
     const now = Date.now();
     if (now - lastScanTime < 1500) return;
     lastScanTime = now;
-
-    // Beep + vibrate
+    const text = decodedText.trim();
     if (navigator.vibrate) navigator.vibrate([60, 30, 60]);
     playBeep();
 
-    showScanForm(decodedText.trim());
+    if (scanStep === 'serial') {
+      pendingSerial = text;
+      scanStep = 'asset';
+      updateScanHint();
+      showToast('✓ السيريال تم — سكن رقم الأصل', 'success');
+    } else if (scanStep === 'asset') {
+      if (text === pendingSerial) {
+        showToast('هذا نفس السيريال — سكن رقم أصل مختلف', 'error');
+        return;
+      }
+      pendingAsset = text;
+      proceedToForm();
+    }
   }
 
   function playBeep() {
@@ -859,70 +693,45 @@
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      osc.connect(gain); gain.connect(ctx.destination);
       osc.frequency.value = 1200;
       gain.gain.setValueAtTime(0.15, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.15);
+      osc.start(); osc.stop(ctx.currentTime + 0.15);
     } catch (e) {}
   }
 
-  // ==========================================
-  // EXPORT
-  // ==========================================
   function exportToExcel() {
     if (records.length === 0) return;
-
     const data = records.map((r, i) => ({
       '#': i + 1,
       'الرقم التسلسلي': r.serial,
+      'رقم الأصل': r.asset || '',
       'الموديل': r.model || '',
       'الحالة': r.status,
       'ملاحظات': r.notes || '',
       'تاريخ السكان': new Date(r.scannedAt).toLocaleString('ar-SA')
     }));
-
     const ws = XLSX.utils.json_to_sheet(data);
-    // Set column widths
-    ws['!cols'] = [
-      { wch: 5 },
-      { wch: 25 },
-      { wch: 25 },
-      { wch: 12 },
-      { wch: 30 },
-      { wch: 22 }
-    ];
-    // RTL view
+    ws['!cols'] = [{ wch: 5 }, { wch: 25 }, { wch: 22 }, { wch: 25 }, { wch: 12 }, { wch: 30 }, { wch: 22 }];
     if (!ws['!rtl']) ws['!rtl'] = true;
-
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'جرد الأجهزة');
-    // Workbook RTL
     if (!wb.Workbook) wb.Workbook = {};
     if (!wb.Workbook.Views) wb.Workbook.Views = [{}];
     wb.Workbook.Views[0].RTL = true;
-
     const date = new Date().toISOString().slice(0, 10);
-    const filename = `Asset_Inventory_${date}.xlsx`;
-    XLSX.writeFile(wb, filename);
+    XLSX.writeFile(wb, `Asset_Inventory_${date}.xlsx`);
     showToast(`تم تصدير ${records.length} جهاز`);
   }
 
   function clearAll() {
     if (records.length === 0) return;
     if (!confirm(`سيتم حذف جميع السجلات (${records.length}). هل أنت متأكد؟`)) return;
-    records = [];
-    save();
-    renderRecords();
-    updateCounts();
+    records = []; save(); renderRecords(); updateCounts();
     showToast('تم مسح الكل');
   }
 
-  // ==========================================
-  // INIT
-  // ==========================================
   startBtn.addEventListener('click', startScanner);
   stopBtn.addEventListener('click', stopScanner);
   exportBtn.addEventListener('click', exportToExcel);
@@ -930,8 +739,6 @@
 
   renderRecords();
   updateCounts();
-
-  // PWA-like: warn before leaving if there are unsaved-but-stored records? Actually localStorage persists, no warn needed.
 </script>
 </body>
 </html>
