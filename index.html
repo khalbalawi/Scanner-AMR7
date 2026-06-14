@@ -63,18 +63,16 @@
   .scanner-empty .icon { width:64px; height:64px; margin:0 auto 14px; border:2px dashed var(--accent); border-radius:12px; display:grid; place-items:center; color:var(--accent); }
   .scanner-empty p { color:var(--text-dim); font-size:13px; margin-top:4px; }
 
-  /* السكانر الجديد */
   #scanContainer { position:relative; display:none; }
-  #scanVideo { width:100%; display:block; max-height:60vh; object-fit:cover; }
+  #scanVideo { width:100%; display:block; max-height:55vh; object-fit:cover; }
   #scanCanvas { display:none; }
 
-  /* إطار التوجيه */
+  /* الإطار الكبير */
   .scan-frame {
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    width:75%; max-width:320px; height:90px;
-    border:2px solid var(--accent);
-    border-radius:8px;
-    box-shadow:0 0 0 9999px rgba(0,0,0,0.45);
+    width:80%; max-width:340px; height:100px;
+    border:2px solid var(--accent); border-radius:8px;
+    box-shadow:0 0 0 9999px rgba(0,0,0,0.5);
     pointer-events:none;
   }
   .scan-frame::before,.scan-frame::after {
@@ -84,18 +82,26 @@
   .scan-frame::before { top:-2px; right:-2px; border-width:3px 3px 0 0; border-radius:0 6px 0 0; }
   .scan-frame::after  { bottom:-2px; left:-2px; border-width:0 0 3px 3px; border-radius:0 0 0 6px; }
 
+  /* خط المسح */
   .scan-line {
     position:absolute; left:4px; right:4px; height:2px;
     background:linear-gradient(90deg,transparent,var(--accent),transparent);
     box-shadow:0 0 8px var(--accent);
     animation:scanline 1.8s ease-in-out infinite;
-    top:0;
   }
   @keyframes scanline { 0%,100%{top:4px;opacity:.5} 50%{top:calc(100% - 6px);opacity:1} }
 
+  /* الإطار الصغير للباركود الضيق */
+  .scan-frame-sm {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:38%; max-width:150px; height:44px;
+    border:1px dashed rgba(255,182,39,0.5);
+    border-radius:4px; pointer-events:none;
+  }
+
   .scan-status {
-    position:absolute; bottom:0; left:0; right:0;
-    background:rgba(15,20,25,0.85); padding:8px 14px;
+    position:absolute; bottom:48px; left:0; right:0;
+    background:rgba(15,20,25,0.8); padding:6px 14px;
     font-size:12px; color:var(--text-dim); text-align:center;
     font-family:'JetBrains Mono',monospace;
     display:flex; align-items:center; justify-content:center; gap:8px;
@@ -103,13 +109,26 @@
   .scan-status .dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1s infinite; flex-shrink:0; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-  .btn-row { display:flex; gap:10px; margin-bottom:20px; }
-  .btn {
-    flex:1; padding:14px 16px; border:1px solid var(--border);
-    background:var(--panel); color:var(--text); border-radius:10px;
-    font-family:inherit; font-size:14px; font-weight:500; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s;
+  /* شريط الزوم */
+  .zoom-bar {
+    display:flex; align-items:center; gap:10px;
+    background:rgba(15,20,25,0.95); padding:8px 14px;
+    border-top:1px solid var(--border);
   }
+  .zoom-btn {
+    width:36px; height:36px; border-radius:8px;
+    background:var(--panel); border:1px solid var(--border);
+    color:var(--text); font-size:22px; cursor:pointer;
+    display:grid; place-items:center; flex-shrink:0; line-height:1;
+  }
+  .zoom-btn:active { background:var(--panel-2); }
+  input[type=range].zoom-slider {
+    flex:1; accent-color:var(--accent); height:4px; cursor:pointer;
+  }
+  .zoom-label { font-size:12px; color:var(--accent); font-family:'JetBrains Mono',monospace; min-width:36px; text-align:center; }
+
+  .btn-row { display:flex; gap:10px; margin-bottom:20px; }
+  .btn { flex:1; padding:14px 16px; border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:10px; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s; }
   .btn:active { transform:scale(.98); }
   .btn.primary { background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:600; }
   .btn.primary:hover { background:#ffc757; }
@@ -166,7 +185,7 @@
   .toast.show { transform:translateX(-50%) translateY(0); }
   .toast.error { background:var(--red); color:#fff; }
 
-  @media(max-width:380px){.app{padding:12px} header .sub{display:none}}
+  @media(max-width:380px){ .app{padding:12px} header .sub{display:none} }
 </style>
 </head>
 <body>
@@ -200,9 +219,16 @@
       <video id="scanVideo" autoplay muted playsinline></video>
       <canvas id="scanCanvas"></canvas>
       <div class="scan-frame"><div class="scan-line"></div></div>
+      <div class="scan-frame-sm"></div>
       <div class="scan-status">
         <div class="dot"></div>
         <span id="scanStatusText">جاهز للسكان...</span>
+      </div>
+      <div class="zoom-bar">
+        <button class="zoom-btn" id="zoomOut">−</button>
+        <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="5" step="0.1" value="1">
+        <button class="zoom-btn" id="zoomIn">+</button>
+        <span class="zoom-label" id="zoomLabel">1×</span>
       </div>
     </div>
   </div>
@@ -250,23 +276,25 @@
 <script>
 const STORAGE_KEY = 'asset_scanner_records_v2';
 let records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-let isScanning = false;
-let scanStep = 'serial';
+let isScanning    = false;
+let scanStep      = 'serial';
 let pendingSerial = null;
-let pendingAsset = null;
-let lastScanTime = 0;
-let animFrameId = null;
-let videoStream = null;
+let pendingAsset  = null;
+let lastScanTime  = 0;
+let animFrameId   = null;
+let videoStream   = null;
 let barcodeDetector = null;
+let currentZoom   = 1;
+let maxZoom       = 5;
+let zoomSupported = false;
+let fallbackScanner = null;
 
 const $ = id => document.getElementById(id);
-const startBtn    = $('startBtn');
-const stopBtn     = $('stopBtn');
+
+const startBtn       = $('startBtn');
+const stopBtn        = $('stopBtn');
 const scannerEmpty   = $('scannerEmpty');
 const scanContainer  = $('scanContainer');
-const scanVideo      = $('scanVideo');
-const scanCanvas     = $('scanCanvas');
-const scanStatusText = $('scanStatusText');
 const lastScanCard   = $('lastScanCard');
 const recordsList    = $('recordsList');
 const recordsMeta    = $('recordsMeta');
@@ -275,7 +303,7 @@ const exportBtn      = $('exportBtn');
 const clearBtn       = $('clearBtn');
 const toast          = $('toast');
 
-// ─── Toast ────────────────────────────────────────────────────────────────────
+// ── Toast ─────────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
   toast.textContent = msg;
   toast.className = 'toast show' + (type === 'error' ? ' error' : '');
@@ -283,30 +311,31 @@ function showToast(msg, type = 'success') {
   toast._t = setTimeout(() => toast.classList.remove('show'), 2400);
 }
 
-// ─── Storage ──────────────────────────────────────────────────────────────────
+// ── Storage ───────────────────────────────────────────────────────────────────
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
 
-// ─── Counts ───────────────────────────────────────────────────────────────────
+// ── Counts ────────────────────────────────────────────────────────────────────
 function updateCounts() {
   totalCount.textContent = records.length;
   exportBtn.disabled = clearBtn.disabled = records.length === 0;
   if (!records.length) { recordsMeta.textContent = '—'; return; }
-  const s = records.reduce((a, r) => { a[r.status] = (a[r.status]||0)+1; return a; }, {});
+  const s = records.reduce((a,r) => { a[r.status]=(a[r.status]||0)+1; return a; }, {});
   recordsMeta.textContent = Object.entries(s).map(([k,v]) => `${k}: ${v}`).join(' • ');
 }
 
-// ─── Records UI ───────────────────────────────────────────────────────────────
+// ── HTML escape ───────────────────────────────────────────────────────────────
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+// ── Records UI ────────────────────────────────────────────────────────────────
 function renderRecords() {
   if (!records.length) {
     recordsList.innerHTML = '<div class="records-empty">لا توجد أجهزة مسجلة بعد</div>';
     return;
   }
-  recordsList.innerHTML = records.slice().reverse().map((r, i) => {
+  recordsList.innerHTML = records.slice().reverse().map((r,i) => {
     const idx = records.length - 1 - i;
     const assetLine = r.asset
       ? `<div class="model" style="font-family:'JetBrains Mono',monospace;color:var(--accent);">${escapeHtml(r.asset)}</div>`
@@ -318,26 +347,30 @@ function renderRecords() {
         <div class="model">${escapeHtml(r.model||'—')}</div>
         <span class="status-pill" data-val="${r.status}">${r.status}</span>
         <button class="del-btn" data-del="${idx}">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
           حذف هذا السجل
         </button>
       </div>`;
   }).join('');
 
   recordsList.querySelectorAll('.record').forEach(el =>
-    el.addEventListener('click', e => { if (!e.target.closest('.del-btn')) el.classList.toggle('expanded'); }));
-
+    el.addEventListener('click', e => {
+      if (!e.target.closest('.del-btn')) el.classList.toggle('expanded');
+    }));
   recordsList.querySelectorAll('.del-btn').forEach(btn =>
     btn.addEventListener('click', e => {
       e.stopPropagation();
       const idx = +btn.dataset.del;
       if (confirm(`حذف الجهاز ${records[idx].serial}؟`)) {
-        records.splice(idx, 1); save(); renderRecords(); updateCounts();
+        records.splice(idx,1); save(); renderRecords(); updateCounts();
       }
     }));
 }
 
-// ─── Scan Hint ────────────────────────────────────────────────────────────────
+// ── Scan Hint ─────────────────────────────────────────────────────────────────
 function updateScanHint() {
   const el = $('scanHint');
   if (!isScanning) { el.style.display = 'none'; return; }
@@ -365,7 +398,7 @@ function updateScanHint() {
   }
 }
 
-// ─── Form ─────────────────────────────────────────────────────────────────────
+// ── Form ──────────────────────────────────────────────────────────────────────
 function proceedToForm() {
   scanStep = 'paused';
   updateScanHint();
@@ -373,7 +406,7 @@ function proceedToForm() {
 }
 
 function showScanForm(serial, asset) {
-  const exists = records.find(r => r.serial === serial);
+  const exists  = records.find(r => r.serial === serial);
   const warning = exists
     ? `<div style="background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:12px;">⚠ هذا السيريال مسجّل سابقاً (سيتم التحديث)</div>`
     : '';
@@ -429,10 +462,10 @@ function showScanForm(serial, asset) {
     if (!selectedStatus) { showToast('اختر الحالة أولاً', 'error'); return; }
     const record = {
       serial,
-      asset: $('assetEditInput').value.trim(),
-      model: $('modelInput').value.trim(),
+      asset:  $('assetEditInput').value.trim(),
+      model:  $('modelInput').value.trim(),
       status: selectedStatus,
-      notes: $('notesInput').value.trim(),
+      notes:  $('notesInput').value.trim(),
       scannedAt: new Date().toISOString()
     };
     const existsIdx = records.findIndex(r => r.serial === serial);
@@ -453,14 +486,14 @@ function showScanForm(serial, asset) {
     updateScanHint();
   });
 
-  lastScanCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  lastScanCard.scrollIntoView({ behavior:'smooth', block:'center' });
 }
 
-// ─── Beep ─────────────────────────────────────────────────────────────────────
+// ── Beep ──────────────────────────────────────────────────────────────────────
 function playBeep() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
+    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain); gain.connect(ctx.destination);
     osc.frequency.value = 1200;
@@ -470,21 +503,23 @@ function playBeep() {
   } catch(e) {}
 }
 
-// ─── On Scan ──────────────────────────────────────────────────────────────────
+// ── On Scan Result ────────────────────────────────────────────────────────────
 function onScanResult(text) {
   if (scanStep === 'paused') return;
   const now = Date.now();
   if (now - lastScanTime < 800) return;
   lastScanTime = now;
 
-  if (navigator.vibrate) navigator.vibrate([60, 30, 60]);
+  if (navigator.vibrate) navigator.vibrate([60,30,60]);
   playBeep();
+
+  const statusEl = $('scanStatusText');
 
   if (scanStep === 'serial') {
     pendingSerial = text;
     scanStep = 'asset';
     updateScanHint();
-    scanStatusText.textContent = 'السيريال تم ✓ — سكن رقم الأصل';
+    if (statusEl) statusEl.textContent = 'السيريال تم ✓ — سكن رقم الأصل';
     showToast('✓ السيريال تم — سكن رقم الأصل');
   } else if (scanStep === 'asset') {
     if (text === pendingSerial) {
@@ -496,7 +531,27 @@ function onScanResult(text) {
   }
 }
 
-// ─── Native BarcodeDetector ───────────────────────────────────────────────────
+// ── Zoom ──────────────────────────────────────────────────────────────────────
+async function applyZoom(val) {
+  currentZoom = Math.min(Math.max(val, 1), maxZoom);
+  const slider = $('zoomSlider');
+  const label  = $('zoomLabel');
+  if (slider) slider.value = currentZoom;
+  if (label)  label.textContent = currentZoom.toFixed(1) + '×';
+
+  if (zoomSupported && videoStream) {
+    const track = videoStream.getVideoTracks()[0];
+    try {
+      await track.applyConstraints({ advanced: [{ zoom: currentZoom }] });
+      return;
+    } catch(e) {}
+  }
+  // CSS fallback
+  const vid = document.getElementById('scanVideo');
+  if (vid) vid.style.transform = `scale(${currentZoom})`;
+}
+
+// ── Native BarcodeDetector ────────────────────────────────────────────────────
 async function initBarcodeDetector() {
   if (!('BarcodeDetector' in window)) return null;
   try {
@@ -505,55 +560,83 @@ async function initBarcodeDetector() {
   } catch(e) { return null; }
 }
 
+// ── Detection Loop (إطارين بالتوازي) ─────────────────────────────────────────
 async function detectLoop() {
   if (!isScanning || scanStep === 'paused') {
     animFrameId = requestAnimationFrame(detectLoop);
     return;
   }
-  if (scanVideo.readyState < 2) {
+  const vid = document.getElementById('scanVideo');
+  if (!vid || vid.readyState < 2) {
     animFrameId = requestAnimationFrame(detectLoop);
     return;
   }
 
-  // Native BarcodeDetector
   if (barcodeDetector) {
     try {
-      const barcodes = await barcodeDetector.detect(scanVideo);
-      if (barcodes.length > 0) {
-        onScanResult(barcodes[0].rawValue);
-      }
+      const vw = vid.videoWidth;
+      const vh = vid.videoHeight;
+      const cvs = document.getElementById('scanCanvas');
+      const ctx = cvs.getContext('2d');
+
+      // الإطار الكبير — 80% عرض، 35% ارتفاع
+      const bigX = Math.floor(vw * 0.10), bigY = Math.floor(vh * 0.325);
+      const bigW = Math.floor(vw * 0.80), bigH = Math.floor(vh * 0.35);
+      cvs.width = bigW; cvs.height = bigH;
+      ctx.drawImage(vid, bigX, bigY, bigW, bigH, 0, 0, bigW, bigH);
+      const bigRes = await barcodeDetector.detect(cvs);
+      if (bigRes.length) { onScanResult(bigRes[0].rawValue); animFrameId = requestAnimationFrame(detectLoop); return; }
+
+      // الإطار الصغير — 40% عرض، 15% ارتفاع
+      const smX = Math.floor(vw * 0.30), smY = Math.floor(vh * 0.425);
+      const smW = Math.floor(vw * 0.40), smH = Math.floor(vh * 0.15);
+      cvs.width = smW; cvs.height = smH;
+      ctx.drawImage(vid, smX, smY, smW, smH, 0, 0, smW, smH);
+      const smRes = await barcodeDetector.detect(cvs);
+      if (smRes.length) { onScanResult(smRes[0].rawValue); }
     } catch(e) {}
-  } else {
-    // Fallback: draw to canvas للمكتبة إذا احتجنا لاحقاً
   }
 
   animFrameId = requestAnimationFrame(detectLoop);
 }
 
-// ─── Start / Stop ─────────────────────────────────────────────────────────────
+// ── Start Scanner ─────────────────────────────────────────────────────────────
 async function startScanner() {
   if (isScanning) return;
   startBtn.disabled = true;
   startBtn.textContent = 'جاري التشغيل...';
 
   try {
-    // طلب الكاميرا الخلفية بدقة عالية
-    const constraints = {
-      video: {
-        facingMode: { ideal: 'environment' },
-        width:  { ideal: 1920 },
-        height: { ideal: 1080 },
-      }
-    };
-    videoStream = await navigator.mediaDevices.getUserMedia(constraints);
-    scanVideo.srcObject = videoStream;
-    await scanVideo.play();
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal:'environment' }, width: { ideal:1920 }, height: { ideal:1080 } }
+    });
+
+    const vid = document.getElementById('scanVideo');
+    vid.srcObject = videoStream;
+    await vid.play();
+
+    // إعداد الزوم
+    const track = videoStream.getVideoTracks()[0];
+    const caps  = track.getCapabilities ? track.getCapabilities() : {};
+    zoomSupported = !!(caps.zoom);
+    if (caps.zoom) {
+      maxZoom = caps.zoom.max || 5;
+      const slider = $('zoomSlider');
+      if (slider) slider.max = maxZoom;
+    }
+
+    // ربط أزرار الزوم
+    const slider = $('zoomSlider');
+    if (slider) {
+      slider.addEventListener('input', () => applyZoom(+slider.value));
+      $('zoomIn').addEventListener('click',  () => applyZoom(currentZoom + 0.5));
+      $('zoomOut').addEventListener('click', () => applyZoom(currentZoom - 0.5));
+    }
 
     barcodeDetector = await initBarcodeDetector();
 
     if (!barcodeDetector) {
-      // إذا ما في native BarcodeDetector — نحمّل html5-qrcode كـ fallback
-      showToast('⚠ الجهاز لا يدعم Native Detector — جارٍ تحميل بديل...', 'error');
+      showToast('جهازك لا يدعم Native Scanner — جارٍ تحميل بديل...', 'error');
       await loadFallbackLib();
       return;
     }
@@ -561,11 +644,10 @@ async function startScanner() {
     scannerEmpty.style.display = 'none';
     scanContainer.style.display = 'block';
     startBtn.style.display = 'none';
-    stopBtn.style.display = 'flex';
+    stopBtn.style.display  = 'flex';
     isScanning = true;
     if (!pendingSerial) scanStep = 'serial';
     updateScanHint();
-    scanStatusText.textContent = 'جاهز للسكان...';
 
     animFrameId = requestAnimationFrame(detectLoop);
 
@@ -574,11 +656,15 @@ async function startScanner() {
     showToast('تعذّر فتح الكاميرا — تأكد من الإذن', 'error');
   } finally {
     startBtn.disabled = false;
-    startBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> تشغيل الكاميرا`;
+    startBtn.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg> تشغيل الكاميرا`;
   }
 }
 
-// Fallback لأجهزة iOS أو المتصفحات القديمة
+// ── Fallback (iOS / متصفحات قديمة) ───────────────────────────────────────────
 function loadFallbackLib() {
   return new Promise(resolve => {
     const s = document.createElement('script');
@@ -589,26 +675,38 @@ function loadFallbackLib() {
   });
 }
 
-let fallbackScanner = null;
 async function startFallbackScanner() {
-  // أنشئ div مؤقت للمكتبة القديمة
-  scanContainer.innerHTML = '<div id="fb_reader"></div>';
+  scanContainer.innerHTML = `
+    <div id="fb_reader"></div>
+    <div class="zoom-bar">
+      <button class="zoom-btn" id="zoomOut">−</button>
+      <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="5" step="0.1" value="1">
+      <button class="zoom-btn" id="zoomIn">+</button>
+      <span class="zoom-label" id="zoomLabel">1×</span>
+    </div>`;
   scanContainer.style.display = 'block';
   scannerEmpty.style.display = 'none';
   startBtn.style.display = 'none';
-  stopBtn.style.display = 'flex';
+  stopBtn.style.display  = 'flex';
   isScanning = true;
   if (!pendingSerial) scanStep = 'serial';
   updateScanHint();
 
+  const slider = $('zoomSlider');
+  if (slider) {
+    slider.addEventListener('input', () => applyZoom(+slider.value));
+    $('zoomIn').addEventListener('click',  () => applyZoom(currentZoom + 0.5));
+    $('zoomOut').addEventListener('click', () => applyZoom(currentZoom - 0.5));
+  }
+
   try {
     fallbackScanner = new Html5Qrcode('fb_reader');
     await fallbackScanner.start(
-      { facingMode: 'environment' },
+      { facingMode:'environment' },
       {
         fps: 15,
-        qrbox: (w, h) => ({ width: Math.min(Math.floor(w * 0.8), 350), height: Math.min(Math.floor(h * 0.3), 110) }),
-        experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+        qrbox: (w,h) => ({ width:Math.min(Math.floor(w*.8),350), height:Math.min(Math.floor(h*.3),110) }),
+        experimentalFeatures: { useBarCodeDetectorIfSupported:true },
         formatsToSupport: [
           Html5QrcodeSupportedFormats.QR_CODE,
           Html5QrcodeSupportedFormats.CODE_128,
@@ -628,6 +726,7 @@ async function startFallbackScanner() {
   }
 }
 
+// ── Stop Scanner ──────────────────────────────────────────────────────────────
 async function stopScanner() {
   if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
   if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; }
@@ -635,23 +734,35 @@ async function stopScanner() {
     try { await fallbackScanner.stop(); await fallbackScanner.clear(); } catch(e) {}
     fallbackScanner = null;
   }
-  isScanning = false;
+
+  currentZoom = 1;
+  isScanning  = false;
+
   scannerEmpty.style.display = 'grid';
   scanContainer.style.display = 'none';
+  // إعادة بناء scanContainer لأن الـ fallback يعدّله
   scanContainer.innerHTML = `
     <video id="scanVideo" autoplay muted playsinline></video>
     <canvas id="scanCanvas"></canvas>
     <div class="scan-frame"><div class="scan-line"></div></div>
-    <div class="scan-status"><div class="dot"></div><span id="scanStatusText">جاهز للسكان...</span></div>`;
+    <div class="scan-frame-sm"></div>
+    <div class="scan-status"><div class="dot"></div><span id="scanStatusText">جاهز للسكان...</span></div>
+    <div class="zoom-bar">
+      <button class="zoom-btn" id="zoomOut">−</button>
+      <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="5" step="0.1" value="1">
+      <button class="zoom-btn" id="zoomIn">+</button>
+      <span class="zoom-label" id="zoomLabel">1×</span>
+    </div>`;
+
   startBtn.style.display = 'flex';
-  stopBtn.style.display = 'none';
+  stopBtn.style.display  = 'none';
   updateScanHint();
 }
 
-// ─── Export ───────────────────────────────────────────────────────────────────
+// ── Export ────────────────────────────────────────────────────────────────────
 function exportToExcel() {
   if (!records.length) return;
-  const data = records.map((r, i) => ({
+  const data = records.map((r,i) => ({
     '#': i+1,
     'الرقم التسلسلي': r.serial,
     'رقم الأصل': r.asset||'',
@@ -678,11 +789,11 @@ function clearAll() {
   showToast('تم مسح الكل');
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 startBtn.addEventListener('click', startScanner);
-stopBtn.addEventListener('click', stopScanner);
+stopBtn.addEventListener('click',  stopScanner);
 exportBtn.addEventListener('click', exportToExcel);
-clearBtn.addEventListener('click', clearAll);
+clearBtn.addEventListener('click',  clearAll);
 
 renderRecords();
 updateCounts();
