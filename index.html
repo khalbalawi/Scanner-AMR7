@@ -67,7 +67,6 @@
   #scanVideo { width:100%; display:block; max-height:55vh; object-fit:cover; }
   #scanCanvas { display:none; }
 
-  /* الإطار الكبير */
   .scan-frame {
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
     width:80%; max-width:340px; height:100px;
@@ -82,7 +81,6 @@
   .scan-frame::before { top:-2px; right:-2px; border-width:3px 3px 0 0; border-radius:0 6px 0 0; }
   .scan-frame::after  { bottom:-2px; left:-2px; border-width:0 0 3px 3px; border-radius:0 0 0 6px; }
 
-  /* خط المسح */
   .scan-line {
     position:absolute; left:4px; right:4px; height:2px;
     background:linear-gradient(90deg,transparent,var(--accent),transparent);
@@ -91,7 +89,6 @@
   }
   @keyframes scanline { 0%,100%{top:4px;opacity:.5} 50%{top:calc(100% - 6px);opacity:1} }
 
-  /* الإطار الصغير للباركود الضيق */
   .scan-frame-sm {
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
     width:38%; max-width:150px; height:44px;
@@ -109,7 +106,6 @@
   .scan-status .dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1s infinite; flex-shrink:0; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-  /* شريط الزوم */
   .zoom-bar {
     display:flex; align-items:center; gap:10px;
     background:rgba(15,20,25,0.95); padding:8px 14px;
@@ -184,6 +180,11 @@
   .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:var(--green); color:#000; padding:10px 18px; border-radius:8px; font-weight:600; font-size:13px; z-index:100; transition:transform .3s; box-shadow:0 4px 12px rgba(0,0,0,.3); }
   .toast.show { transform:translateX(-50%) translateY(0); }
   .toast.error { background:var(--red); color:#fff; }
+
+  /* تحسين عرض html5-qrcode على iOS */
+  #fb_reader { width:100%; }
+  #fb_reader video { width:100% !important; max-height:55vh; object-fit:cover; }
+  #fb_reader img { display:none; }
 
   @media(max-width:380px){ .app{padding:12px} header .sub{display:none} }
 </style>
@@ -302,6 +303,11 @@ const totalCount     = $('totalCount');
 const exportBtn      = $('exportBtn');
 const clearBtn       = $('clearBtn');
 const toast          = $('toast');
+
+// ── iOS Detection ─────────────────────────────────────────────────────────────
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
@@ -546,7 +552,6 @@ async function applyZoom(val) {
       return;
     } catch(e) {}
   }
-  // CSS fallback
   const vid = document.getElementById('scanVideo');
   if (vid) vid.style.transform = `scale(${currentZoom})`;
 }
@@ -560,7 +565,7 @@ async function initBarcodeDetector() {
   } catch(e) { return null; }
 }
 
-// ── Detection Loop (إطارين بالتوازي) ─────────────────────────────────────────
+// ── Detection Loop ────────────────────────────────────────────────────────────
 async function detectLoop() {
   if (!isScanning || scanStep === 'paused') {
     animFrameId = requestAnimationFrame(detectLoop);
@@ -579,7 +584,6 @@ async function detectLoop() {
       const cvs = document.getElementById('scanCanvas');
       const ctx = cvs.getContext('2d');
 
-      // الإطار الكبير — 80% عرض، 35% ارتفاع
       const bigX = Math.floor(vw * 0.10), bigY = Math.floor(vh * 0.325);
       const bigW = Math.floor(vw * 0.80), bigH = Math.floor(vh * 0.35);
       cvs.width = bigW; cvs.height = bigH;
@@ -587,7 +591,6 @@ async function detectLoop() {
       const bigRes = await barcodeDetector.detect(cvs);
       if (bigRes.length) { onScanResult(bigRes[0].rawValue); animFrameId = requestAnimationFrame(detectLoop); return; }
 
-      // الإطار الصغير — 40% عرض، 15% ارتفاع
       const smX = Math.floor(vw * 0.30), smY = Math.floor(vh * 0.425);
       const smW = Math.floor(vw * 0.40), smH = Math.floor(vh * 0.15);
       cvs.width = smW; cvs.height = smH;
@@ -607,6 +610,12 @@ async function startScanner() {
   startBtn.textContent = 'جاري التشغيل...';
 
   try {
+    // iOS Safari لا يدعم BarcodeDetector — روح للـ fallback مباشرة
+    if (isIOS()) {
+      await loadFallbackLib();
+      return;
+    }
+
     videoStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: { ideal:'environment' }, width: { ideal:1920 }, height: { ideal:1080 } }
     });
@@ -615,7 +624,6 @@ async function startScanner() {
     vid.srcObject = videoStream;
     await vid.play();
 
-    // إعداد الزوم
     const track = videoStream.getVideoTracks()[0];
     const caps  = track.getCapabilities ? track.getCapabilities() : {};
     zoomSupported = !!(caps.zoom);
@@ -625,7 +633,6 @@ async function startScanner() {
       if (slider) slider.max = maxZoom;
     }
 
-    // ربط أزرار الزوم
     const slider = $('zoomSlider');
     if (slider) {
       slider.addEventListener('input', () => applyZoom(+slider.value));
@@ -636,7 +643,6 @@ async function startScanner() {
     barcodeDetector = await initBarcodeDetector();
 
     if (!barcodeDetector) {
-      showToast('جهازك لا يدعم Native Scanner — جارٍ تحميل بديل...', 'error');
       await loadFallbackLib();
       return;
     }
@@ -648,7 +654,6 @@ async function startScanner() {
     isScanning = true;
     if (!pendingSerial) scanStep = 'serial';
     updateScanHint();
-
     animFrameId = requestAnimationFrame(detectLoop);
 
   } catch(err) {
@@ -667,6 +672,7 @@ async function startScanner() {
 // ── Fallback (iOS / متصفحات قديمة) ───────────────────────────────────────────
 function loadFallbackLib() {
   return new Promise(resolve => {
+    if (window.Html5Qrcode) { startFallbackScanner(); resolve(); return; }
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
     s.onload = () => { startFallbackScanner(); resolve(); };
@@ -740,7 +746,6 @@ async function stopScanner() {
 
   scannerEmpty.style.display = 'grid';
   scanContainer.style.display = 'none';
-  // إعادة بناء scanContainer لأن الـ fallback يعدّله
   scanContainer.innerHTML = `
     <video id="scanVideo" autoplay muted playsinline></video>
     <canvas id="scanCanvas"></canvas>
