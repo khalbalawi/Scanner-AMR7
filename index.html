@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>جرد الأجهزة | Asset Scanner</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
 <script>
   function loadScript(urls, onLoad, onFail) {
     let i = 0;
@@ -41,6 +43,25 @@
     background-attachment:fixed;
   }
   .app { max-width:720px; margin:0 auto; padding:16px; padding-bottom:120px; }
+  [hidden] { display:none !important; }
+
+  .auth-shell { min-height:100vh; display:grid; place-items:center; padding:20px 16px; }
+  .auth-card { width:100%; max-width:420px; background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:22px; box-shadow:0 18px 50px rgba(0,0,0,.28); }
+  .auth-brand { display:flex; align-items:center; gap:12px; padding-bottom:18px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .auth-logo { width:42px; height:42px; background:var(--accent); border-radius:9px; display:grid; place-items:center; color:var(--bg); font-weight:700; font-family:'JetBrains Mono',monospace; }
+  .auth-brand h1 { font-size:18px; font-weight:600; }
+  .auth-brand p,.auth-note { color:var(--text-dim); font-size:12px; }
+  .auth-title { font-size:15px; margin-bottom:4px; }
+  .auth-note { margin-bottom:16px; }
+  .auth-switch { text-align:center; color:var(--text-dim); font-size:13px; margin-top:16px; }
+  .link-btn { border:0; background:none; color:var(--accent); font-family:inherit; font-weight:600; cursor:pointer; padding:4px; }
+  .auth-error { min-height:20px; color:var(--red); font-size:12px; margin-top:10px; }
+  .user-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:14px; }
+  .user-info { min-width:0; }
+  .user-name { font-weight:600; font-size:13px; }
+  .user-email { color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .logout-btn { background:transparent; border:1px solid var(--border); color:var(--text-dim); border-radius:7px; padding:7px 10px; font-family:inherit; cursor:pointer; white-space:nowrap; }
+  .page-footer { color:var(--text-dim); text-align:center; font-size:11px; padding:28px 0 4px; }
 
   header { display:flex; justify-content:space-between; align-items:center; padding:8px 4px 20px; border-bottom:1px solid var(--border); margin-bottom:20px; }
   header .brand { display:flex; align-items:center; gap:10px; }
@@ -190,6 +211,35 @@
 </style>
 </head>
 <body>
+<section id="authView" class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-logo">SC</div>
+      <div><h1>جرد الأجهزة</h1><p>Asset Scanner</p></div>
+    </div>
+    <h2 id="authTitle" class="auth-title">تسجيل الدخول</h2>
+    <p id="authNote" class="auth-note">ادخل إلى سجلات أجهزتك المحفوظة</p>
+    <form id="authForm" novalidate>
+      <div id="nameField" class="field" hidden>
+        <label for="displayName">اسم المستخدم</label>
+        <input id="displayName" type="text" autocomplete="name" maxlength="80" placeholder="مثال: خالد البلوي">
+      </div>
+      <div class="field">
+        <label for="emailInput">البريد الإلكتروني</label>
+        <input id="emailInput" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="name@example.com" required>
+      </div>
+      <div class="field">
+        <label for="passwordInput">الرقم السري</label>
+        <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="8 أحرف على الأقل" required>
+      </div>
+      <button id="authSubmit" class="btn primary" type="submit">تسجيل الدخول</button>
+      <div id="authError" class="auth-error" role="alert" aria-live="polite"></div>
+    </form>
+    <div class="auth-switch"><span id="authSwitchText">ليس لديك حساب؟</span> <button id="authSwitch" class="link-btn" type="button">إنشاء حساب</button></div>
+  </div>
+</section>
+
+<main id="appView" hidden>
 <div class="app">
   <header>
     <div class="brand">
@@ -201,6 +251,14 @@
     </div>
     <div class="count"><b id="totalCount">0</b> جهاز</div>
   </header>
+
+  <div class="user-bar">
+    <div class="user-info">
+      <div id="currentUserName" class="user-name">—</div>
+      <div id="currentUserEmail" class="user-email">—</div>
+    </div>
+    <button id="logoutBtn" class="logout-btn" type="button">تسجيل الخروج</button>
+  </div>
 
   <div id="scanHint" class="scan-hint" style="display:none;"></div>
 
@@ -256,6 +314,7 @@
       <div class="records-empty">لا توجد أجهزة مسجلة بعد</div>
     </div>
   </div>
+  <footer class="page-footer">خالد البلوي — 2026–2027</footer>
 </div>
 
 <div class="sticky-bar">
@@ -271,12 +330,20 @@
     <button id="clearBtn" class="btn danger" style="flex:0 0 auto;" disabled>مسح الكل</button>
   </div>
 </div>
+</main>
 
 <div id="toast" class="toast"></div>
 
 <script>
-const STORAGE_KEY = 'asset_scanner_records_v2';
-let records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+const config = window.APP_CONFIG || {};
+const configReady = /^https:\/\/.+\.supabase\.co$/.test(config.SUPABASE_URL || '')
+  && config.SUPABASE_ANON_KEY && !config.SUPABASE_ANON_KEY.startsWith('YOUR_');
+const db = configReady ? window.supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY, {
+  auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+}) : null;
+let records = [];
+let currentUser = null;
+let authMode = 'login';
 let isScanning    = false;
 let scanStep      = 'serial';
 let pendingSerial = null;
@@ -289,6 +356,7 @@ let currentZoom   = 1;
 let maxZoom       = 5;
 let zoomSupported = false;
 let fallbackScanner = null;
+let lastDetectionRun = 0;
 
 const $ = id => document.getElementById(id);
 
@@ -303,6 +371,8 @@ const totalCount     = $('totalCount');
 const exportBtn      = $('exportBtn');
 const clearBtn       = $('clearBtn');
 const toast          = $('toast');
+const authView       = $('authView');
+const appView        = $('appView');
 
 // ── iOS Detection ─────────────────────────────────────────────────────────────
 function isIOS() {
@@ -317,8 +387,63 @@ function showToast(msg, type = 'success') {
   toast._t = setTimeout(() => toast.classList.remove('show'), 2400);
 }
 
-// ── Storage ───────────────────────────────────────────────────────────────────
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
+// ── Authentication & cloud storage ───────────────────────────────────────────
+function authMessage(error) {
+  const msg = String(error?.message || error || 'حدث خطأ غير متوقع');
+  if (/Invalid login credentials/i.test(msg)) return 'البريد الإلكتروني أو الرقم السري غير صحيح';
+  if (/Email not confirmed/i.test(msg)) return 'فعّل حسابك من رسالة البريد الإلكتروني أولاً';
+  if (/User already registered/i.test(msg)) return 'هذا البريد مسجل مسبقاً';
+  if (/Password should be at least/i.test(msg)) return 'الرقم السري يجب ألا يقل عن 8 أحرف';
+  if (/rate limit/i.test(msg)) return 'محاولات كثيرة، انتظر قليلاً ثم أعد المحاولة';
+  return msg;
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  const signup = mode === 'signup';
+  $('nameField').hidden = !signup;
+  $('displayName').required = signup;
+  $('passwordInput').autocomplete = signup ? 'new-password' : 'current-password';
+  $('authTitle').textContent = signup ? 'إنشاء حساب' : 'تسجيل الدخول';
+  $('authNote').textContent = signup ? 'أنشئ حساباً لحفظ أجهزتك ومزامنتها' : 'ادخل إلى سجلات أجهزتك المحفوظة';
+  $('authSubmit').textContent = signup ? 'إنشاء الحساب' : 'تسجيل الدخول';
+  $('authSwitchText').textContent = signup ? 'لديك حساب؟' : 'ليس لديك حساب؟';
+  $('authSwitch').textContent = signup ? 'تسجيل الدخول' : 'إنشاء حساب';
+  $('authError').textContent = '';
+}
+
+function showAuth() {
+  authView.hidden = false;
+  appView.hidden = true;
+  document.querySelector('.sticky-bar').hidden = true;
+}
+
+async function showApp(user) {
+  currentUser = user;
+  authView.hidden = true;
+  appView.hidden = false;
+  document.querySelector('.sticky-bar').hidden = false;
+  $('currentUserEmail').textContent = user.email || '';
+  $('currentUserName').textContent = user.user_metadata?.display_name || user.email?.split('@')[0] || 'مستخدم';
+  await loadRecords();
+}
+
+function fromDb(row) {
+  return { id:row.id, serial:row.serial, asset:row.asset_number, model:row.model, status:row.status, notes:row.notes, scannedAt:row.scanned_at };
+}
+
+async function loadRecords() {
+  recordsList.innerHTML = '<div class="records-empty">جاري تحميل السجلات...</div>';
+  const { data, error } = await db.from('assets').select('id,serial,asset_number,model,status,notes,scanned_at').order('scanned_at', { ascending:true });
+  if (error) {
+    records = [];
+    renderRecords(); updateCounts();
+    showToast('تعذّر تحميل السجلات: ' + authMessage(error), 'error');
+    return;
+  }
+  records = (data || []).map(fromDb);
+  renderRecords(); updateCounts();
+}
 
 // ── Counts ────────────────────────────────────────────────────────────────────
 function updateCounts() {
@@ -367,11 +492,15 @@ function renderRecords() {
       if (!e.target.closest('.del-btn')) el.classList.toggle('expanded');
     }));
   recordsList.querySelectorAll('.del-btn').forEach(btn =>
-    btn.addEventListener('click', e => {
+    btn.addEventListener('click', async e => {
       e.stopPropagation();
       const idx = +btn.dataset.del;
       if (confirm(`حذف الجهاز ${records[idx].serial}؟`)) {
-        records.splice(idx,1); save(); renderRecords(); updateCounts();
+        btn.disabled = true;
+        const { error } = await db.from('assets').delete().eq('id', records[idx].id);
+        if (error) { btn.disabled = false; showToast('تعذّر حذف السجل', 'error'); return; }
+        records.splice(idx,1); renderRecords(); updateCounts();
+        showToast('تم حذف السجل');
       }
     }));
 }
@@ -464,20 +593,34 @@ function showScanForm(serial, asset) {
       selectedStatus = chip.dataset.val;
     }));
 
-  $('saveBtn').addEventListener('click', () => {
+  $('saveBtn').addEventListener('click', async () => {
     if (!selectedStatus) { showToast('اختر الحالة أولاً', 'error'); return; }
+    const saveBtn = $('saveBtn');
+    saveBtn.disabled = true;
+    const cleanSerial = String(serial).trim();
     const record = {
-      serial,
+      serial: cleanSerial,
       asset:  $('assetEditInput').value.trim(),
       model:  $('modelInput').value.trim(),
       status: selectedStatus,
       notes:  $('notesInput').value.trim(),
       scannedAt: new Date().toISOString()
     };
-    const existsIdx = records.findIndex(r => r.serial === serial);
-    if (existsIdx >= 0) { records[existsIdx] = record; showToast('تم تحديث السجل'); }
-    else { records.push(record); showToast('تم الحفظ ✓ — سكان جهاز جديد'); }
-    save(); renderRecords(); updateCounts();
+    const { data, error } = await db.from('assets').upsert({
+      user_id:currentUser.id,
+      serial:record.serial,
+      asset_number:record.asset,
+      model:record.model,
+      status:record.status,
+      notes:record.notes,
+      scanned_at:record.scannedAt
+    }, { onConflict:'user_id,serial' }).select('id,serial,asset_number,model,status,notes,scanned_at').single();
+    if (error) { saveBtn.disabled = false; showToast('تعذّر حفظ السجل: ' + authMessage(error), 'error'); return; }
+    const saved = fromDb(data);
+    const existsIdx = records.findIndex(r => r.serial === cleanSerial);
+    if (existsIdx >= 0) { records[existsIdx] = saved; showToast('تم تحديث السجل'); }
+    else { records.push(saved); showToast('تم الحفظ ✓ — سكان جهاز جديد'); }
+    renderRecords(); updateCounts();
     lastScanCard.style.display = 'none';
     pendingSerial = pendingAsset = null;
     scanStep = 'serial';
@@ -512,6 +655,8 @@ function playBeep() {
 // ── On Scan Result ────────────────────────────────────────────────────────────
 function onScanResult(text) {
   if (scanStep === 'paused') return;
+  text = String(text || '').trim();
+  if (!text) return;
   const now = Date.now();
   if (now - lastScanTime < 800) return;
   lastScanTime = now;
@@ -576,6 +721,13 @@ async function detectLoop() {
     animFrameId = requestAnimationFrame(detectLoop);
     return;
   }
+
+  const detectionNow = performance.now();
+  if (detectionNow - lastDetectionRun < 120) {
+    animFrameId = requestAnimationFrame(detectLoop);
+    return;
+  }
+  lastDetectionRun = detectionNow;
 
   if (barcodeDetector) {
     try {
@@ -643,6 +795,8 @@ async function startScanner() {
     barcodeDetector = await initBarcodeDetector();
 
     if (!barcodeDetector) {
+      videoStream.getTracks().forEach(track => track.stop());
+      videoStream = null;
       await loadFallbackLib();
       return;
     }
@@ -658,7 +812,9 @@ async function startScanner() {
 
   } catch(err) {
     console.error(err);
-    showToast('تعذّر فتح الكاميرا — تأكد من الإذن', 'error');
+    if (err?.name === 'NotAllowedError') showToast('تم رفض إذن الكاميرا — اسمح به من إعدادات المتصفح', 'error');
+    else if (err?.name === 'NotFoundError') showToast('لم يتم العثور على كاميرا في الجهاز', 'error');
+    else showToast('تعذّر فتح الكاميرا — تأكد من الإذن واتصال HTTPS', 'error');
   } finally {
     startBtn.disabled = false;
     startBtn.innerHTML = `
@@ -787,21 +943,66 @@ function exportToExcel() {
   showToast(`تم تصدير ${records.length} جهاز`);
 }
 
-function clearAll() {
+async function clearAll() {
   if (!records.length) return;
   if (!confirm(`سيتم حذف جميع السجلات (${records.length}). هل أنت متأكد؟`)) return;
-  records = []; save(); renderRecords(); updateCounts();
+  clearBtn.disabled = true;
+  const { error } = await db.from('assets').delete().eq('user_id', currentUser.id);
+  if (error) { clearBtn.disabled = false; showToast('تعذّر مسح السجلات', 'error'); return; }
+  records = []; renderRecords(); updateCounts();
   showToast('تم مسح الكل');
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+$('authSwitch').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'signup' : 'login'));
+$('authForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!configReady) { $('authError').textContent = 'أكمل إعداد Supabase في ملف config.js أولاً'; return; }
+  const email = $('emailInput').value.trim().toLowerCase();
+  const password = $('passwordInput').value;
+  const displayName = $('displayName').value.trim();
+  if (!email || password.length < 8 || (authMode === 'signup' && displayName.length < 2)) {
+    $('authError').textContent = 'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف';
+    return;
+  }
+  const submit = $('authSubmit');
+  submit.disabled = true;
+  $('authError').textContent = '';
+  const result = authMode === 'signup'
+    ? await db.auth.signUp({ email, password, options:{ data:{ display_name:displayName } } })
+    : await db.auth.signInWithPassword({ email, password });
+  submit.disabled = false;
+  if (result.error) { $('authError').textContent = authMessage(result.error); return; }
+  if (authMode === 'signup' && !result.data.session) {
+    $('authError').style.color = 'var(--green)';
+    $('authError').textContent = 'تم إنشاء الحساب. افتح رسالة التفعيل في بريدك ثم سجّل الدخول.';
+    setTimeout(() => { $('authError').style.color = ''; setAuthMode('login'); }, 5000);
+  }
+});
+
+$('logoutBtn').addEventListener('click', async () => {
+  await stopScanner();
+  await db.auth.signOut();
+});
+
 startBtn.addEventListener('click', startScanner);
 stopBtn.addEventListener('click',  stopScanner);
 exportBtn.addEventListener('click', exportToExcel);
 clearBtn.addEventListener('click',  clearAll);
 
-renderRecords();
-updateCounts();
+setAuthMode('login');
+if (!configReady) {
+  showAuth();
+  $('authError').textContent = 'يلزم ربط المشروع بـ Supabase من ملف config.js';
+} else {
+  db.auth.onAuthStateChange((event, session) => {
+    setTimeout(async () => {
+      if (session?.user) await showApp(session.user);
+      else { currentUser = null; records = []; renderRecords(); updateCounts(); showAuth(); }
+    }, 0);
+  });
+  db.auth.getSession().then(({ data }) => data.session?.user ? showApp(data.session.user) : showAuth());
+}
 </script>
 </body>
 </html>
