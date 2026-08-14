@@ -42,13 +42,14 @@
       radial-gradient(circle at 100% 100%,rgba(88,166,255,.05) 0%,transparent 40%);
     background-attachment:fixed;
   }
-  .app { max-width:720px; margin:0 auto; padding:16px; padding-bottom:120px; }
+  .app { position:relative; max-width:720px; margin:0 auto; padding:16px; padding-bottom:120px; }
   [hidden] { display:none !important; }
 
   .auth-shell { min-height:100vh; display:grid; place-items:center; padding:20px 16px; }
-  .auth-card { width:100%; max-width:420px; background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:22px; box-shadow:0 18px 50px rgba(0,0,0,.28); }
+  .auth-card { position:relative; width:100%; max-width:420px; background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:22px; box-shadow:0 18px 50px rgba(0,0,0,.28); }
   .page-heading { color:var(--accent); text-align:center; direction:ltr; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; letter-spacing:.08em; margin-bottom:16px; }
   .app > .page-heading { padding-top:2px; margin-bottom:14px; }
+  .lang-toggle { position:absolute; top:16px; left:16px; border:1px solid var(--border); background:var(--panel-2); color:var(--accent); border-radius:7px; padding:5px 8px; font:600 10px 'JetBrains Mono',monospace; cursor:pointer; direction:ltr; z-index:2; }
   .auth-brand { display:flex; align-items:center; gap:12px; padding-bottom:18px; margin-bottom:18px; border-bottom:1px solid var(--border); }
   .auth-logo { width:42px; height:42px; background:var(--accent); border-radius:9px; display:grid; place-items:center; color:var(--bg); font-weight:700; font-family:'JetBrains Mono',monospace; }
   .auth-brand h1 { font-size:18px; font-weight:600; }
@@ -56,6 +57,7 @@
   .auth-title { font-size:15px; margin-bottom:4px; }
   .auth-note { margin-bottom:16px; }
   .auth-switch { text-align:center; color:var(--text-dim); font-size:13px; margin-top:16px; }
+  .forgot-row { text-align:end; margin-top:-4px; margin-bottom:12px; }
   .link-btn { border:0; background:none; color:var(--accent); font-family:inherit; font-weight:600; cursor:pointer; padding:4px; }
   .auth-error { min-height:20px; color:var(--red); font-size:12px; margin-top:10px; }
   .user-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:14px; }
@@ -155,6 +157,13 @@
   .btn.danger { background:var(--red-dim); color:var(--red); border-color:var(--red); }
   .btn:disabled { opacity:.4; cursor:not-allowed; }
   .btn svg { flex-shrink:0; }
+  .manual-entry { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px; margin-top:-8px; margin-bottom:20px; }
+  .manual-entry label { display:block; color:var(--text-dim); font-size:11px; margin-bottom:7px; }
+  .manual-row { display:flex; gap:8px; }
+  .manual-row input { min-width:0; flex:1; padding:10px 12px; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'JetBrains Mono',monospace; direction:ltr; }
+  .manual-row input:focus { outline:none; border-color:var(--accent); }
+  .manual-row .btn { flex:0 0 auto; padding:10px 14px; }
+  .manual-skip { display:block; margin:8px auto 0; }
 
   .last-scan { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; animation:slideIn .3s ease; }
   @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
@@ -216,26 +225,32 @@
 <body>
 <section id="authView" class="auth-shell">
   <div class="auth-card">
+    <button id="authLangBtn" class="lang-toggle" type="button">English</button>
     <div class="page-heading">Field Support</div>
     <div class="auth-brand">
       <div class="auth-logo">SC</div>
-      <div><h1>جرد الأجهزة</h1><p>Asset Scanner</p></div>
+      <div><h1 id="authBrandTitle">جرد الأجهزة</h1><p>Asset Scanner</p></div>
     </div>
     <h2 id="authTitle" class="auth-title">تسجيل الدخول</h2>
     <p id="authNote" class="auth-note">ادخل إلى سجلات أجهزتك المحفوظة</p>
     <form id="authForm" novalidate>
       <div id="nameField" class="field" hidden>
-        <label for="displayName">اسم المستخدم</label>
+        <label id="displayNameLabel" for="displayName">اسم المستخدم</label>
         <input id="displayName" type="text" autocomplete="name" maxlength="80" placeholder="مثال: خالد البلوي">
       </div>
-      <div class="field">
-        <label for="emailInput">البريد الإلكتروني</label>
+      <div id="emailField" class="field">
+        <label id="emailLabel" for="emailInput">البريد الإلكتروني</label>
         <input id="emailInput" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="name@example.com" required>
       </div>
-      <div class="field">
-        <label for="passwordInput">الرقم السري</label>
+      <div id="passwordField" class="field">
+        <label id="passwordLabel" for="passwordInput">الرقم السري</label>
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="8 أحرف على الأقل" required>
       </div>
+      <div id="confirmPasswordField" class="field" hidden>
+        <label id="confirmPasswordLabel" for="confirmPasswordInput">تأكيد الرقم السري الجديد</label>
+        <input id="confirmPasswordInput" type="password" autocomplete="new-password" minlength="8" placeholder="أعد كتابة الرقم السري">
+      </div>
+      <div id="forgotRow" class="forgot-row"><button id="forgotPasswordBtn" class="link-btn" type="button">نسيت الرقم السري؟</button></div>
       <button id="authSubmit" class="btn primary" type="submit">تسجيل الدخول</button>
       <div id="authError" class="auth-error" role="alert" aria-live="polite"></div>
     </form>
@@ -246,16 +261,17 @@
 
 <main id="appView" hidden>
 <div class="app">
+  <button id="appLangBtn" class="lang-toggle" type="button">English</button>
   <div class="page-heading">Field Support</div>
   <header>
     <div class="brand">
       <div class="logo">SC</div>
       <div>
-        <h1>جرد الأجهزة</h1>
+        <h1 id="appTitle">جرد الأجهزة</h1>
         <div class="sub">Asset Scanner</div>
       </div>
     </div>
-    <div class="count"><b id="totalCount">0</b> جهاز</div>
+    <div class="count"><b id="totalCount">0</b> <span id="deviceCountLabel">جهاز</span></div>
   </header>
 
   <div class="user-bar">
@@ -276,8 +292,8 @@
           <circle cx="12" cy="13" r="4"/>
         </svg>
       </div>
-      <strong>اضغط "تشغيل الكاميرا"</strong>
-      <p>سكان الرقم التسلسلي ثم رقم الأصل</p>
+      <strong id="scannerEmptyTitle">اضغط "تشغيل الكاميرا"</strong>
+      <p id="scannerEmptyNote">سكان الرقم التسلسلي ثم رقم الأصل</p>
     </div>
 
     <div id="scanContainer">
@@ -309,11 +325,20 @@
     <button id="stopBtn" class="btn" style="display:none; flex:0 0 auto;">إيقاف</button>
   </div>
 
+  <div class="manual-entry">
+    <label id="manualEntryLabel" for="manualBarcodeInput">إدخال يدوي للرقم التسلسلي (بديل للكاميرا)</label>
+    <div class="manual-row">
+      <input id="manualBarcodeInput" type="text" autocomplete="off" placeholder="اكتب أو الصق الباركود">
+      <button id="manualSubmitBtn" class="btn" type="button">إضافة</button>
+    </div>
+    <button id="manualSkipBtn" class="link-btn manual-skip" type="button" hidden>تخطي رقم الأصل</button>
+  </div>
+
   <div id="lastScanCard" style="display:none;"></div>
 
   <div class="records">
     <div class="records-header">
-      <h2>السجل</h2>
+      <h2 id="recordsTitle">السجل</h2>
       <span class="meta" id="recordsMeta">—</span>
     </div>
     <div id="recordsList">
@@ -363,6 +388,63 @@ let maxZoom       = 5;
 let zoomSupported = false;
 let fallbackScanner = null;
 let lastDetectionRun = 0;
+let currentLang = localStorage.getItem('assetScannerLang') === 'en' ? 'en' : 'ar';
+
+const translations = {
+  ar: {
+    appTitle:'جرد الأجهزة', device:'جهاز', logout:'تسجيل الخروج', startCamera:'تشغيل الكاميرا', stop:'إيقاف',
+    scannerEmptyTitle:'اضغط "تشغيل الكاميرا"', scannerEmptyNote:'سكان الرقم التسلسلي ثم رقم الأصل', records:'السجل',
+    noRecords:'لا توجد أجهزة مسجلة بعد', loadingRecords:'جاري تحميل السجلات...', export:'تصدير Excel', clearAll:'مسح الكل',
+    username:'اسم المستخدم', usernamePlaceholder:'مثال: خالد البلوي', email:'البريد الإلكتروني', password:'الرقم السري',
+    newPassword:'الرقم السري الجديد', confirmPassword:'تأكيد الرقم السري الجديد', passwordPlaceholder:'8 أحرف على الأقل',
+    confirmPasswordPlaceholder:'أعد كتابة الرقم السري', forgotPassword:'نسيت الرقم السري؟', login:'تسجيل الدخول', signup:'إنشاء حساب',
+    createAccount:'إنشاء الحساب', noAccount:'ليس لديك حساب؟', haveAccount:'لديك حساب؟', backToLogin:'العودة لتسجيل الدخول',
+    loginNote:'ادخل إلى سجلات أجهزتك المحفوظة', signupNote:'أنشئ حساباً لحفظ أجهزتك ومزامنتها',
+    forgotTitle:'إعادة تعيين الرقم السري', forgotNote:'أدخل بريدك وسنرسل لك رابط إعادة التعيين', sendReset:'إرسال رابط الاستعادة',
+    updateTitle:'تعيين رقم سري جديد', updateNote:'اكتب الرقم السري الجديد ثم أكّده', updatePassword:'حفظ الرقم السري الجديد',
+    manualSerial:'إدخال يدوي للرقم التسلسلي (بديل للكاميرا)', manualAsset:'إدخال يدوي لرقم الأصل', manualPlaceholder:'اكتب أو الصق الباركود',
+    add:'إضافة', skipAsset:'تخطي رقم الأصل', scanSerial:'سكان الرقم التسلسلي', pointCamera:'وجّه الكاميرا على الباركود / QR',
+    scanAsset:'سكان رقم الأصل (ZATCA)', serial:'السيريال', readyScan:'جاهز للسكان...', serialDone:'السيريال تم ✓ — سكن رقم الأصل',
+    serialDoneToast:'✓ السيريال تم — سكن رقم الأصل', sameSerial:'هذا نفس السيريال — سكن رقم أصل مختلف', requiredBarcode:'أدخل قيمة الباركود أولاً',
+    user:'مستخدم', deleteRecord:'حذف هذا السجل', confirmDelete:'حذف الجهاز', deleteFailed:'تعذّر حذف السجل', deleted:'تم حذف السجل',
+    duplicate:'⚠ هذا السيريال مسجّل سابقاً (سيتم التحديث)', newScan:'السكان الجديد', assetNumber:'رقم الأصل:', assetMissing:'— لم يُسكن —',
+    assetManual:'رقم الأصل (يدوي إذا لزم)', model:'الموديل', modelPlaceholder:'مثال: HP EliteBook 840 G8', status:'الحالة',
+    new:'جديد', used:'مستعمل', maintenance:'للصيانة', damaged:'تالف', notes:'ملاحظات (اختياري)', notesPlaceholder:'مكان الجهاز، اسم المستخدم، إلخ',
+    saveNext:'حفظ والتالي', cancel:'إلغاء', chooseStatus:'اختر الحالة أولاً', saveFailed:'تعذّر حفظ السجل: ', updated:'تم تحديث السجل',
+    saved:'تم الحفظ ✓ — سكان جهاز جديد', loadFailed:'تعذّر تحميل السجلات: ', cameraDenied:'تم رفض إذن الكاميرا — اسمح به من إعدادات المتصفح',
+    cameraMissing:'لم يتم العثور على كاميرا في الجهاز', cameraFailed:'تعذّر فتح الكاميرا — تأكد من الإذن واتصال HTTPS', scannerFailed:'تعذّر تشغيل السكانر',
+    libraryFailed:'فشل تحميل المكتبة الاحتياطية', starting:'جاري التشغيل...', exported:'تم تصدير', devices:'جهاز', clearConfirm:'سيتم حذف جميع السجلات. هل أنت متأكد؟',
+    clearFailed:'تعذّر مسح السجلات', cleared:'تم مسح الكل', resetSent:'تم إرسال رابط الاستعادة. افحص بريدك الإلكتروني.', resetSuccess:'تم تحديث الرقم السري بنجاح.',
+    passwordsMismatch:'الرقمان السريان غير متطابقين', invalidForm:'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف', configMissing:'يلزم ربط المشروع بـ Supabase من ملف config.js'
+  },
+  en: {
+    appTitle:'Asset Inventory', device:'devices', logout:'Sign out', startCamera:'Start camera', stop:'Stop',
+    scannerEmptyTitle:'Tap “Start camera”', scannerEmptyNote:'Scan the serial number, then the asset number', records:'Records',
+    noRecords:'No devices recorded yet', loadingRecords:'Loading records...', export:'Export Excel', clearAll:'Clear all',
+    username:'Username', usernamePlaceholder:'Example: Khalid Albalawi', email:'Email', password:'Password', newPassword:'New password',
+    confirmPassword:'Confirm new password', passwordPlaceholder:'At least 8 characters', confirmPasswordPlaceholder:'Re-enter the password',
+    forgotPassword:'Forgot password?', login:'Sign in', signup:'Create account', createAccount:'Create account', noAccount:'Don’t have an account?',
+    haveAccount:'Already have an account?', backToLogin:'Back to sign in', loginNote:'Access your saved device records',
+    signupNote:'Create an account to save and sync your devices', forgotTitle:'Reset password', forgotNote:'Enter your email and we’ll send a reset link',
+    sendReset:'Send reset link', updateTitle:'Set a new password', updateNote:'Enter and confirm your new password', updatePassword:'Save new password',
+    manualSerial:'Enter serial number manually (camera alternative)', manualAsset:'Enter asset number manually', manualPlaceholder:'Type or paste the barcode',
+    add:'Add', skipAsset:'Skip asset number', scanSerial:'Scan serial number', pointCamera:'Point the camera at the barcode / QR code',
+    scanAsset:'Scan asset number (ZATCA)', serial:'Serial', readyScan:'Ready to scan...', serialDone:'Serial captured ✓ — scan the asset number',
+    serialDoneToast:'✓ Serial captured — scan the asset number', sameSerial:'This matches the serial number — scan a different asset number', requiredBarcode:'Enter a barcode value first',
+    user:'User', deleteRecord:'Delete this record', confirmDelete:'Delete device', deleteFailed:'Could not delete the record', deleted:'Record deleted',
+    duplicate:'⚠ This serial already exists and will be updated', newScan:'New scan', assetNumber:'Asset number:', assetMissing:'— Not scanned —',
+    assetManual:'Asset number (enter manually if needed)', model:'Model', modelPlaceholder:'Example: HP EliteBook 840 G8', status:'Status',
+    new:'New', used:'Used', maintenance:'Maintenance', damaged:'Damaged', notes:'Notes (optional)', notesPlaceholder:'Device location, user name, etc.',
+    saveNext:'Save and next', cancel:'Cancel', chooseStatus:'Choose a status first', saveFailed:'Could not save the record: ', updated:'Record updated',
+    saved:'Saved ✓ — scan another device', loadFailed:'Could not load records: ', cameraDenied:'Camera permission was denied — allow it in browser settings',
+    cameraMissing:'No camera was found', cameraFailed:'Could not open the camera — check permission and HTTPS', scannerFailed:'Could not start the scanner',
+    libraryFailed:'Could not load the fallback scanner', starting:'Starting...', exported:'Exported', devices:'devices', clearConfirm:'All records will be deleted. Are you sure?',
+    clearFailed:'Could not clear the records', cleared:'All records cleared', resetSent:'Reset link sent. Check your email.', resetSuccess:'Password updated successfully.',
+    passwordsMismatch:'The passwords do not match', invalidForm:'Check the name and email. Password must be at least 8 characters.', configMissing:'Connect Supabase in config.js first'
+  }
+};
+
+const t = key => translations[currentLang][key] || translations.ar[key] || key;
 
 const $ = id => document.getElementById(id);
 
@@ -393,28 +475,74 @@ function showToast(msg, type = 'success') {
   toast._t = setTimeout(() => toast.classList.remove('show'), 2400);
 }
 
+function applyLanguage(lang) {
+  currentLang = lang === 'en' ? 'en' : 'ar';
+  localStorage.setItem('assetScannerLang', currentLang);
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  $('authLangBtn').textContent = currentLang === 'ar' ? 'English' : 'العربية';
+  $('appLangBtn').textContent = currentLang === 'ar' ? 'English' : 'العربية';
+  $('displayNameLabel').textContent = t('username');
+  $('displayName').placeholder = t('usernamePlaceholder');
+  $('emailLabel').textContent = t('email');
+  $('passwordInput').placeholder = t('passwordPlaceholder');
+  $('confirmPasswordLabel').textContent = t('confirmPassword');
+  $('confirmPasswordInput').placeholder = t('confirmPasswordPlaceholder');
+  $('forgotPasswordBtn').textContent = t('forgotPassword');
+  $('authBrandTitle').textContent = t('appTitle');
+  $('appTitle').textContent = t('appTitle');
+  $('deviceCountLabel').textContent = t('device');
+  $('logoutBtn').textContent = t('logout');
+  $('scannerEmptyTitle').textContent = t('scannerEmptyTitle');
+  $('scannerEmptyNote').textContent = t('scannerEmptyNote');
+  $('recordsTitle').textContent = t('records');
+  startBtn.lastChild.textContent = ' ' + t('startCamera');
+  stopBtn.textContent = t('stop');
+  exportBtn.lastChild.textContent = ' ' + t('export');
+  clearBtn.textContent = t('clearAll');
+  $('manualSubmitBtn').textContent = t('add');
+  $('manualSkipBtn').textContent = t('skipAsset');
+  $('manualBarcodeInput').placeholder = t('manualPlaceholder');
+  if ($('scanStatusText') && scanStep === 'serial') $('scanStatusText').textContent = t('readyScan');
+  setAuthMode(authMode);
+  updateManualEntry();
+  renderRecords();
+  updateCounts();
+  updateScanHint();
+}
+
 // ── Authentication & cloud storage ───────────────────────────────────────────
 function authMessage(error) {
   const msg = String(error?.message || error || 'حدث خطأ غير متوقع');
-  if (/Invalid login credentials/i.test(msg)) return 'البريد الإلكتروني أو الرقم السري غير صحيح';
-  if (/Email not confirmed/i.test(msg)) return 'فعّل حسابك من رسالة البريد الإلكتروني أولاً';
-  if (/User already registered/i.test(msg)) return 'هذا البريد مسجل مسبقاً';
-  if (/Password should be at least/i.test(msg)) return 'الرقم السري يجب ألا يقل عن 8 أحرف';
-  if (/rate limit/i.test(msg)) return 'محاولات كثيرة، انتظر قليلاً ثم أعد المحاولة';
+  if (/Invalid login credentials/i.test(msg)) return currentLang === 'ar' ? 'البريد الإلكتروني أو الرقم السري غير صحيح' : 'Incorrect email or password';
+  if (/Email not confirmed/i.test(msg)) return currentLang === 'ar' ? 'فعّل حسابك من رسالة البريد الإلكتروني أولاً' : 'Confirm your account from the email message first';
+  if (/User already registered/i.test(msg)) return currentLang === 'ar' ? 'هذا البريد مسجل مسبقاً' : 'This email is already registered';
+  if (/Password should be at least/i.test(msg)) return currentLang === 'ar' ? 'الرقم السري يجب ألا يقل عن 8 أحرف' : 'Password must be at least 8 characters';
+  if (/rate limit/i.test(msg)) return currentLang === 'ar' ? 'محاولات كثيرة، انتظر قليلاً ثم أعد المحاولة' : 'Too many attempts. Wait a moment and try again';
   return msg;
 }
 
 function setAuthMode(mode) {
   authMode = mode;
   const signup = mode === 'signup';
+  const forgot = mode === 'forgot';
+  const updating = mode === 'update-password';
   $('nameField').hidden = !signup;
+  $('emailField').hidden = updating;
+  $('passwordField').hidden = forgot;
+  $('confirmPasswordField').hidden = !updating;
+  $('forgotRow').hidden = mode !== 'login';
   $('displayName').required = signup;
-  $('passwordInput').autocomplete = signup ? 'new-password' : 'current-password';
-  $('authTitle').textContent = signup ? 'إنشاء حساب' : 'تسجيل الدخول';
-  $('authNote').textContent = signup ? 'أنشئ حساباً لحفظ أجهزتك ومزامنتها' : 'ادخل إلى سجلات أجهزتك المحفوظة';
-  $('authSubmit').textContent = signup ? 'إنشاء الحساب' : 'تسجيل الدخول';
-  $('authSwitchText').textContent = signup ? 'لديك حساب؟' : 'ليس لديك حساب؟';
-  $('authSwitch').textContent = signup ? 'تسجيل الدخول' : 'إنشاء حساب';
+  $('emailInput').required = !updating;
+  $('passwordInput').required = !forgot;
+  $('confirmPasswordInput').required = updating;
+  $('passwordInput').autocomplete = signup || updating ? 'new-password' : 'current-password';
+  $('passwordLabel').textContent = updating ? t('newPassword') : t('password');
+  $('authTitle').textContent = forgot ? t('forgotTitle') : updating ? t('updateTitle') : signup ? t('signup') : t('login');
+  $('authNote').textContent = forgot ? t('forgotNote') : updating ? t('updateNote') : signup ? t('signupNote') : t('loginNote');
+  $('authSubmit').textContent = forgot ? t('sendReset') : updating ? t('updatePassword') : signup ? t('createAccount') : t('login');
+  $('authSwitchText').textContent = signup ? t('haveAccount') : forgot || updating ? '' : t('noAccount');
+  $('authSwitch').textContent = signup || forgot || updating ? t('backToLogin') : t('signup');
   $('authError').textContent = '';
 }
 
@@ -430,7 +558,7 @@ async function showApp(user) {
   appView.hidden = false;
   document.querySelector('.sticky-bar').hidden = false;
   $('currentUserEmail').textContent = user.email || '';
-  $('currentUserName').textContent = user.user_metadata?.display_name || user.email?.split('@')[0] || 'مستخدم';
+  $('currentUserName').textContent = user.user_metadata?.display_name || user.email?.split('@')[0] || t('user');
   await loadRecords();
 }
 
@@ -439,12 +567,12 @@ function fromDb(row) {
 }
 
 async function loadRecords() {
-  recordsList.innerHTML = '<div class="records-empty">جاري تحميل السجلات...</div>';
+  recordsList.innerHTML = `<div class="records-empty">${t('loadingRecords')}</div>`;
   const { data, error } = await db.from('assets').select('id,serial,asset_number,model,status,notes,scanned_at').order('scanned_at', { ascending:true });
   if (error) {
     records = [];
     renderRecords(); updateCounts();
-    showToast('تعذّر تحميل السجلات: ' + authMessage(error), 'error');
+    showToast(t('loadFailed') + authMessage(error), 'error');
     return;
   }
   records = (data || []).map(fromDb);
@@ -457,7 +585,11 @@ function updateCounts() {
   exportBtn.disabled = clearBtn.disabled = records.length === 0;
   if (!records.length) { recordsMeta.textContent = '—'; return; }
   const s = records.reduce((a,r) => { a[r.status]=(a[r.status]||0)+1; return a; }, {});
-  recordsMeta.textContent = Object.entries(s).map(([k,v]) => `${k}: ${v}`).join(' • ');
+  recordsMeta.textContent = Object.entries(s).map(([k,v]) => `${statusLabel(k)}: ${v}`).join(' • ');
+}
+
+function statusLabel(status) {
+  return ({'جديد':t('new'),'مستعمل':t('used'),'للصيانة':t('maintenance'),'تالف':t('damaged')})[status] || status;
 }
 
 // ── HTML escape ───────────────────────────────────────────────────────────────
@@ -469,7 +601,7 @@ function escapeHtml(s) {
 // ── Records UI ────────────────────────────────────────────────────────────────
 function renderRecords() {
   if (!records.length) {
-    recordsList.innerHTML = '<div class="records-empty">لا توجد أجهزة مسجلة بعد</div>';
+    recordsList.innerHTML = `<div class="records-empty">${t('noRecords')}</div>`;
     return;
   }
   recordsList.innerHTML = records.slice().reverse().map((r,i) => {
@@ -482,13 +614,13 @@ function renderRecords() {
         <div class="serial">${escapeHtml(r.serial)}</div>
         ${assetLine}
         <div class="model">${escapeHtml(r.model||'—')}</div>
-        <span class="status-pill" data-val="${r.status}">${r.status}</span>
+        <span class="status-pill" data-val="${r.status}">${statusLabel(r.status)}</span>
         <button class="del-btn" data-del="${idx}">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="3 6 5 6 21 6"/>
             <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
           </svg>
-          حذف هذا السجل
+          ${t('deleteRecord')}
         </button>
       </div>`;
   }).join('');
@@ -501,12 +633,12 @@ function renderRecords() {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
       const idx = +btn.dataset.del;
-      if (confirm(`حذف الجهاز ${records[idx].serial}؟`)) {
+      if (confirm(`${t('confirmDelete')} ${records[idx].serial}?`)) {
         btn.disabled = true;
         const { error } = await db.from('assets').delete().eq('id', records[idx].id);
-        if (error) { btn.disabled = false; showToast('تعذّر حذف السجل', 'error'); return; }
+        if (error) { btn.disabled = false; showToast(t('deleteFailed'), 'error'); return; }
         records.splice(idx,1); renderRecords(); updateCounts();
-        showToast('تم حذف السجل');
+        showToast(t('deleted'));
       }
     }));
 }
@@ -514,29 +646,46 @@ function renderRecords() {
 // ── Scan Hint ─────────────────────────────────────────────────────────────────
 function updateScanHint() {
   const el = $('scanHint');
+  updateManualEntry();
   if (!isScanning) { el.style.display = 'none'; return; }
   el.style.display = 'flex';
   if (scanStep === 'serial') {
     el.innerHTML = `
       <div class="hint-num">1</div>
       <div class="hint-text">
-        <strong>سكان الرقم التسلسلي</strong>
-        <span>وجّه الكاميرا على الباركود / QR</span>
+        <strong>${t('scanSerial')}</strong>
+        <span>${t('pointCamera')}</span>
       </div>`;
   } else if (scanStep === 'asset') {
     el.innerHTML = `
       <div class="hint-num done">✓</div>
       <div class="hint-text">
-        <strong>سكان رقم الأصل (ZATCA)</strong>
-        <span>السيريال: ${escapeHtml(pendingSerial)}</span>
+        <strong>${t('scanAsset')}</strong>
+        <span>${t('serial')}: ${escapeHtml(pendingSerial)}</span>
       </div>
-      <button class="hint-skip" id="skipAssetBtn">تخطي</button>`;
+      <button class="hint-skip" id="skipAssetBtn">${t('skipAsset')}</button>`;
     $('skipAssetBtn').addEventListener('click', e => {
       e.stopPropagation(); pendingAsset = ''; proceedToForm();
     });
   } else {
     el.style.display = 'none';
   }
+}
+
+function updateManualEntry() {
+  const assetStep = scanStep === 'asset';
+  $('manualEntryLabel').textContent = assetStep ? t('manualAsset') : t('manualSerial');
+  $('manualSkipBtn').hidden = !assetStep;
+  $('manualBarcodeInput').placeholder = t('manualPlaceholder');
+}
+
+function submitManualBarcode() {
+  const input = $('manualBarcodeInput');
+  const value = input.value.trim();
+  if (!value) { showToast(t('requiredBarcode'), 'error'); input.focus(); return; }
+  input.value = '';
+  onScanResult(value, 'manual');
+  updateManualEntry();
 }
 
 // ── Form ──────────────────────────────────────────────────────────────────────
@@ -549,46 +698,46 @@ function proceedToForm() {
 function showScanForm(serial, asset) {
   const exists  = records.find(r => r.serial === serial);
   const warning = exists
-    ? `<div style="background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:12px;">⚠ هذا السيريال مسجّل سابقاً (سيتم التحديث)</div>`
+    ? `<div style="background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:12px;">${t('duplicate')}</div>`
     : '';
   const assetDisplay = asset
-    ? `<div class="serial-row"><span class="mini-label">رقم الأصل:</span><span class="mini-val">${escapeHtml(asset)}</span></div>`
-    : `<div class="serial-row"><span class="mini-label">رقم الأصل:</span><span class="mini-val muted">— لم يُسكن —</span></div>`;
+    ? `<div class="serial-row"><span class="mini-label">${t('assetNumber')}</span><span class="mini-val">${escapeHtml(asset)}</span></div>`
+    : `<div class="serial-row"><span class="mini-label">${t('assetNumber')}</span><span class="mini-val muted">${t('assetMissing')}</span></div>`;
 
   lastScanCard.className = 'last-scan';
   lastScanCard.style.display = 'block';
   lastScanCard.innerHTML = `
     ${warning}
-    <div class="label">السكان الجديد</div>
-    <div class="serial-row"><span class="mini-label">السيريال:</span><span class="mini-val">${escapeHtml(serial)}</span></div>
+    <div class="label">${t('newScan')}</div>
+    <div class="serial-row"><span class="mini-label">${t('serial')}:</span><span class="mini-val">${escapeHtml(serial)}</span></div>
     ${assetDisplay}
     <div class="field" style="margin-top:14px;">
-      <label>رقم الأصل (يدوي إذا لزم)</label>
+      <label>${t('assetManual')}</label>
       <input type="text" id="assetEditInput" placeholder="ZATCA-XXXXX" autocomplete="off" value="${escapeHtml(asset||'')}">
     </div>
     <div class="field">
-      <label>الموديل</label>
-      <input type="text" id="modelInput" placeholder="مثال: HP EliteBook 840 G8" autocomplete="off">
+      <label>${t('model')}</label>
+      <input type="text" id="modelInput" placeholder="${t('modelPlaceholder')}" autocomplete="off">
     </div>
     <div class="field">
-      <label>الحالة</label>
+      <label>${t('status')}</label>
       <div class="status-options">
-        <div class="status-chip" data-val="جديد">جديد</div>
-        <div class="status-chip" data-val="مستعمل">مستعمل</div>
-        <div class="status-chip" data-val="للصيانة">للصيانة</div>
-        <div class="status-chip" data-val="تالف">تالف</div>
+        <div class="status-chip" data-val="جديد">${t('new')}</div>
+        <div class="status-chip" data-val="مستعمل">${t('used')}</div>
+        <div class="status-chip" data-val="للصيانة">${t('maintenance')}</div>
+        <div class="status-chip" data-val="تالف">${t('damaged')}</div>
       </div>
     </div>
     <div class="field">
-      <label>ملاحظات (اختياري)</label>
-      <input type="text" id="notesInput" placeholder="مكان الجهاز، اسم المستخدم، إلخ" autocomplete="off">
+      <label>${t('notes')}</label>
+      <input type="text" id="notesInput" placeholder="${t('notesPlaceholder')}" autocomplete="off">
     </div>
     <div class="save-row">
       <button class="btn primary" id="saveBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        حفظ والتالي
+        ${t('saveNext')}
       </button>
-      <button class="btn" id="cancelBtn" style="flex:0 0 auto;">إلغاء</button>
+      <button class="btn" id="cancelBtn" style="flex:0 0 auto;">${t('cancel')}</button>
     </div>`;
 
   let selectedStatus = null;
@@ -600,7 +749,7 @@ function showScanForm(serial, asset) {
     }));
 
   $('saveBtn').addEventListener('click', async () => {
-    if (!selectedStatus) { showToast('اختر الحالة أولاً', 'error'); return; }
+    if (!selectedStatus) { showToast(t('chooseStatus'), 'error'); return; }
     const saveBtn = $('saveBtn');
     saveBtn.disabled = true;
     const cleanSerial = String(serial).trim();
@@ -621,11 +770,11 @@ function showScanForm(serial, asset) {
       notes:record.notes,
       scanned_at:record.scannedAt
     }, { onConflict:'user_id,serial' }).select('id,serial,asset_number,model,status,notes,scanned_at').single();
-    if (error) { saveBtn.disabled = false; showToast('تعذّر حفظ السجل: ' + authMessage(error), 'error'); return; }
+    if (error) { saveBtn.disabled = false; showToast(t('saveFailed') + authMessage(error), 'error'); return; }
     const saved = fromDb(data);
     const existsIdx = records.findIndex(r => r.serial === cleanSerial);
-    if (existsIdx >= 0) { records[existsIdx] = saved; showToast('تم تحديث السجل'); }
-    else { records.push(saved); showToast('تم الحفظ ✓ — سكان جهاز جديد'); }
+    if (existsIdx >= 0) { records[existsIdx] = saved; showToast(t('updated')); }
+    else { records.push(saved); showToast(t('saved')); }
     renderRecords(); updateCounts();
     lastScanCard.style.display = 'none';
     pendingSerial = pendingAsset = null;
@@ -659,12 +808,12 @@ function playBeep() {
 }
 
 // ── On Scan Result ────────────────────────────────────────────────────────────
-function onScanResult(text) {
+function onScanResult(text, source = 'camera') {
   if (scanStep === 'paused') return;
   text = String(text || '').trim();
   if (!text) return;
   const now = Date.now();
-  if (now - lastScanTime < 800) return;
+  if (source === 'camera' && now - lastScanTime < 800) return;
   lastScanTime = now;
 
   if (navigator.vibrate) navigator.vibrate([60,30,60]);
@@ -676,11 +825,11 @@ function onScanResult(text) {
     pendingSerial = text;
     scanStep = 'asset';
     updateScanHint();
-    if (statusEl) statusEl.textContent = 'السيريال تم ✓ — سكن رقم الأصل';
-    showToast('✓ السيريال تم — سكن رقم الأصل');
+    if (statusEl) statusEl.textContent = t('serialDone');
+    showToast(t('serialDoneToast'));
   } else if (scanStep === 'asset') {
     if (text === pendingSerial) {
-      showToast('هذا نفس السيريال — سكن رقم أصل مختلف', 'error');
+      showToast(t('sameSerial'), 'error');
       return;
     }
     pendingAsset = text;
@@ -765,7 +914,7 @@ async function detectLoop() {
 async function startScanner() {
   if (isScanning) return;
   startBtn.disabled = true;
-  startBtn.textContent = 'جاري التشغيل...';
+  startBtn.textContent = t('starting');
 
   try {
     // iOS Safari لا يدعم BarcodeDetector — روح للـ fallback مباشرة
@@ -818,16 +967,16 @@ async function startScanner() {
 
   } catch(err) {
     console.error(err);
-    if (err?.name === 'NotAllowedError') showToast('تم رفض إذن الكاميرا — اسمح به من إعدادات المتصفح', 'error');
-    else if (err?.name === 'NotFoundError') showToast('لم يتم العثور على كاميرا في الجهاز', 'error');
-    else showToast('تعذّر فتح الكاميرا — تأكد من الإذن واتصال HTTPS', 'error');
+    if (err?.name === 'NotAllowedError') showToast(t('cameraDenied'), 'error');
+    else if (err?.name === 'NotFoundError') showToast(t('cameraMissing'), 'error');
+    else showToast(t('cameraFailed'), 'error');
   } finally {
     startBtn.disabled = false;
     startBtn.innerHTML = `
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
         <circle cx="12" cy="13" r="4"/>
-      </svg> تشغيل الكاميرا`;
+      </svg> ${t('startCamera')}`;
   }
 }
 
@@ -838,7 +987,7 @@ function loadFallbackLib() {
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
     s.onload = () => { startFallbackScanner(); resolve(); };
-    s.onerror = () => { showToast('فشل تحميل المكتبة الاحتياطية', 'error'); resolve(); };
+    s.onerror = () => { showToast(t('libraryFailed'), 'error'); resolve(); };
     document.head.appendChild(s);
   });
 }
@@ -889,7 +1038,7 @@ async function startFallbackScanner() {
       () => {}
     );
   } catch(e) {
-    showToast('تعذّر تشغيل السكانر', 'error');
+    showToast(t('scannerFailed'), 'error');
     stopScanner();
   }
 }
@@ -913,7 +1062,7 @@ async function stopScanner() {
     <canvas id="scanCanvas"></canvas>
     <div class="scan-frame"><div class="scan-line"></div></div>
     <div class="scan-frame-sm"></div>
-    <div class="scan-status"><div class="dot"></div><span id="scanStatusText">جاهز للسكان...</span></div>
+    <div class="scan-status"><div class="dot"></div><span id="scanStatusText">${t('readyScan')}</span></div>
     <div class="zoom-bar">
       <button class="zoom-btn" id="zoomOut">−</button>
       <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="5" step="0.1" value="1">
@@ -929,46 +1078,74 @@ async function stopScanner() {
 // ── Export ────────────────────────────────────────────────────────────────────
 function exportToExcel() {
   if (!records.length) return;
-  const data = records.map((r,i) => ({
-    '#': i+1,
-    'الرقم التسلسلي': r.serial,
-    'رقم الأصل': r.asset||'',
-    'الموديل': r.model||'',
-    'الحالة': r.status,
-    'ملاحظات': r.notes||'',
-    'تاريخ السكان': new Date(r.scannedAt).toLocaleString('ar-SA')
+  const data = records.map((r,i) => currentLang === 'ar' ? ({
+    '#':i+1,'الرقم التسلسلي':r.serial,'رقم الأصل':r.asset||'','الموديل':r.model||'','الحالة':r.status,'ملاحظات':r.notes||'','تاريخ السكان':new Date(r.scannedAt).toLocaleString('ar-SA')
+  }) : ({
+    '#':i+1,'Serial number':r.serial,'Asset number':r.asset||'','Model':r.model||'','Status':statusLabel(r.status),'Notes':r.notes||'','Scan date':new Date(r.scannedAt).toLocaleString('en-US')
   }));
   const ws = XLSX.utils.json_to_sheet(data);
   ws['!cols'] = [{wch:5},{wch:25},{wch:22},{wch:25},{wch:12},{wch:30},{wch:22}];
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'جرد الأجهزة');
+  XLSX.utils.book_append_sheet(wb, ws, currentLang === 'ar' ? 'جرد الأجهزة' : 'Asset Inventory');
   if (!wb.Workbook) wb.Workbook = {};
   if (!wb.Workbook.Views) wb.Workbook.Views = [{}];
-  wb.Workbook.Views[0].RTL = true;
+  wb.Workbook.Views[0].RTL = currentLang === 'ar';
   XLSX.writeFile(wb, `Asset_Inventory_${new Date().toISOString().slice(0,10)}.xlsx`);
-  showToast(`تم تصدير ${records.length} جهاز`);
+  showToast(`${t('exported')} ${records.length} ${t('devices')}`);
 }
 
 async function clearAll() {
   if (!records.length) return;
-  if (!confirm(`سيتم حذف جميع السجلات (${records.length}). هل أنت متأكد؟`)) return;
+  if (!confirm(`${t('clearConfirm')} (${records.length})`)) return;
   clearBtn.disabled = true;
   const { error } = await db.from('assets').delete().eq('user_id', currentUser.id);
-  if (error) { clearBtn.disabled = false; showToast('تعذّر مسح السجلات', 'error'); return; }
+  if (error) { clearBtn.disabled = false; showToast(t('clearFailed'), 'error'); return; }
   records = []; renderRecords(); updateCounts();
-  showToast('تم مسح الكل');
+  showToast(t('cleared'));
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 $('authSwitch').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'signup' : 'login'));
+$('forgotPasswordBtn').addEventListener('click', () => setAuthMode('forgot'));
+$('authLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
+$('appLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
+$('manualSubmitBtn').addEventListener('click', submitManualBarcode);
+$('manualBarcodeInput').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); submitManualBarcode(); } });
+$('manualSkipBtn').addEventListener('click', () => { if (scanStep === 'asset') { pendingAsset = ''; proceedToForm(); } });
 $('authForm').addEventListener('submit', async event => {
   event.preventDefault();
-  if (!configReady) { $('authError').textContent = 'أكمل إعداد Supabase في ملف config.js أولاً'; return; }
+  if (!configReady) { $('authError').textContent = t('configMissing'); return; }
   const email = $('emailInput').value.trim().toLowerCase();
   const password = $('passwordInput').value;
   const displayName = $('displayName').value.trim();
+  const confirmPassword = $('confirmPasswordInput').value;
+  if (authMode === 'forgot') {
+    if (!email) { $('authError').textContent = t('invalidForm'); return; }
+    const submit = $('authSubmit');
+    submit.disabled = true;
+    const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo:`${window.location.origin}${window.location.pathname}` });
+    submit.disabled = false;
+    if (error) { $('authError').textContent = authMessage(error); return; }
+    $('authError').style.color = 'var(--green)';
+    $('authError').textContent = t('resetSent');
+    return;
+  }
+  if (authMode === 'update-password') {
+    if (password.length < 8 || password !== confirmPassword) {
+      $('authError').textContent = password !== confirmPassword ? t('passwordsMismatch') : t('invalidForm');
+      return;
+    }
+    const submit = $('authSubmit');
+    submit.disabled = true;
+    const { error } = await db.auth.updateUser({ password });
+    submit.disabled = false;
+    if (error) { $('authError').textContent = authMessage(error); return; }
+    showToast(t('resetSuccess'));
+    setAuthMode('login');
+    return;
+  }
   if (!email || password.length < 8 || (authMode === 'signup' && displayName.length < 2)) {
-    $('authError').textContent = 'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف';
+    $('authError').textContent = t('invalidForm');
     return;
   }
   const submit = $('authSubmit');
@@ -981,7 +1158,7 @@ $('authForm').addEventListener('submit', async event => {
   if (result.error) { $('authError').textContent = authMessage(result.error); return; }
   if (authMode === 'signup' && !result.data.session) {
     $('authError').style.color = 'var(--green)';
-    $('authError').textContent = 'تم إنشاء الحساب. افتح رسالة التفعيل في بريدك ثم سجّل الدخول.';
+    $('authError').textContent = currentLang === 'ar' ? 'تم إنشاء الحساب. افتح رسالة التفعيل في بريدك ثم سجّل الدخول.' : 'Account created. Open the confirmation email, then sign in.';
     setTimeout(() => { $('authError').style.color = ''; setAuthMode('login'); }, 5000);
   }
 });
@@ -996,13 +1173,14 @@ stopBtn.addEventListener('click',  stopScanner);
 exportBtn.addEventListener('click', exportToExcel);
 clearBtn.addEventListener('click',  clearAll);
 
-setAuthMode('login');
+applyLanguage(currentLang);
 if (!configReady) {
   showAuth();
-  $('authError').textContent = 'يلزم ربط المشروع بـ Supabase من ملف config.js';
+  $('authError').textContent = t('configMissing');
 } else {
   db.auth.onAuthStateChange((event, session) => {
     setTimeout(async () => {
+      if (event === 'PASSWORD_RECOVERY') { showAuth(); setAuthMode('update-password'); return; }
       if (session?.user) await showApp(session.user);
       else { currentUser = null; records = []; renderRecords(); updateCounts(); showAuth(); }
     }, 0);
