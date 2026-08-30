@@ -648,7 +648,8 @@ async function showApp(user) {
 }
 
 function fromDb(row) {
-  return { id:row.id, serial:row.serial, asset:row.asset_number, deviceType:row.device_type || inferDeviceType(row.model), model:row.model, status:row.status, notes:row.notes, scannedAt:row.scanned_at };
+  const savedType = row.device_type && row.device_type !== 'other' ? row.device_type : inferDeviceType(row.model);
+  return { id:row.id, serial:row.serial, asset:row.asset_number, deviceType:savedType, model:row.model, status:row.status, notes:row.notes, scannedAt:row.scanned_at };
 }
 
 async function loadRecords() {
