@@ -469,7 +469,7 @@ const translations = {
     updateTitle:'تعيين رقم سري جديد', updateNote:'اكتب الرقم السري الجديد ثم أكّده', updatePassword:'حفظ الرقم السري الجديد',
     manualSerial:'إدخال يدوي للرقم التسلسلي (بديل للكاميرا)', manualAsset:'إدخال يدوي لرقم الأصل', manualPlaceholder:'اكتب أو الصق الباركود',
     add:'إضافة', skipAsset:'تخطي رقم الأصل', scanSerial:'سكان الرقم التسلسلي', pointCamera:'وجّه الكاميرا على الباركود / QR',
-    scanAsset:'سكان رقم الأصل (ZATCA)', serial:'السيريال', readyScan:'جاهز للسكان...', serialDone:'السيريال تم ✓ — سكن رقم الأصل',
+    scanAsset:'سكان رقم الأصل', serial:'السيريال', readyScan:'جاهز للسكان...', serialDone:'السيريال تم ✓ — سكن رقم الأصل',
     serialDoneToast:'✓ السيريال تم — سكن رقم الأصل', sameSerial:'هذا نفس السيريال — سكن رقم أصل مختلف', requiredBarcode:'أدخل قيمة الباركود أولاً',
     user:'مستخدم', editRecord:'تعديل', deleteRecord:'حذف', confirmDelete:'حذف الجهاز', deleteFailed:'تعذّر حذف السجل', deleted:'تم حذف السجل',
     cancelOperation:'إلغاء العملية', startNewDevice:'بدء جهاز جديد', scanCancelled:'تم إلغاء القراءة — جاهز لجهاز جديد', recordsAdminNote:'إدارة السجل — هذا الإجراء يحذف جميع الأجهزة نهائيًا', clearAllRecords:'مسح كل السجل',
@@ -496,7 +496,7 @@ const translations = {
     sendReset:'Send reset link', updateTitle:'Set a new password', updateNote:'Enter and confirm your new password', updatePassword:'Save new password',
     manualSerial:'Enter serial number manually (camera alternative)', manualAsset:'Enter asset number manually', manualPlaceholder:'Type or paste the barcode',
     add:'Add', skipAsset:'Skip asset number', scanSerial:'Scan serial number', pointCamera:'Point the camera at the barcode / QR code',
-    scanAsset:'Scan asset number (ZATCA)', serial:'Serial', readyScan:'Ready to scan...', serialDone:'Serial captured ✓ — scan the asset number',
+    scanAsset:'Scan asset number', serial:'Serial', readyScan:'Ready to scan...', serialDone:'Serial captured ✓ — scan the asset number',
     serialDoneToast:'✓ Serial captured — scan the asset number', sameSerial:'This matches the serial number — scan a different asset number', requiredBarcode:'Enter a barcode value first',
     user:'User', editRecord:'Edit', deleteRecord:'Delete', confirmDelete:'Delete device', deleteFailed:'Could not delete the record', deleted:'Record deleted',
     cancelOperation:'Cancel scan', startNewDevice:'Start new device', scanCancelled:'Scan cancelled — ready for a new device', recordsAdminNote:'Record management — this permanently deletes every device', clearAllRecords:'Delete all records',
@@ -857,7 +857,7 @@ function showScanForm(serial, asset) {
     ${assetDisplay}
     <div class="field" style="margin-top:14px;">
       <label>${t('assetManual')}</label>
-      <input type="text" id="assetEditInput" placeholder="ZATCA-XXXXX" autocomplete="off" value="${escapeHtml(asset||exists?.asset||'')}">
+      <input type="text" id="assetEditInput" placeholder="Asset Number" autocomplete="off" value="${escapeHtml(asset||exists?.asset||'')}">
     </div>
     <div class="field">
       <label>${t('deviceType')}</label>
