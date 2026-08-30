@@ -216,7 +216,7 @@
   .record-action { border:1px solid var(--border); background:#fff; border-radius:7px; padding:6px 10px; font:600 11px inherit; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
   .record-action.edit { color:var(--accent); border-color:var(--accent); }
   .record-action.delete { color:var(--red); border-color:var(--red); }
-  .record-menu-btn { position:absolute; left:8px; top:8px; width:28px; height:28px; border:0; background:transparent; color:var(--text-dim); border-radius:7px; font-size:20px; line-height:1; cursor:pointer; }
+  .record-menu-btn { grid-column:1/-1; position:static; justify-self:end; width:42px; height:30px; margin-top:3px; border:0; background:var(--panel-2); color:var(--text-dim); border-radius:8px; font-size:21px; line-height:1; cursor:pointer; }
   .record-menu-btn:hover,.record-menu-btn:focus { background:var(--panel-2); color:var(--black); }
 
   .sticky-bar { position:fixed; bottom:16px; left:16px; right:16px; max-width:688px; margin:0 auto; z-index:10; }
@@ -270,7 +270,7 @@
   .group-table-head,.record { display:grid; grid-template-columns:minmax(110px,1.2fr) minmax(100px,1fr) minmax(80px,.8fr); gap:8px; align-items:center; }
   .group-table-head { padding:8px 14px; background:var(--panel-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); color:var(--text-dim); font-size:10px; font-weight:700; }
   .record { padding:11px 14px; }
-  .record { position:relative; padding-left:42px; }
+  .record { position:relative; }
   .record .serial { font-size:11px; direction:ltr; text-align:start; }
   .record .model { grid-column:auto; font-size:11px; color:var(--text); }
   .record .asset-cell { color:var(--text-dim); font:600 10px 'JetBrains Mono',monospace; direction:ltr; text-align:start; }
