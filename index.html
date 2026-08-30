@@ -79,6 +79,8 @@
   .hint-text strong { font-size:13px; color:var(--text); }
   .hint-text span { font-size:11px; color:var(--text-dim); font-family:'JetBrains Mono',monospace; word-break:break-all; }
   .hint-skip { background:transparent; border:1px solid var(--text-dim); color:var(--text-dim); padding:6px 10px; border-radius:6px; font-family:inherit; font-size:11px; cursor:pointer; }
+  .hint-actions { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .hint-cancel { border-color:var(--red); color:var(--red); }
 
   .scanner-wrap { position:relative; background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:16px; }
   .scanner-empty { aspect-ratio:4/3; display:grid; place-items:center; text-align:center; padding:30px; }
@@ -200,8 +202,13 @@
   .record .status-pill[data-val="مستعمل"] { color:var(--green);  border-color:var(--green);  background:var(--green-dim); }
   .record .status-pill[data-val="للصيانة"]{ color:var(--yellow); border-color:var(--yellow); background:var(--yellow-dim); }
   .record .status-pill[data-val="تالف"]   { color:var(--red);    border-color:var(--red);    background:var(--red-dim); }
-  .record .del-btn { grid-column:1/-1; margin-top:8px; background:none; border:none; color:var(--red); font-family:inherit; font-size:12px; cursor:pointer; padding:4px 0; text-align:start; display:none; }
-  .record.expanded .del-btn { display:inline-flex; align-items:center; gap:4px; }
+  .record .record-actions { grid-column:1/-1; margin-top:6px; padding-top:8px; border-top:1px dashed var(--border); display:none; gap:8px; }
+  .record.expanded .record-actions { display:flex; }
+  .record-action { border:1px solid var(--border); background:#fff; border-radius:7px; padding:6px 10px; font:600 11px inherit; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
+  .record-action.edit { color:var(--accent); border-color:var(--accent); }
+  .record-action.delete { color:var(--red); border-color:var(--red); }
+  .record-menu-btn { position:absolute; left:8px; top:8px; width:28px; height:28px; border:0; background:transparent; color:var(--text-dim); border-radius:7px; font-size:20px; line-height:1; cursor:pointer; }
+  .record-menu-btn:hover,.record-menu-btn:focus { background:var(--panel-2); color:var(--black); }
 
   .sticky-bar { position:fixed; bottom:16px; left:16px; right:16px; max-width:688px; margin:0 auto; z-index:10; }
   .sticky-bar .btn { box-shadow:0 8px 24px rgba(0,0,0,.4); }
@@ -254,12 +261,15 @@
   .group-table-head,.record { display:grid; grid-template-columns:minmax(110px,1.2fr) minmax(100px,1fr) minmax(80px,.8fr); gap:8px; align-items:center; }
   .group-table-head { padding:8px 14px; background:var(--panel-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); color:var(--text-dim); font-size:10px; font-weight:700; }
   .record { padding:11px 14px; }
+  .record { position:relative; padding-left:42px; }
   .record .serial { font-size:11px; direction:ltr; text-align:start; }
   .record .model { grid-column:auto; font-size:11px; color:var(--text); }
   .record .asset-cell { color:var(--text-dim); font:600 10px 'JetBrains Mono',monospace; direction:ltr; text-align:start; }
   .record .status-pill { grid-row:auto; justify-self:start; font-size:10px; padding:3px 7px; }
-  .record .del-btn { grid-column:1/-1; }
   .group-empty { padding:16px; text-align:center; color:var(--text-dim); font-size:12px; border-top:1px solid var(--border); }
+  .records-admin { margin:16px 2px 0; padding:14px; border-top:1px solid var(--border); text-align:center; }
+  .records-admin p { color:var(--text-dim); font-size:11px; margin-bottom:8px; }
+  .clear-all-secondary { border:0; background:transparent; color:var(--red); font:600 12px inherit; padding:7px 10px; cursor:pointer; }
 
   @media(max-width:520px) {
     .app { padding:12px; padding-bottom:118px; }
@@ -383,6 +393,7 @@
       <button id="manualSubmitBtn" class="btn" type="button">إضافة</button>
     </div>
     <button id="manualSkipBtn" class="link-btn manual-skip" type="button" hidden>تخطي رقم الأصل</button>
+    <button id="manualResetBtn" class="link-btn manual-skip" type="button" hidden>إلغاء العملية وبدء جهاز جديد</button>
   </div>
 
   <div id="lastScanCard" style="display:none;"></div>
@@ -395,6 +406,10 @@
     <div id="recordsList">
       <div class="records-empty">لا توجد أجهزة مسجلة بعد</div>
     </div>
+  </div>
+  <div class="records-admin">
+    <p id="recordsAdminNote">إدارة السجل — هذا الإجراء يحذف جميع الأجهزة نهائيًا</p>
+    <button id="clearBtn" class="clear-all-secondary" type="button" disabled>مسح كل السجل</button>
   </div>
   <footer class="page-footer">Khalid Albalawi — 2026–2027</footer>
 </div>
@@ -409,7 +424,6 @@
       </svg>
       تصدير Excel
     </button>
-    <button id="clearBtn" class="btn danger" style="flex:0 0 auto;" disabled>مسح الكل</button>
   </div>
 </div>
 </main>
@@ -457,7 +471,8 @@ const translations = {
     add:'إضافة', skipAsset:'تخطي رقم الأصل', scanSerial:'سكان الرقم التسلسلي', pointCamera:'وجّه الكاميرا على الباركود / QR',
     scanAsset:'سكان رقم الأصل (ZATCA)', serial:'السيريال', readyScan:'جاهز للسكان...', serialDone:'السيريال تم ✓ — سكن رقم الأصل',
     serialDoneToast:'✓ السيريال تم — سكن رقم الأصل', sameSerial:'هذا نفس السيريال — سكن رقم أصل مختلف', requiredBarcode:'أدخل قيمة الباركود أولاً',
-    user:'مستخدم', deleteRecord:'حذف هذا السجل', confirmDelete:'حذف الجهاز', deleteFailed:'تعذّر حذف السجل', deleted:'تم حذف السجل',
+    user:'مستخدم', editRecord:'تعديل', deleteRecord:'حذف', confirmDelete:'حذف الجهاز', deleteFailed:'تعذّر حذف السجل', deleted:'تم حذف السجل',
+    cancelOperation:'إلغاء العملية', startNewDevice:'بدء جهاز جديد', scanCancelled:'تم إلغاء القراءة — جاهز لجهاز جديد', recordsAdminNote:'إدارة السجل — هذا الإجراء يحذف جميع الأجهزة نهائيًا', clearAllRecords:'مسح كل السجل',
     duplicate:'⚠ هذا السيريال مسجّل سابقاً (سيتم التحديث)', newScan:'السكان الجديد', assetNumber:'رقم الأصل:', assetMissing:'— لم يُسكن —',
     assetManual:'رقم الأصل (يدوي إذا لزم)', deviceType:'نوع الجهاز', chooseDeviceType:'اختر نوع الجهاز أولاً', model:'الموديل', modelPlaceholder:'ابحث أو اكتب موديل جديد', status:'الحالة',
     monitor:'شاشة', pc:'بي سي', scanner:'سكانر', printer:'طابعة', ciscoPhone:'هاتف سيسكو', other:'أخرى', serialColumn:'الرقم التسلسلي', modelColumn:'الموديل', assetColumn:'رقم الأصل', inventoryRecords:'سجل الأجهزة',
@@ -483,7 +498,8 @@ const translations = {
     add:'Add', skipAsset:'Skip asset number', scanSerial:'Scan serial number', pointCamera:'Point the camera at the barcode / QR code',
     scanAsset:'Scan asset number (ZATCA)', serial:'Serial', readyScan:'Ready to scan...', serialDone:'Serial captured ✓ — scan the asset number',
     serialDoneToast:'✓ Serial captured — scan the asset number', sameSerial:'This matches the serial number — scan a different asset number', requiredBarcode:'Enter a barcode value first',
-    user:'User', deleteRecord:'Delete this record', confirmDelete:'Delete device', deleteFailed:'Could not delete the record', deleted:'Record deleted',
+    user:'User', editRecord:'Edit', deleteRecord:'Delete', confirmDelete:'Delete device', deleteFailed:'Could not delete the record', deleted:'Record deleted',
+    cancelOperation:'Cancel scan', startNewDevice:'Start new device', scanCancelled:'Scan cancelled — ready for a new device', recordsAdminNote:'Record management — this permanently deletes every device', clearAllRecords:'Delete all records',
     duplicate:'⚠ This serial already exists and will be updated', newScan:'New scan', assetNumber:'Asset number:', assetMissing:'— Not scanned —',
     assetManual:'Asset number (enter manually if needed)', deviceType:'Device type', chooseDeviceType:'Choose a device type first', model:'Model', modelPlaceholder:'Search or enter a new model', status:'Status',
     monitor:'Monitor', pc:'PC', scanner:'Scanner', printer:'Printer', ciscoPhone:'Cisco phone', other:'Other', serialColumn:'Serial number', modelColumn:'Model', assetColumn:'Asset number', inventoryRecords:'Device records',
@@ -584,9 +600,11 @@ function applyLanguage(lang) {
   startBtn.lastChild.textContent = ' ' + t('startCamera');
   stopBtn.textContent = t('stop');
   exportBtn.lastChild.textContent = ' ' + t('export');
-  clearBtn.textContent = t('clearAll');
+  clearBtn.textContent = t('clearAllRecords');
+  $('recordsAdminNote').textContent = t('recordsAdminNote');
   $('manualSubmitBtn').textContent = t('add');
   $('manualSkipBtn').textContent = t('skipAsset');
+  $('manualResetBtn').textContent = `${t('cancelOperation')} — ${t('startNewDevice')}`;
   $('manualBarcodeInput').placeholder = t('manualPlaceholder');
   if ($('scanStatusText') && scanStep === 'serial') $('scanStatusText').textContent = t('readyScan');
   setAuthMode(authMode);
@@ -711,18 +729,32 @@ function renderRecords() {
           <div class="model">${escapeHtml(r.model||'—')}</div>
           <div class="asset-cell">${escapeHtml(r.asset||'—')}</div>
           <span class="status-pill" data-val="${r.status}">${statusLabel(r.status)}</span>
-          <button class="del-btn" data-del="${idx}">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            ${t('deleteRecord')}
-          </button>
+          <button class="record-menu-btn" type="button" data-menu="${idx}" aria-label="${t('editRecord')} / ${t('deleteRecord')}">•••</button>
+          <div class="record-actions">
+            <button class="record-action edit" type="button" data-edit="${idx}">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/></svg>${t('editRecord')}
+            </button>
+            <button class="record-action delete" type="button" data-del="${idx}">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>${t('deleteRecord')}
+            </button>
+          </div>
         </div>`).join('')}
     </details>`).join('')}</div>`;
 
   recordsList.querySelectorAll('.record').forEach(el =>
     el.addEventListener('click', e => {
-      if (!e.target.closest('.del-btn')) el.classList.toggle('expanded');
+      if (!e.target.closest('button')) el.classList.toggle('expanded');
     }));
-  recordsList.querySelectorAll('.del-btn').forEach(btn =>
+  recordsList.querySelectorAll('.record-menu-btn').forEach(btn => btn.addEventListener('click', e => {
+    e.stopPropagation(); btn.closest('.record').classList.toggle('expanded');
+  }));
+  recordsList.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const record = records[+btn.dataset.edit];
+    pendingSerial = record.serial; pendingAsset = record.asset; scanStep = 'paused';
+    showScanForm(record.serial, record.asset);
+  }));
+  recordsList.querySelectorAll('[data-del]').forEach(btn =>
     btn.addEventListener('click', async e => {
       e.stopPropagation();
       const idx = +btn.dataset.del;
@@ -756,10 +788,14 @@ function updateScanHint() {
         <strong>${t('scanAsset')}</strong>
         <span>${t('serial')}: ${escapeHtml(pendingSerial)}</span>
       </div>
-      <button class="hint-skip" id="skipAssetBtn">${t('skipAsset')}</button>`;
+      <div class="hint-actions">
+        <button class="hint-skip" id="skipAssetBtn">${t('skipAsset')}</button>
+        <button class="hint-skip hint-cancel" id="cancelScanBtn">${t('cancelOperation')}</button>
+      </div>`;
     $('skipAssetBtn').addEventListener('click', e => {
       e.stopPropagation(); pendingAsset = ''; proceedToForm();
     });
+    $('cancelScanBtn').addEventListener('click', e => { e.stopPropagation(); resetCurrentScan(); });
   } else {
     el.style.display = 'none';
   }
@@ -769,7 +805,21 @@ function updateManualEntry() {
   const assetStep = scanStep === 'asset';
   $('manualEntryLabel').textContent = assetStep ? t('manualAsset') : t('manualSerial');
   $('manualSkipBtn').hidden = !assetStep;
+  $('manualResetBtn').hidden = !assetStep;
   $('manualBarcodeInput').placeholder = t('manualPlaceholder');
+}
+
+function resetCurrentScan(showMessage = true) {
+  lastScanCard.style.display = 'none';
+  document.querySelector('.sticky-bar').hidden = false;
+  pendingSerial = null;
+  pendingAsset = null;
+  scanStep = 'serial';
+  lastScanTime = 0;
+  $('manualBarcodeInput').value = '';
+  updateScanHint();
+  updateManualEntry();
+  if (showMessage) showToast(t('scanCancelled'));
 }
 
 function submitManualBarcode() {
@@ -807,7 +857,7 @@ function showScanForm(serial, asset) {
     ${assetDisplay}
     <div class="field" style="margin-top:14px;">
       <label>${t('assetManual')}</label>
-      <input type="text" id="assetEditInput" placeholder="ZATCA-XXXXX" autocomplete="off" value="${escapeHtml(asset||'')}">
+      <input type="text" id="assetEditInput" placeholder="ZATCA-XXXXX" autocomplete="off" value="${escapeHtml(asset||exists?.asset||'')}">
     </div>
     <div class="field">
       <label>${t('deviceType')}</label>
@@ -831,7 +881,7 @@ function showScanForm(serial, asset) {
     </div>
     <div class="field">
       <label>${t('notes')}</label>
-      <input type="text" id="notesInput" placeholder="${t('notesPlaceholder')}" autocomplete="off">
+      <input type="text" id="notesInput" placeholder="${t('notesPlaceholder')}" autocomplete="off" value="${escapeHtml(exists?.notes||'')}">
     </div>
     <div class="save-row">
       <button class="btn primary" id="saveBtn">
@@ -886,7 +936,7 @@ function showScanForm(serial, asset) {
       model:  $('modelInput').value.trim(),
       status: selectedStatus,
       notes:  $('notesInput').value.trim(),
-      scannedAt: new Date().toISOString()
+      scannedAt: exists?.scannedAt || new Date().toISOString()
     };
     const { data, error } = await db.from('assets').upsert({
       user_id:currentUser.id,
@@ -904,20 +954,12 @@ function showScanForm(serial, asset) {
     if (existsIdx >= 0) { records[existsIdx] = saved; showToast(t('updated')); }
     else { records.push(saved); showToast(t('saved')); }
     renderRecords(); updateCounts();
-    lastScanCard.style.display = 'none';
-    document.querySelector('.sticky-bar').hidden = false;
-    pendingSerial = pendingAsset = null;
-    scanStep = 'serial';
-    updateScanHint();
+    resetCurrentScan(false);
     if (navigator.vibrate) navigator.vibrate(50);
   });
 
   $('cancelBtn').addEventListener('click', () => {
-    lastScanCard.style.display = 'none';
-    document.querySelector('.sticky-bar').hidden = false;
-    pendingSerial = pendingAsset = null;
-    scanStep = 'serial';
-    updateScanHint();
+    resetCurrentScan();
   });
 
   lastScanCard.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -1242,6 +1284,7 @@ $('appLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'a
 $('manualSubmitBtn').addEventListener('click', submitManualBarcode);
 $('manualBarcodeInput').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); submitManualBarcode(); } });
 $('manualSkipBtn').addEventListener('click', () => { if (scanStep === 'asset') { pendingAsset = ''; proceedToForm(); } });
+$('manualResetBtn').addEventListener('click', () => resetCurrentScan());
 $('authForm').addEventListener('submit', async event => {
   event.preventDefault();
   if (!configReady) { $('authError').textContent = t('configMissing'); return; }
