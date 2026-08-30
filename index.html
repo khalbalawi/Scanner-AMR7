@@ -527,7 +527,7 @@ function inferDeviceType(model='') {
   if (/scanner|ds-410|سكانر/.test(value)) return 'scanner';
   if (/printer|mfp|laserjet|tm-t88|طابعة/.test(value)) return 'printer';
   if (/cisco|phone|هاتف/.test(value)) return 'cisco_phone';
-  if (/z2|elitedesk|prodesk|optiplex|desktop|pc/.test(value)) return 'pc';
+  if (/z\s*2|elite\s*desk|pro\s*desk|opti\s*plex|desktop|workstation|(^|[^a-z])pc([^a-z]|$)/.test(value)) return 'pc';
   return 'other';
 }
 

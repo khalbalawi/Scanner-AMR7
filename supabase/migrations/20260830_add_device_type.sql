@@ -11,7 +11,7 @@ update public.assets set device_type = case
   when lower(model) ~ 'scanner|ds-410|سكانر' then 'scanner'
   when lower(model) ~ 'printer|mfp|laserjet|tm-t88|طابعة' then 'printer'
   when lower(model) ~ 'cisco|phone|هاتف' then 'cisco_phone'
-  when lower(model) ~ 'z2|elitedesk|prodesk|optiplex|desktop|(^|[^a-z])pc([^a-z]|$)' then 'pc'
+  when lower(model) ~ 'z[[:space:]]*2|elite[[:space:]]*desk|pro[[:space:]]*desk|opti[[:space:]]*plex|desktop|workstation|(^|[^a-z])pc([^a-z]|$)' then 'pc'
   else 'other'
 end
 where device_type = 'other';
