@@ -15,6 +15,7 @@ create table if not exists public.assets (
   user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
   serial text not null check (char_length(trim(serial)) between 1 and 200),
   asset_number text not null default '' check (char_length(asset_number) <= 200),
+  device_type text not null default 'other' check (device_type in ('monitor', 'pc', 'scanner', 'printer', 'cisco_phone', 'other')),
   model text not null default '' check (char_length(model) <= 200),
   status text not null check (status in ('جديد', 'مستعمل', 'للصيانة', 'تالف')),
   notes text not null default '' check (char_length(notes) <= 1000),
@@ -23,6 +24,13 @@ create table if not exists public.assets (
   updated_at timestamptz not null default now(),
   constraint assets_user_serial_unique unique (user_id, serial)
 );
+
+-- ترقية آمنة للمشاريع التي أنشأت جدول assets قبل إضافة نوع الجهاز.
+alter table public.assets
+  add column if not exists device_type text not null default 'other';
+
+create index if not exists assets_user_device_type_idx
+  on public.assets (user_id, device_type, scanned_at desc);
 
 create index if not exists assets_user_scanned_at_idx
   on public.assets (user_id, scanned_at desc);
