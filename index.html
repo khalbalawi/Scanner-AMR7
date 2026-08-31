@@ -38,7 +38,7 @@
     font-size:15px; line-height:1.5; min-height:100vh; overscroll-behavior:none;
   }
   body { background:#fff; }
-  .app { position:relative; max-width:720px; margin:0 auto; padding:16px; padding-bottom:120px; }
+  .app { position:relative; max-width:720px; margin:0 auto; padding:16px; padding-bottom:40px; }
   [hidden] { display:none !important; }
 
   .auth-shell { min-height:100vh; display:grid; place-items:center; padding:20px 16px; }
@@ -212,8 +212,9 @@
   .record-menu-btn { position:absolute; left:8px; top:8px; width:28px; height:28px; border:0; background:transparent; color:var(--text-dim); border-radius:7px; font-size:20px; line-height:1; cursor:pointer; }
   .record-menu-btn:hover,.record-menu-btn:focus { background:var(--panel-2); color:var(--black); }
 
-  .sticky-bar { position:fixed; bottom:16px; left:16px; right:16px; max-width:688px; margin:0 auto; z-index:10; }
-  .sticky-bar .btn { box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .export-section { display:flex; justify-content:center; padding:18px 0 6px; }
+  .export-compact { width:84px; min-height:72px; flex:0 0 auto; padding:10px 8px; border-radius:12px; flex-direction:column; gap:5px; font-size:11px; line-height:1.2; }
+  .export-compact svg { width:22px; height:22px; }
 
   .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:var(--green); color:#000; padding:10px 18px; border-radius:8px; font-weight:600; font-size:13px; z-index:100; transition:transform .3s; box-shadow:0 4px 12px rgba(0,0,0,.3); }
   .toast.show { transform:translateX(-50%) translateY(0); }
@@ -237,7 +238,7 @@
   .scanner-empty { min-height:260px; background:linear-gradient(180deg,#fff,#faf9f7); }
   .scanner-empty .icon { border-style:solid; }
   .manual-entry { margin-top:0; }
-  .sticky-bar .btn.primary { background:var(--black); border-color:var(--black); }
+  .export-section .btn.primary { background:var(--black); border-color:var(--black); box-shadow:0 6px 16px rgba(17,17,17,.18); }
 
   .device-type-options { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
   .device-type-chip { min-height:70px; padding:9px 6px; background:#fff; border:1px solid var(--border); border-radius:10px; color:var(--text); font:600 12px inherit; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; transition:.15s; }
@@ -274,7 +275,7 @@
   .clear-all-secondary { border:0; background:transparent; color:var(--red); font:600 12px inherit; padding:7px 10px; cursor:pointer; }
 
   @media(max-width:520px) {
-    .app { padding:12px; padding-bottom:118px; }
+    .app { padding:12px; padding-bottom:34px; }
     .page-heading { margin-bottom:10px; }
     header { margin-bottom:14px; padding-bottom:14px; }
     .device-type-options { grid-template-columns:repeat(3,1fr); }
@@ -318,8 +319,7 @@
       </div>
       <div id="siteNameField" class="field">
         <label id="siteNameLabel" for="siteNameInput">اسم الموقع</label>
-        <input id="siteNameInput" type="text" list="siteSuggestions" maxlength="120" placeholder="مثال: منفذ حالة عمار" autocomplete="off" required>
-        <datalist id="siteSuggestions"></datalist>
+        <input id="siteNameInput" type="text" maxlength="120" placeholder="اكتب اسم الموقع بالعربي أو الإنجليزي" autocomplete="off" required>
       </div>
       <div id="confirmPasswordField" class="field" hidden>
         <label id="confirmPasswordLabel" for="confirmPasswordInput">تأكيد الرقم السري الجديد</label>
@@ -430,20 +430,17 @@
     <p id="recordsAdminNote">إدارة السجل — هذا الإجراء يحذف جميع الأجهزة نهائيًا</p>
     <button id="clearBtn" class="clear-all-secondary" type="button" disabled>مسح كل السجل</button>
   </div>
-  <footer class="page-footer">Khalid Albalawi — 2026–2027</footer>
-</div>
-
-<div class="sticky-bar">
-  <div class="btn-row" style="margin:0;">
-    <button id="exportBtn" class="btn primary" disabled>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <div class="export-section">
+    <button id="exportBtn" class="btn primary export-compact" type="button" disabled aria-label="تصدير Excel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
         <polyline points="7 10 12 15 17 10"/>
         <line x1="12" y1="15" x2="12" y2="3"/>
       </svg>
-      تصدير Excel
+      <span id="exportBtnText">تصدير Excel</span>
     </button>
   </div>
+  <footer class="page-footer">Khalid Albalawi — 2026–2027</footer>
 </div>
 </main>
 
@@ -503,7 +500,7 @@ const translations = {
     libraryFailed:'فشل تحميل المكتبة الاحتياطية', starting:'جاري التشغيل...', exported:'تم تصدير', devices:'جهاز', clearConfirm:'سيتم حذف جميع السجلات. هل أنت متأكد؟',
     clearFailed:'تعذّر مسح السجلات', cleared:'تم مسح الكل', resetSent:'تم إرسال رابط الاستعادة. افحص بريدك الإلكتروني.', resetSuccess:'تم تحديث الرقم السري بنجاح.',
     passwordsMismatch:'الرقمان السريان غير متطابقين', invalidForm:'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف', configMissing:'يلزم ربط المشروع بـ Supabase من ملف config.js',
-    siteType:'نوع الموقع', chooseSiteType:'اختر نوع الموقع', siteName:'اسم الموقع', siteNamePlaceholder:'مثال: منفذ حالة عمار', siteRequired:'اختر نوع الموقع واكتب اسمه', changeSite:'تغيير الموقع', borderCrossing:'منفذ بري', airport:'مطار', seaport:'ميناء', branch:'فرع', otherSite:'موقع آخر'
+    siteType:'نوع الموقع', chooseSiteType:'اختر نوع الموقع', siteName:'اسم الموقع', siteNamePlaceholder:'اكتب اسم الموقع بالعربي أو الإنجليزي', siteRequired:'اختر نوع الموقع واكتب اسمه', changeSite:'تغيير الموقع', borderCrossing:'منفذ بري', airport:'مطار', seaport:'ميناء', branch:'فرع', otherSite:'موقع آخر'
   },
   en: {
     appTitle:'Asset Inventory', device:'devices', logout:'Sign out', startCamera:'Start camera', stop:'Stop',
@@ -530,15 +527,8 @@ const translations = {
     libraryFailed:'Could not load the fallback scanner', starting:'Starting...', exported:'Exported', devices:'devices', clearConfirm:'All records will be deleted. Are you sure?',
     clearFailed:'Could not clear the records', cleared:'All records cleared', resetSent:'Reset link sent. Check your email.', resetSuccess:'Password updated successfully.',
     passwordsMismatch:'The passwords do not match', invalidForm:'Check the name and email. Password must be at least 8 characters.', configMissing:'Connect Supabase in config.js first',
-    siteType:'Site type', chooseSiteType:'Choose site type', siteName:'Site name', siteNamePlaceholder:'Example: Halat Ammar border crossing', siteRequired:'Choose a site type and enter its name', changeSite:'Change site', borderCrossing:'Border crossing', airport:'Airport', seaport:'Seaport', branch:'Branch', otherSite:'Other site'
+    siteType:'Site type', chooseSiteType:'Choose site type', siteName:'Site name', siteNamePlaceholder:'Enter the site name in Arabic or English', siteRequired:'Choose a site type and enter its name', changeSite:'Change site', borderCrossing:'Border crossing', airport:'Airport', seaport:'Seaport', branch:'Branch', otherSite:'Other site'
   }
-};
-
-const SITE_SUGGESTIONS = {
-  border_crossing:['منفذ حالة عمار','منفذ الحديثة','منفذ الدرة','منفذ جديدة عرعر','منفذ البطحاء','منفذ سلوى','منفذ الوديعة','منفذ الخفجي','منفذ الرقعي','منفذ الطوال'],
-  airport:['مطار الملك خالد الدولي','مطار الملك عبدالعزيز الدولي','مطار الأمير محمد بن عبدالعزيز الدولي','مطار تبوك','مطار نيوم'],
-  seaport:['ميناء ضباء','ميناء جدة الإسلامي','ميناء الملك عبدالعزيز بالدمام','ميناء ينبع التجاري','ميناء جازان'],
-  branch:[], other:[]
 };
 
 function siteTypeLabel(type) {
@@ -642,7 +632,8 @@ function applyLanguage(lang) {
   $('recordsTitle').textContent = t('inventoryRecords');
   startBtn.lastChild.textContent = ' ' + t('startCamera');
   stopBtn.textContent = t('stop');
-  exportBtn.lastChild.textContent = ' ' + t('export');
+  $('exportBtnText').textContent = t('export');
+  exportBtn.setAttribute('aria-label', t('export'));
   clearBtn.textContent = t('clearAllRecords');
   $('recordsAdminNote').textContent = t('recordsAdminNote');
   $('manualSubmitBtn').textContent = t('add');
@@ -696,7 +687,7 @@ function setAuthMode(mode) {
 function showAuth() {
   authView.hidden = false;
   appView.hidden = true;
-  document.querySelector('.sticky-bar').hidden = true;
+  document.querySelector('.export-section').hidden = true;
 }
 
 async function showApp(user) {
@@ -709,7 +700,7 @@ async function showApp(user) {
   currentUser = user;
   authView.hidden = true;
   appView.hidden = false;
-  document.querySelector('.sticky-bar').hidden = false;
+  document.querySelector('.export-section').hidden = false;
   $('currentUserEmail').textContent = user.email || '';
   $('currentUserName').textContent = user.user_metadata?.display_name || user.email?.split('@')[0] || t('user');
   $('currentSiteName').textContent = `${siteTypeLabel(currentSite.type)} — ${currentSite.name}`;
@@ -862,7 +853,7 @@ function updateManualEntry() {
 
 function resetCurrentScan(showMessage = true) {
   lastScanCard.style.display = 'none';
-  document.querySelector('.sticky-bar').hidden = false;
+  document.querySelector('.export-section').hidden = false;
   pendingSerial = null;
   pendingAsset = null;
   scanStep = 'serial';
@@ -900,7 +891,7 @@ function showScanForm(serial, asset) {
 
   lastScanCard.className = 'last-scan';
   lastScanCard.style.display = 'block';
-  document.querySelector('.sticky-bar').hidden = true;
+  document.querySelector('.export-section').hidden = true;
   lastScanCard.innerHTML = `
     ${warning}
     <div class="label">${t('newScan')}</div>
@@ -1341,7 +1332,6 @@ async function clearAll() {
 $('forgotPasswordBtn').addEventListener('click', () => setAuthMode('forgot'));
 $('authBackBtn').addEventListener('click', () => setAuthMode('login'));
 $('siteTypeInput').addEventListener('change', () => {
-  $('siteSuggestions').innerHTML = (SITE_SUGGESTIONS[$('siteTypeInput').value] || []).map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
   $('siteNameInput').value = '';
   $('siteNameInput').focus();
 });
