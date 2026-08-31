@@ -315,7 +315,8 @@
       <button id="authSubmit" class="btn primary" type="submit">تسجيل الدخول</button>
       <div id="authError" class="auth-error" role="alert" aria-live="polite"></div>
     </form>
-    <div class="auth-switch"><span id="authSwitchText">ليس لديك حساب؟</span> <button id="authSwitch" class="link-btn" type="button">إنشاء حساب</button></div>
+    <div id="adminOnlyNote" class="auth-switch">الحسابات الجديدة ينشئها مسؤول النظام فقط</div>
+    <div id="authBackRow" class="auth-switch" hidden><button id="authBackBtn" class="link-btn" type="button">العودة لتسجيل الدخول</button></div>
     <footer class="page-footer auth-page-footer">Khalid Albalawi — 2026–2027</footer>
   </div>
 </section>
@@ -463,7 +464,7 @@ const translations = {
     username:'اسم المستخدم', usernamePlaceholder:'مثال: خالد البلوي', email:'البريد الإلكتروني', password:'الرقم السري',
     newPassword:'الرقم السري الجديد', confirmPassword:'تأكيد الرقم السري الجديد', passwordPlaceholder:'8 أحرف على الأقل',
     confirmPasswordPlaceholder:'أعد كتابة الرقم السري', forgotPassword:'نسيت الرقم السري؟', login:'تسجيل الدخول', signup:'إنشاء حساب',
-    createAccount:'إنشاء الحساب', noAccount:'ليس لديك حساب؟', haveAccount:'لديك حساب؟', backToLogin:'العودة لتسجيل الدخول',
+    createAccount:'إنشاء الحساب', noAccount:'ليس لديك حساب؟', haveAccount:'لديك حساب؟', backToLogin:'العودة لتسجيل الدخول', adminOnly:'الحسابات الجديدة ينشئها مسؤول النظام فقط',
     loginNote:'ادخل إلى سجلات أجهزتك المحفوظة', signupNote:'أنشئ حساباً لحفظ أجهزتك ومزامنتها',
     forgotTitle:'إعادة تعيين الرقم السري', forgotNote:'أدخل بريدك وسنرسل لك رابط إعادة التعيين', sendReset:'إرسال رابط الاستعادة',
     updateTitle:'تعيين رقم سري جديد', updateNote:'اكتب الرقم السري الجديد ثم أكّده', updatePassword:'حفظ الرقم السري الجديد',
@@ -491,7 +492,7 @@ const translations = {
     username:'Username', usernamePlaceholder:'Example: Khalid Albalawi', email:'Email', password:'Password', newPassword:'New password',
     confirmPassword:'Confirm new password', passwordPlaceholder:'At least 8 characters', confirmPasswordPlaceholder:'Re-enter the password',
     forgotPassword:'Forgot password?', login:'Sign in', signup:'Create account', createAccount:'Create account', noAccount:'Don’t have an account?',
-    haveAccount:'Already have an account?', backToLogin:'Back to sign in', loginNote:'Access your saved device records',
+    haveAccount:'Already have an account?', backToLogin:'Back to sign in', adminOnly:'New accounts are created by the system administrator only', loginNote:'Access your saved device records',
     signupNote:'Create an account to save and sync your devices', forgotTitle:'Reset password', forgotNote:'Enter your email and we’ll send a reset link',
     sendReset:'Send reset link', updateTitle:'Set a new password', updateNote:'Enter and confirm your new password', updatePassword:'Save new password',
     manualSerial:'Enter serial number manually (camera alternative)', manualAsset:'Enter asset number manually', manualPlaceholder:'Type or paste the barcode',
@@ -590,6 +591,8 @@ function applyLanguage(lang) {
   $('confirmPasswordLabel').textContent = t('confirmPassword');
   $('confirmPasswordInput').placeholder = t('confirmPasswordPlaceholder');
   $('forgotPasswordBtn').textContent = t('forgotPassword');
+  $('adminOnlyNote').textContent = t('adminOnly');
+  $('authBackBtn').textContent = t('backToLogin');
   $('authBrandTitle').textContent = t('appTitle');
   $('appTitle').textContent = t('appTitle');
   $('deviceCountLabel').textContent = t('device');
@@ -626,26 +629,26 @@ function authMessage(error) {
 }
 
 function setAuthMode(mode) {
+  if (mode === 'signup') mode = 'login';
   authMode = mode;
-  const signup = mode === 'signup';
   const forgot = mode === 'forgot';
   const updating = mode === 'update-password';
-  $('nameField').hidden = !signup;
+  $('nameField').hidden = true;
   $('emailField').hidden = updating;
   $('passwordField').hidden = forgot;
   $('confirmPasswordField').hidden = !updating;
   $('forgotRow').hidden = mode !== 'login';
-  $('displayName').required = signup;
+  $('displayName').required = false;
   $('emailInput').required = !updating;
   $('passwordInput').required = !forgot;
   $('confirmPasswordInput').required = updating;
-  $('passwordInput').autocomplete = signup || updating ? 'new-password' : 'current-password';
+  $('passwordInput').autocomplete = updating ? 'new-password' : 'current-password';
   $('passwordLabel').textContent = updating ? t('newPassword') : t('password');
-  $('authTitle').textContent = forgot ? t('forgotTitle') : updating ? t('updateTitle') : signup ? t('signup') : t('login');
-  $('authNote').textContent = forgot ? t('forgotNote') : updating ? t('updateNote') : signup ? t('signupNote') : t('loginNote');
-  $('authSubmit').textContent = forgot ? t('sendReset') : updating ? t('updatePassword') : signup ? t('createAccount') : t('login');
-  $('authSwitchText').textContent = signup ? t('haveAccount') : forgot || updating ? '' : t('noAccount');
-  $('authSwitch').textContent = signup || forgot || updating ? t('backToLogin') : t('signup');
+  $('authTitle').textContent = forgot ? t('forgotTitle') : updating ? t('updateTitle') : t('login');
+  $('authNote').textContent = forgot ? t('forgotNote') : updating ? t('updateNote') : t('loginNote');
+  $('authSubmit').textContent = forgot ? t('sendReset') : updating ? t('updatePassword') : t('login');
+  $('adminOnlyNote').hidden = forgot || updating;
+  $('authBackRow').hidden = !(forgot || updating);
   $('authError').textContent = '';
 }
 
@@ -895,7 +898,12 @@ function showScanForm(serial, asset) {
   let selectedDeviceType = exists?.deviceType || null;
 
   function renderModelSuggestions() {
-    const items = MODEL_SUGGESTIONS[selectedDeviceType] || [];
+    const savedModels = records
+      .filter(record => record.deviceType === selectedDeviceType && record.model)
+      .map(record => record.model.trim())
+      .filter(Boolean);
+    const items = [...new Set([...(MODEL_SUGGESTIONS[selectedDeviceType] || []), ...savedModels])]
+      .sort((a, b) => a.localeCompare(b, currentLang === 'ar' ? 'ar' : 'en', { sensitivity:'base' }));
     $('modelSuggestions').innerHTML = items.map(model => `<button class="model-suggestion" type="button" data-model="${escapeHtml(model)}">${escapeHtml(model)}</button>`).join('');
     $('modelSuggestions').querySelectorAll('.model-suggestion').forEach(button => button.addEventListener('click', () => {
       $('modelInput').value = button.dataset.model;
@@ -1277,8 +1285,8 @@ async function clearAll() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-$('authSwitch').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'signup' : 'login'));
 $('forgotPasswordBtn').addEventListener('click', () => setAuthMode('forgot'));
+$('authBackBtn').addEventListener('click', () => setAuthMode('login'));
 $('authLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('appLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('manualSubmitBtn').addEventListener('click', submitManualBarcode);
@@ -1290,7 +1298,6 @@ $('authForm').addEventListener('submit', async event => {
   if (!configReady) { $('authError').textContent = t('configMissing'); return; }
   const email = $('emailInput').value.trim().toLowerCase();
   const password = $('passwordInput').value;
-  const displayName = $('displayName').value.trim();
   const confirmPassword = $('confirmPasswordInput').value;
   if (authMode === 'forgot') {
     if (!email) { $('authError').textContent = t('invalidForm'); return; }
@@ -1317,23 +1324,16 @@ $('authForm').addEventListener('submit', async event => {
     setAuthMode('login');
     return;
   }
-  if (!email || password.length < 8 || (authMode === 'signup' && displayName.length < 2)) {
+  if (!email || password.length < 8) {
     $('authError').textContent = t('invalidForm');
     return;
   }
   const submit = $('authSubmit');
   submit.disabled = true;
   $('authError').textContent = '';
-  const result = authMode === 'signup'
-    ? await db.auth.signUp({ email, password, options:{ data:{ display_name:displayName } } })
-    : await db.auth.signInWithPassword({ email, password });
+  const result = await db.auth.signInWithPassword({ email, password });
   submit.disabled = false;
   if (result.error) { $('authError').textContent = authMessage(result.error); return; }
-  if (authMode === 'signup' && !result.data.session) {
-    $('authError').style.color = 'var(--green)';
-    $('authError').textContent = currentLang === 'ar' ? 'تم إنشاء الحساب. افتح رسالة التفعيل في بريدك ثم سجّل الدخول.' : 'Account created. Open the confirmation email, then sign in.';
-    setTimeout(() => { $('authError').style.color = ''; setAuthMode('login'); }, 5000);
-  }
 });
 
 $('logoutBtn').addEventListener('click', async () => {
