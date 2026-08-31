@@ -295,10 +295,6 @@
     <h2 id="authTitle" class="auth-title">تسجيل الدخول</h2>
     <p id="authNote" class="auth-note">ادخل إلى سجلات أجهزتك المحفوظة</p>
     <form id="authForm" novalidate>
-      <div id="nameField" class="field" hidden>
-        <label id="displayNameLabel" for="displayName">اسم المستخدم</label>
-        <input id="displayName" type="text" autocomplete="name" maxlength="80" placeholder="مثال: خالد البلوي">
-      </div>
       <div id="emailField" class="field">
         <label id="emailLabel" for="emailInput">البريد الإلكتروني</label>
         <input id="emailInput" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="name@example.com" required>
@@ -463,9 +459,9 @@ const translations = {
     noRecords:'لا توجد أجهزة مسجلة بعد', loadingRecords:'جاري تحميل السجلات...', export:'تصدير Excel', clearAll:'مسح الكل',
     username:'اسم المستخدم', usernamePlaceholder:'مثال: خالد البلوي', email:'البريد الإلكتروني', password:'الرقم السري',
     newPassword:'الرقم السري الجديد', confirmPassword:'تأكيد الرقم السري الجديد', passwordPlaceholder:'8 أحرف على الأقل',
-    confirmPasswordPlaceholder:'أعد كتابة الرقم السري', forgotPassword:'نسيت الرقم السري؟', login:'تسجيل الدخول', signup:'إنشاء حساب',
-    createAccount:'إنشاء الحساب', noAccount:'ليس لديك حساب؟', haveAccount:'لديك حساب؟', backToLogin:'العودة لتسجيل الدخول', adminOnly:'الحسابات الجديدة ينشئها مسؤول النظام فقط',
-    loginNote:'ادخل إلى سجلات أجهزتك المحفوظة', signupNote:'أنشئ حساباً لحفظ أجهزتك ومزامنتها',
+    confirmPasswordPlaceholder:'أعد كتابة الرقم السري', forgotPassword:'نسيت الرقم السري؟', login:'تسجيل الدخول',
+    backToLogin:'العودة لتسجيل الدخول', adminOnly:'الحسابات الجديدة ينشئها مسؤول النظام فقط',
+    loginNote:'ادخل إلى سجلات أجهزتك المحفوظة',
     forgotTitle:'إعادة تعيين الرقم السري', forgotNote:'أدخل بريدك وسنرسل لك رابط إعادة التعيين', sendReset:'إرسال رابط الاستعادة',
     updateTitle:'تعيين رقم سري جديد', updateNote:'اكتب الرقم السري الجديد ثم أكّده', updatePassword:'حفظ الرقم السري الجديد',
     manualSerial:'إدخال يدوي للرقم التسلسلي (بديل للكاميرا)', manualAsset:'إدخال يدوي لرقم الأصل', manualPlaceholder:'اكتب أو الصق الباركود',
@@ -491,9 +487,8 @@ const translations = {
     noRecords:'No devices recorded yet', loadingRecords:'Loading records...', export:'Export Excel', clearAll:'Clear all',
     username:'Username', usernamePlaceholder:'Example: Khalid Albalawi', email:'Email', password:'Password', newPassword:'New password',
     confirmPassword:'Confirm new password', passwordPlaceholder:'At least 8 characters', confirmPasswordPlaceholder:'Re-enter the password',
-    forgotPassword:'Forgot password?', login:'Sign in', signup:'Create account', createAccount:'Create account', noAccount:'Don’t have an account?',
-    haveAccount:'Already have an account?', backToLogin:'Back to sign in', adminOnly:'New accounts are created by the system administrator only', loginNote:'Access your saved device records',
-    signupNote:'Create an account to save and sync your devices', forgotTitle:'Reset password', forgotNote:'Enter your email and we’ll send a reset link',
+    forgotPassword:'Forgot password?', login:'Sign in', backToLogin:'Back to sign in', adminOnly:'New accounts are created by the system administrator only', loginNote:'Access your saved device records',
+    forgotTitle:'Reset password', forgotNote:'Enter your email and we’ll send a reset link',
     sendReset:'Send reset link', updateTitle:'Set a new password', updateNote:'Enter and confirm your new password', updatePassword:'Save new password',
     manualSerial:'Enter serial number manually (camera alternative)', manualAsset:'Enter asset number manually', manualPlaceholder:'Type or paste the barcode',
     add:'Add', skipAsset:'Skip asset number', scanSerial:'Scan serial number', pointCamera:'Point the camera at the barcode / QR code',
@@ -584,8 +579,6 @@ function applyLanguage(lang) {
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   $('authLangBtn').textContent = currentLang === 'ar' ? 'English' : 'العربية';
   $('appLangBtn').textContent = currentLang === 'ar' ? 'English' : 'العربية';
-  $('displayNameLabel').textContent = t('username');
-  $('displayName').placeholder = t('usernamePlaceholder');
   $('emailLabel').textContent = t('email');
   $('passwordInput').placeholder = t('passwordPlaceholder');
   $('confirmPasswordLabel').textContent = t('confirmPassword');
@@ -629,16 +622,13 @@ function authMessage(error) {
 }
 
 function setAuthMode(mode) {
-  if (mode === 'signup') mode = 'login';
   authMode = mode;
   const forgot = mode === 'forgot';
   const updating = mode === 'update-password';
-  $('nameField').hidden = true;
   $('emailField').hidden = updating;
   $('passwordField').hidden = forgot;
   $('confirmPasswordField').hidden = !updating;
   $('forgotRow').hidden = mode !== 'login';
-  $('displayName').required = false;
   $('emailInput').required = !updating;
   $('passwordInput').required = !forgot;
   $('confirmPasswordInput').required = updating;
