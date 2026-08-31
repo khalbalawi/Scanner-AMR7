@@ -19,6 +19,8 @@ create table if not exists public.assets (
   model text not null default '' check (char_length(model) <= 200),
   status text not null check (status in ('جديد', 'مستعمل', 'للصيانة', 'تالف')),
   notes text not null default '' check (char_length(notes) <= 1000),
+  site_type text not null default '' check (site_type in ('', 'border_crossing', 'airport', 'seaport', 'branch', 'other')),
+  site_name text not null default '' check (char_length(site_name) <= 120),
   scanned_at timestamptz not null default now(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -28,6 +30,9 @@ create table if not exists public.assets (
 -- ترقية آمنة للمشاريع التي أنشأت جدول assets قبل إضافة نوع الجهاز.
 alter table public.assets
   add column if not exists device_type text not null default 'other';
+
+alter table public.assets add column if not exists site_type text not null default '';
+alter table public.assets add column if not exists site_name text not null default '';
 
 create index if not exists assets_user_device_type_idx
   on public.assets (user_id, device_type, scanned_at desc);
