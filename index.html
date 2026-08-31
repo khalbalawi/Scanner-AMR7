@@ -38,7 +38,7 @@
     font-size:15px; line-height:1.5; min-height:100vh; overscroll-behavior:none;
   }
   body { background:#fff; }
-  .app { position:relative; max-width:720px; margin:0 auto; padding:16px; padding-bottom:120px; }
+  .app { position:relative; max-width:720px; margin:0 auto; padding:16px; padding-bottom:40px; }
   [hidden] { display:none !important; }
 
   .auth-shell { min-height:100vh; display:grid; place-items:center; padding:20px 16px; }
@@ -60,18 +60,11 @@
   .user-info { min-width:0; }
   .user-name { font-weight:600; font-size:13px; }
   .user-email { color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .user-site { color:var(--accent); font-size:11px; font-weight:600; margin-top:2px; }
+  .user-actions { display:flex; gap:6px; align-items:center; }
   .logout-btn { background:transparent; border:1px solid var(--border); color:var(--text-dim); border-radius:7px; padding:7px 10px; font-family:inherit; cursor:pointer; white-space:nowrap; }
   .page-footer { color:var(--text-dim); text-align:center; font-size:11px; padding:28px 0 4px; }
   .auth-page-footer { padding-top:22px; }
-  .session-shell { min-height:100vh; display:grid; place-items:center; padding:20px 16px; background:#fff; }
-  .session-card { width:100%; max-width:460px; border:1px solid var(--border); border-radius:14px; padding:22px; box-shadow:0 18px 50px rgba(0,0,0,.12); }
-  .session-card h2 { font-size:20px; margin-bottom:5px; }
-  .session-card > p { color:var(--text-dim); font-size:12px; margin-bottom:18px; }
-  .session-location { display:flex; align-items:center; gap:10px; padding:11px 12px; margin-bottom:14px; border:1px solid var(--accent); background:var(--accent-dim); border-radius:10px; }
-  .session-location-info { min-width:0; flex:1; }
-  .session-location-info strong { display:block; font-size:13px; }
-  .session-location-info span { display:block; color:var(--text-dim); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .change-session-btn { flex:0 0 auto; border:0; background:transparent; color:var(--accent); font:600 11px inherit; cursor:pointer; padding:6px; }
 
   header { display:flex; justify-content:space-between; align-items:center; padding:8px 4px 20px; border-bottom:1px solid var(--border); margin-bottom:20px; }
   header .brand { display:flex; align-items:center; gap:10px; }
@@ -216,11 +209,12 @@
   .record-action { border:1px solid var(--border); background:#fff; border-radius:7px; padding:6px 10px; font:600 11px inherit; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
   .record-action.edit { color:var(--accent); border-color:var(--accent); }
   .record-action.delete { color:var(--red); border-color:var(--red); }
-  .record-menu-btn { grid-column:1/-1; position:static; justify-self:end; width:42px; height:30px; margin-top:3px; border:0; background:var(--panel-2); color:var(--text-dim); border-radius:8px; font-size:21px; line-height:1; cursor:pointer; }
+  .record-menu-btn { position:absolute; left:8px; top:8px; width:28px; height:28px; border:0; background:transparent; color:var(--text-dim); border-radius:7px; font-size:20px; line-height:1; cursor:pointer; }
   .record-menu-btn:hover,.record-menu-btn:focus { background:var(--panel-2); color:var(--black); }
 
-  .sticky-bar { position:fixed; bottom:16px; left:16px; right:16px; max-width:688px; margin:0 auto; z-index:10; }
-  .sticky-bar .btn { box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .export-section { display:flex; justify-content:center; padding:18px 0 6px; }
+  .export-compact { width:84px; min-height:72px; flex:0 0 auto; padding:10px 8px; border-radius:12px; flex-direction:column; gap:5px; font-size:11px; line-height:1.2; }
+  .export-compact svg { width:22px; height:22px; }
 
   .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:var(--green); color:#000; padding:10px 18px; border-radius:8px; font-weight:600; font-size:13px; z-index:100; transition:transform .3s; box-shadow:0 4px 12px rgba(0,0,0,.3); }
   .toast.show { transform:translateX(-50%) translateY(0); }
@@ -244,7 +238,7 @@
   .scanner-empty { min-height:260px; background:linear-gradient(180deg,#fff,#faf9f7); }
   .scanner-empty .icon { border-style:solid; }
   .manual-entry { margin-top:0; }
-  .sticky-bar .btn.primary { background:var(--black); border-color:var(--black); }
+  .export-section .btn.primary { background:var(--black); border-color:var(--black); box-shadow:0 6px 16px rgba(17,17,17,.18); }
 
   .device-type-options { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
   .device-type-chip { min-height:70px; padding:9px 6px; background:#fff; border:1px solid var(--border); border-radius:10px; color:var(--text); font:600 12px inherit; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; transition:.15s; }
@@ -270,7 +264,7 @@
   .group-table-head,.record { display:grid; grid-template-columns:minmax(110px,1.2fr) minmax(100px,1fr) minmax(80px,.8fr); gap:8px; align-items:center; }
   .group-table-head { padding:8px 14px; background:var(--panel-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); color:var(--text-dim); font-size:10px; font-weight:700; }
   .record { padding:11px 14px; }
-  .record { position:relative; }
+  .record { position:relative; padding-left:42px; }
   .record .serial { font-size:11px; direction:ltr; text-align:start; }
   .record .model { grid-column:auto; font-size:11px; color:var(--text); }
   .record .asset-cell { color:var(--text-dim); font:600 10px 'JetBrains Mono',monospace; direction:ltr; text-align:start; }
@@ -281,7 +275,7 @@
   .clear-all-secondary { border:0; background:transparent; color:var(--red); font:600 12px inherit; padding:7px 10px; cursor:pointer; }
 
   @media(max-width:520px) {
-    .app { padding:12px; padding-bottom:118px; }
+    .app { padding:12px; padding-bottom:34px; }
     .page-heading { margin-bottom:10px; }
     header { margin-bottom:14px; padding-bottom:14px; }
     .device-type-options { grid-template-columns:repeat(3,1fr); }
@@ -304,10 +298,6 @@
     <h2 id="authTitle" class="auth-title">تسجيل الدخول</h2>
     <p id="authNote" class="auth-note">ادخل إلى سجلات أجهزتك المحفوظة</p>
     <form id="authForm" novalidate>
-      <div id="nameField" class="field" hidden>
-        <label id="displayNameLabel" for="displayName">اسم المستخدم</label>
-        <input id="displayName" type="text" autocomplete="name" maxlength="80" placeholder="مثال: خالد البلوي">
-      </div>
       <div id="emailField" class="field">
         <label id="emailLabel" for="emailInput">البريد الإلكتروني</label>
         <input id="emailInput" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="name@example.com" required>
@@ -315,6 +305,21 @@
       <div id="passwordField" class="field">
         <label id="passwordLabel" for="passwordInput">الرقم السري</label>
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="8 أحرف على الأقل" required>
+      </div>
+      <div id="siteTypeField" class="field">
+        <label id="siteTypeLabel" for="siteTypeInput">نوع الموقع</label>
+        <select id="siteTypeInput" required>
+          <option value="">اختر نوع الموقع</option>
+          <option value="border_crossing">منفذ بري</option>
+          <option value="airport">مطار</option>
+          <option value="seaport">ميناء</option>
+          <option value="branch">فرع</option>
+          <option value="other">موقع آخر</option>
+        </select>
+      </div>
+      <div id="siteNameField" class="field">
+        <label id="siteNameLabel" for="siteNameInput">اسم الموقع</label>
+        <input id="siteNameInput" type="text" maxlength="120" placeholder="اكتب اسم الموقع بالعربي أو الإنجليزي" autocomplete="off" required>
       </div>
       <div id="confirmPasswordField" class="field" hidden>
         <label id="confirmPasswordLabel" for="confirmPasswordInput">تأكيد الرقم السري الجديد</label>
@@ -324,40 +329,9 @@
       <button id="authSubmit" class="btn primary" type="submit">تسجيل الدخول</button>
       <div id="authError" class="auth-error" role="alert" aria-live="polite"></div>
     </form>
-    <div class="auth-switch"><span id="authSwitchText">ليس لديك حساب؟</span> <button id="authSwitch" class="link-btn" type="button">إنشاء حساب</button></div>
+    <div id="adminOnlyNote" class="auth-switch">الحسابات الجديدة ينشئها مسؤول النظام فقط</div>
+    <div id="authBackRow" class="auth-switch" hidden><button id="authBackBtn" class="link-btn" type="button">العودة لتسجيل الدخول</button></div>
     <footer class="page-footer auth-page-footer">Khalid Albalawi — 2026–2027</footer>
-  </div>
-</section>
-
-<section id="sessionView" class="session-shell" hidden>
-  <div class="session-card">
-    <div class="page-heading">Field Support</div>
-    <h2 id="sessionTitle">بيانات موقع الجرد</h2>
-    <p id="sessionNote">حدد الموقع قبل بدء جرد الأجهزة</p>
-    <form id="sessionForm" novalidate>
-      <div class="field">
-        <label id="locationTypeLabel" for="locationType">نوع الموقع</label>
-        <select id="locationType" required>
-          <option value="">اختر نوع الموقع</option>
-          <option value="branch">فرع</option>
-          <option value="airport">مطار</option>
-          <option value="border_port">منفذ</option>
-          <option value="seaport">ميناء</option>
-          <option value="other">أخرى</option>
-        </select>
-      </div>
-      <div class="field">
-        <label id="locationNameLabel" for="locationName">اسم الموقع</label>
-        <input id="locationName" type="text" maxlength="120" autocomplete="organization" placeholder="مثال: ميناء ضباء" required>
-      </div>
-      <div class="field">
-        <label id="sessionNotesLabel" for="sessionNotes">ملاحظات (اختياري)</label>
-        <input id="sessionNotes" type="text" maxlength="300" placeholder="مثال: المبنى الرئيسي">
-      </div>
-      <button id="startSessionBtn" class="btn primary" type="submit">بدء الجرد</button>
-      <div id="sessionError" class="auth-error" role="alert" aria-live="polite"></div>
-    </form>
-    <button id="sessionLogoutBtn" class="link-btn" type="button">تسجيل الخروج</button>
   </div>
 </section>
 
@@ -380,17 +354,12 @@
     <div class="user-info">
       <div id="currentUserName" class="user-name">—</div>
       <div id="currentUserEmail" class="user-email">—</div>
+      <div id="currentSiteName" class="user-site">—</div>
     </div>
-    <button id="logoutBtn" class="logout-btn" type="button">تسجيل الخروج</button>
-  </div>
-
-  <div class="session-location">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/></svg>
-    <div class="session-location-info">
-      <strong id="activeLocationName">—</strong>
-      <span id="activeLocationMeta">—</span>
+    <div class="user-actions">
+      <button id="changeSiteBtn" class="logout-btn" type="button">تغيير الموقع</button>
+      <button id="logoutBtn" class="logout-btn" type="button">تسجيل الخروج</button>
     </div>
-    <button id="changeSessionBtn" class="change-session-btn" type="button">تغيير الموقع</button>
   </div>
 
   <div id="scanHint" class="scan-hint" style="display:none;"></div>
@@ -461,20 +430,17 @@
     <p id="recordsAdminNote">إدارة السجل — هذا الإجراء يحذف جميع الأجهزة نهائيًا</p>
     <button id="clearBtn" class="clear-all-secondary" type="button" disabled>مسح كل السجل</button>
   </div>
-  <footer class="page-footer">Khalid Albalawi — 2026–2027</footer>
-</div>
-
-<div class="sticky-bar">
-  <div class="btn-row" style="margin:0;">
-    <button id="exportBtn" class="btn primary" disabled>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <div class="export-section">
+    <button id="exportBtn" class="btn primary export-compact" type="button" disabled aria-label="تصدير Excel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
         <polyline points="7 10 12 15 17 10"/>
         <line x1="12" y1="15" x2="12" y2="3"/>
       </svg>
-      تصدير Excel
+      <span id="exportBtnText">تصدير Excel</span>
     </button>
   </div>
+  <footer class="page-footer">Khalid Albalawi — 2026–2027</footer>
 </div>
 </main>
 
@@ -489,6 +455,7 @@ const db = configReady ? window.supabase.createClient(config.SUPABASE_URL, confi
 }) : null;
 let records = [];
 let currentUser = null;
+let currentSite = JSON.parse(localStorage.getItem('assetScannerCurrentSite') || 'null');
 let authMode = 'login';
 let isScanning    = false;
 let scanStep      = 'serial';
@@ -503,8 +470,6 @@ let maxZoom       = 5;
 let zoomSupported = false;
 let fallbackScanner = null;
 let lastDetectionRun = 0;
-let currentInventorySession = null;
-let initializedUserId = null;
 let currentLang = localStorage.getItem('assetScannerLang') === 'en' ? 'en' : 'ar';
 
 const translations = {
@@ -514,14 +479,14 @@ const translations = {
     noRecords:'لا توجد أجهزة مسجلة بعد', loadingRecords:'جاري تحميل السجلات...', export:'تصدير Excel', clearAll:'مسح الكل',
     username:'اسم المستخدم', usernamePlaceholder:'مثال: خالد البلوي', email:'البريد الإلكتروني', password:'الرقم السري',
     newPassword:'الرقم السري الجديد', confirmPassword:'تأكيد الرقم السري الجديد', passwordPlaceholder:'8 أحرف على الأقل',
-    confirmPasswordPlaceholder:'أعد كتابة الرقم السري', forgotPassword:'نسيت الرقم السري؟', login:'تسجيل الدخول', signup:'إنشاء حساب',
-    createAccount:'إنشاء الحساب', noAccount:'ليس لديك حساب؟', haveAccount:'لديك حساب؟', backToLogin:'العودة لتسجيل الدخول',
-    loginNote:'ادخل إلى سجلات أجهزتك المحفوظة', signupNote:'أنشئ حساباً لحفظ أجهزتك ومزامنتها',
+    confirmPasswordPlaceholder:'أعد كتابة الرقم السري', forgotPassword:'نسيت الرقم السري؟', login:'تسجيل الدخول',
+    backToLogin:'العودة لتسجيل الدخول', adminOnly:'الحسابات الجديدة ينشئها مسؤول النظام فقط',
+    loginNote:'ادخل إلى سجلات أجهزتك المحفوظة',
     forgotTitle:'إعادة تعيين الرقم السري', forgotNote:'أدخل بريدك وسنرسل لك رابط إعادة التعيين', sendReset:'إرسال رابط الاستعادة',
     updateTitle:'تعيين رقم سري جديد', updateNote:'اكتب الرقم السري الجديد ثم أكّده', updatePassword:'حفظ الرقم السري الجديد',
     manualSerial:'إدخال يدوي للرقم التسلسلي (بديل للكاميرا)', manualAsset:'إدخال يدوي لرقم الأصل', manualPlaceholder:'اكتب أو الصق الباركود',
     add:'إضافة', skipAsset:'تخطي رقم الأصل', scanSerial:'سكان الرقم التسلسلي', pointCamera:'وجّه الكاميرا على الباركود / QR',
-    scanAsset:'سكان رقم الأصل', serial:'السيريال', readyScan:'جاهز للسكان...', serialDone:'السيريال تم ✓ — سكن رقم الأصل',
+    scanAsset:'سكان رقم الأصل (ZATCA)', serial:'السيريال', readyScan:'جاهز للسكان...', serialDone:'السيريال تم ✓ — سكن رقم الأصل',
     serialDoneToast:'✓ السيريال تم — سكن رقم الأصل', sameSerial:'هذا نفس السيريال — سكن رقم أصل مختلف', requiredBarcode:'أدخل قيمة الباركود أولاً',
     user:'مستخدم', editRecord:'تعديل', deleteRecord:'حذف', confirmDelete:'حذف الجهاز', deleteFailed:'تعذّر حذف السجل', deleted:'تم حذف السجل',
     cancelOperation:'إلغاء العملية', startNewDevice:'بدء جهاز جديد', scanCancelled:'تم إلغاء القراءة — جاهز لجهاز جديد', recordsAdminNote:'إدارة السجل — هذا الإجراء يحذف جميع الأجهزة نهائيًا', clearAllRecords:'مسح كل السجل',
@@ -535,7 +500,7 @@ const translations = {
     libraryFailed:'فشل تحميل المكتبة الاحتياطية', starting:'جاري التشغيل...', exported:'تم تصدير', devices:'جهاز', clearConfirm:'سيتم حذف جميع السجلات. هل أنت متأكد؟',
     clearFailed:'تعذّر مسح السجلات', cleared:'تم مسح الكل', resetSent:'تم إرسال رابط الاستعادة. افحص بريدك الإلكتروني.', resetSuccess:'تم تحديث الرقم السري بنجاح.',
     passwordsMismatch:'الرقمان السريان غير متطابقين', invalidForm:'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف', configMissing:'يلزم ربط المشروع بـ Supabase من ملف config.js',
-    sessionTitle:'بيانات موقع الجرد', sessionNote:'حدد الموقع قبل بدء جرد الأجهزة', locationType:'نوع الموقع', chooseLocationType:'اختر نوع الموقع', locationName:'اسم الموقع', locationPlaceholder:'مثال: ميناء ضباء', sessionNotes:'ملاحظات (اختياري)', sessionNotesPlaceholder:'مثال: المبنى الرئيسي', startInventory:'بدء الجرد', continueInventory:'متابعة الجرد', changeLocation:'تغيير الموقع', locationRequired:'اختر نوع الموقع واكتب اسمه', locationLocked:'صدّر الأجهزة وامسح السجل قبل تغيير الموقع حتى لا تختلط المواقع', branch:'فرع', airport:'مطار', borderPort:'منفذ', seaport:'ميناء', otherLocation:'أخرى', inventorySummary:'ملخص الجرد', inventoryDetails:'تفاصيل الأجهزة', employeeName:'اسم الموظف', inventoryDate:'تاريخ بدء الجرد', totalDevices:'إجمالي الأجهزة'
+    siteType:'نوع الموقع', chooseSiteType:'اختر نوع الموقع', siteName:'اسم الموقع', siteNamePlaceholder:'اكتب اسم الموقع بالعربي أو الإنجليزي', siteRequired:'اختر نوع الموقع واكتب اسمه', changeSite:'تغيير الموقع', borderCrossing:'منفذ بري', airport:'مطار', seaport:'ميناء', branch:'فرع', otherSite:'موقع آخر'
   },
   en: {
     appTitle:'Asset Inventory', device:'devices', logout:'Sign out', startCamera:'Start camera', stop:'Stop',
@@ -543,13 +508,12 @@ const translations = {
     noRecords:'No devices recorded yet', loadingRecords:'Loading records...', export:'Export Excel', clearAll:'Clear all',
     username:'Username', usernamePlaceholder:'Example: Khalid Albalawi', email:'Email', password:'Password', newPassword:'New password',
     confirmPassword:'Confirm new password', passwordPlaceholder:'At least 8 characters', confirmPasswordPlaceholder:'Re-enter the password',
-    forgotPassword:'Forgot password?', login:'Sign in', signup:'Create account', createAccount:'Create account', noAccount:'Don’t have an account?',
-    haveAccount:'Already have an account?', backToLogin:'Back to sign in', loginNote:'Access your saved device records',
-    signupNote:'Create an account to save and sync your devices', forgotTitle:'Reset password', forgotNote:'Enter your email and we’ll send a reset link',
+    forgotPassword:'Forgot password?', login:'Sign in', backToLogin:'Back to sign in', adminOnly:'New accounts are created by the system administrator only', loginNote:'Access your saved device records',
+    forgotTitle:'Reset password', forgotNote:'Enter your email and we’ll send a reset link',
     sendReset:'Send reset link', updateTitle:'Set a new password', updateNote:'Enter and confirm your new password', updatePassword:'Save new password',
     manualSerial:'Enter serial number manually (camera alternative)', manualAsset:'Enter asset number manually', manualPlaceholder:'Type or paste the barcode',
     add:'Add', skipAsset:'Skip asset number', scanSerial:'Scan serial number', pointCamera:'Point the camera at the barcode / QR code',
-    scanAsset:'Scan asset number', serial:'Serial', readyScan:'Ready to scan...', serialDone:'Serial captured ✓ — scan the asset number',
+    scanAsset:'Scan asset number (ZATCA)', serial:'Serial', readyScan:'Ready to scan...', serialDone:'Serial captured ✓ — scan the asset number',
     serialDoneToast:'✓ Serial captured — scan the asset number', sameSerial:'This matches the serial number — scan a different asset number', requiredBarcode:'Enter a barcode value first',
     user:'User', editRecord:'Edit', deleteRecord:'Delete', confirmDelete:'Delete device', deleteFailed:'Could not delete the record', deleted:'Record deleted',
     cancelOperation:'Cancel scan', startNewDevice:'Start new device', scanCancelled:'Scan cancelled — ready for a new device', recordsAdminNote:'Record management — this permanently deletes every device', clearAllRecords:'Delete all records',
@@ -563,19 +527,23 @@ const translations = {
     libraryFailed:'Could not load the fallback scanner', starting:'Starting...', exported:'Exported', devices:'devices', clearConfirm:'All records will be deleted. Are you sure?',
     clearFailed:'Could not clear the records', cleared:'All records cleared', resetSent:'Reset link sent. Check your email.', resetSuccess:'Password updated successfully.',
     passwordsMismatch:'The passwords do not match', invalidForm:'Check the name and email. Password must be at least 8 characters.', configMissing:'Connect Supabase in config.js first',
-    sessionTitle:'Inventory location', sessionNote:'Choose the location before scanning devices', locationType:'Location type', chooseLocationType:'Choose location type', locationName:'Location name', locationPlaceholder:'Example: Duba Seaport', sessionNotes:'Notes (optional)', sessionNotesPlaceholder:'Example: Main building', startInventory:'Start inventory', continueInventory:'Continue inventory', changeLocation:'Change location', locationRequired:'Choose a location type and enter its name', locationLocked:'Export the devices and clear the records before changing location to avoid mixing locations', branch:'Branch', airport:'Airport', borderPort:'Border crossing', seaport:'Seaport', otherLocation:'Other', inventorySummary:'Inventory Summary', inventoryDetails:'Device Details', employeeName:'Employee name', inventoryDate:'Inventory start date', totalDevices:'Total devices'
+    siteType:'Site type', chooseSiteType:'Choose site type', siteName:'Site name', siteNamePlaceholder:'Enter the site name in Arabic or English', siteRequired:'Choose a site type and enter its name', changeSite:'Change site', borderCrossing:'Border crossing', airport:'Airport', seaport:'Seaport', branch:'Branch', otherSite:'Other site'
   }
 };
+
+function siteTypeLabel(type) {
+  return ({border_crossing:t('borderCrossing'),airport:t('airport'),seaport:t('seaport'),branch:t('branch'),other:t('otherSite')})[type] || type;
+}
 
 const t = key => translations[currentLang][key] || translations.ar[key] || key;
 
 const DEVICE_TYPES = ['monitor','pc','scanner','printer','cisco_phone','other'];
 const MODEL_SUGGESTIONS = {
   monitor:['HP P27 G5 Monitor'],
-  pc:['HP Z2','HP EliteDesk'],
+  pc:['HP Z2','HP EliteDesk','HP Z2 SFF Workstation G9','HP EliteOne 870 27 inch G9 All-in-One'],
   scanner:['EPSON DS-410'],
-  printer:['HP MFP M528','EPSON TM-T88VII'],
-  cisco_phone:[],
+  printer:['HP MFP M528','EPSON TM-T88VII','HP P57750dw','HP M603','HP LaserJet Enterprise MFP 5800'],
+  cisco_phone:['Cisco IP Phone 7945','Cisco IP Phone 7911','Cisco IP Phone 7962','Cisco IP Phone 7975','Cisco CP-7841'],
   other:[]
 };
 const DEVICE_ICONS = {
@@ -595,9 +563,9 @@ function inferDeviceType(model='') {
   const value = String(model).toLowerCase();
   if (/monitor|display|شاشة/.test(value)) return 'monitor';
   if (/scanner|ds-410|سكانر/.test(value)) return 'scanner';
-  if (/printer|mfp|laserjet|tm-t88|طابعة/.test(value)) return 'printer';
-  if (/cisco|phone|هاتف/.test(value)) return 'cisco_phone';
-  if (/z\s*2|elite\s*desk|pro\s*desk|opti\s*plex|desktop|workstation|(^|[^a-z])pc([^a-z]|$)/.test(value)) return 'pc';
+  if (/printer|mfp|laserjet|tm[\s-]*t88|p\s*57750\s*dw|m\s*603|طابعة/.test(value)) return 'printer';
+  if (/cisco|ip\s*phone|cp[\s-]*7841|هاتف/.test(value)) return 'cisco_phone';
+  if (/z\s*2|elite\s*desk|elite\s*one|pro\s*desk|opti\s*plex|all\s*[- ]?\s*in\s*[- ]?\s*one|desktop|workstation|(^|[^a-z])pc([^a-z]|$)/.test(value)) return 'pc';
   return 'other';
 }
 
@@ -616,7 +584,6 @@ const clearBtn       = $('clearBtn');
 const toast          = $('toast');
 const authView       = $('authView');
 const appView        = $('appView');
-const sessionView    = $('sessionView');
 
 // ── iOS Detection ─────────────────────────────────────────────────────────────
 function isIOS() {
@@ -638,37 +605,37 @@ function applyLanguage(lang) {
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   $('authLangBtn').textContent = currentLang === 'ar' ? 'English' : 'العربية';
   $('appLangBtn').textContent = currentLang === 'ar' ? 'English' : 'العربية';
-  $('displayNameLabel').textContent = t('username');
-  $('displayName').placeholder = t('usernamePlaceholder');
   $('emailLabel').textContent = t('email');
   $('passwordInput').placeholder = t('passwordPlaceholder');
   $('confirmPasswordLabel').textContent = t('confirmPassword');
   $('confirmPasswordInput').placeholder = t('confirmPasswordPlaceholder');
   $('forgotPasswordBtn').textContent = t('forgotPassword');
+  $('adminOnlyNote').textContent = t('adminOnly');
+  $('authBackBtn').textContent = t('backToLogin');
   $('authBrandTitle').textContent = t('appTitle');
   $('appTitle').textContent = t('appTitle');
   $('deviceCountLabel').textContent = t('device');
   $('logoutBtn').textContent = t('logout');
+  $('changeSiteBtn').textContent = t('changeSite');
+  $('siteTypeLabel').textContent = t('siteType');
+  $('siteNameLabel').textContent = t('siteName');
+  $('siteNameInput').placeholder = t('siteNamePlaceholder');
+  const siteTypeSelect = $('siteTypeInput');
+  siteTypeSelect.options[0].textContent = t('chooseSiteType');
+  siteTypeSelect.options[1].textContent = t('borderCrossing');
+  siteTypeSelect.options[2].textContent = t('airport');
+  siteTypeSelect.options[3].textContent = t('seaport');
+  siteTypeSelect.options[4].textContent = t('branch');
+  siteTypeSelect.options[5].textContent = t('otherSite');
   $('scannerEmptyTitle').textContent = t('scannerEmptyTitle');
   $('scannerEmptyNote').textContent = t('scannerEmptyNote');
   $('recordsTitle').textContent = t('inventoryRecords');
   startBtn.lastChild.textContent = ' ' + t('startCamera');
   stopBtn.textContent = t('stop');
-  exportBtn.lastChild.textContent = ' ' + t('export');
+  $('exportBtnText').textContent = t('export');
+  exportBtn.setAttribute('aria-label', t('export'));
   clearBtn.textContent = t('clearAllRecords');
   $('recordsAdminNote').textContent = t('recordsAdminNote');
-  $('sessionTitle').textContent = t('sessionTitle');
-  $('sessionNote').textContent = t('sessionNote');
-  $('locationTypeLabel').textContent = t('locationType');
-  $('locationNameLabel').textContent = t('locationName');
-  $('locationName').placeholder = t('locationPlaceholder');
-  $('sessionNotesLabel').textContent = t('sessionNotes');
-  $('sessionNotes').placeholder = t('sessionNotesPlaceholder');
-  $('startSessionBtn').textContent = currentInventorySession ? t('continueInventory') : t('startInventory');
-  $('sessionLogoutBtn').textContent = t('logout');
-  $('changeSessionBtn').textContent = t('changeLocation');
-  const locationOptions = { '':t('chooseLocationType'), branch:t('branch'), airport:t('airport'), border_port:t('borderPort'), seaport:t('seaport'), other:t('otherLocation') };
-  [...$('locationType').options].forEach(option => { option.textContent = locationOptions[option.value]; });
   $('manualSubmitBtn').textContent = t('add');
   $('manualSkipBtn').textContent = t('skipAsset');
   $('manualResetBtn').textContent = `${t('cancelOperation')} — ${t('startNewDevice')}`;
@@ -679,7 +646,6 @@ function applyLanguage(lang) {
   renderRecords();
   updateCounts();
   updateScanHint();
-  renderInventorySession();
 }
 
 // ── Authentication & cloud storage ───────────────────────────────────────────
@@ -693,101 +659,62 @@ function authMessage(error) {
   return msg;
 }
 
-function inventorySessionKey(userId = currentUser?.id) {
-  return userId ? `assetScannerSession:${userId}` : '';
-}
-
-function locationTypeLabel(type) {
-  return ({ branch:t('branch'), airport:t('airport'), border_port:t('borderPort'), seaport:t('seaport'), other:t('otherLocation') })[type] || t('otherLocation');
-}
-
-function loadInventorySession(userId) {
-  try {
-    const saved = JSON.parse(localStorage.getItem(inventorySessionKey(userId)) || 'null');
-    return saved?.type && saved?.name ? saved : null;
-  } catch (_) { return null; }
-}
-
-function renderInventorySession() {
-  if (!currentInventorySession) return;
-  $('activeLocationName').textContent = currentInventorySession.name;
-  $('activeLocationMeta').textContent = `${locationTypeLabel(currentInventorySession.type)} • ${new Date(currentInventorySession.startedAt).toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US')}`;
-}
-
-function openInventorySession() {
-  authView.hidden = true;
-  appView.hidden = true;
-  sessionView.hidden = false;
-  document.querySelector('.sticky-bar').hidden = true;
-  $('locationType').value = currentInventorySession?.type || '';
-  $('locationName').value = currentInventorySession?.name || '';
-  $('sessionNotes').value = currentInventorySession?.notes || '';
-  $('startSessionBtn').textContent = currentInventorySession ? t('continueInventory') : t('startInventory');
-  $('sessionError').textContent = '';
-}
-
-function enterInventoryApp() {
-  authView.hidden = true;
-  sessionView.hidden = true;
-  appView.hidden = false;
-  document.querySelector('.sticky-bar').hidden = false;
-  renderInventorySession();
-}
-
 function setAuthMode(mode) {
   authMode = mode;
-  const signup = mode === 'signup';
   const forgot = mode === 'forgot';
   const updating = mode === 'update-password';
-  $('nameField').hidden = !signup;
   $('emailField').hidden = updating;
   $('passwordField').hidden = forgot;
+  $('siteTypeField').hidden = forgot || updating;
+  $('siteNameField').hidden = forgot || updating;
   $('confirmPasswordField').hidden = !updating;
   $('forgotRow').hidden = mode !== 'login';
-  $('displayName').required = signup;
   $('emailInput').required = !updating;
   $('passwordInput').required = !forgot;
+  $('siteTypeInput').required = !(forgot || updating);
+  $('siteNameInput').required = !(forgot || updating);
   $('confirmPasswordInput').required = updating;
-  $('passwordInput').autocomplete = signup || updating ? 'new-password' : 'current-password';
+  $('passwordInput').autocomplete = updating ? 'new-password' : 'current-password';
   $('passwordLabel').textContent = updating ? t('newPassword') : t('password');
-  $('authTitle').textContent = forgot ? t('forgotTitle') : updating ? t('updateTitle') : signup ? t('signup') : t('login');
-  $('authNote').textContent = forgot ? t('forgotNote') : updating ? t('updateNote') : signup ? t('signupNote') : t('loginNote');
-  $('authSubmit').textContent = forgot ? t('sendReset') : updating ? t('updatePassword') : signup ? t('createAccount') : t('login');
-  $('authSwitchText').textContent = signup ? t('haveAccount') : forgot || updating ? '' : t('noAccount');
-  $('authSwitch').textContent = signup || forgot || updating ? t('backToLogin') : t('signup');
+  $('authTitle').textContent = forgot ? t('forgotTitle') : updating ? t('updateTitle') : t('login');
+  $('authNote').textContent = forgot ? t('forgotNote') : updating ? t('updateNote') : t('loginNote');
+  $('authSubmit').textContent = forgot ? t('sendReset') : updating ? t('updatePassword') : t('login');
+  $('adminOnlyNote').hidden = forgot || updating;
+  $('authBackRow').hidden = !(forgot || updating);
   $('authError').textContent = '';
 }
 
 function showAuth() {
   authView.hidden = false;
-  sessionView.hidden = true;
   appView.hidden = true;
-  document.querySelector('.sticky-bar').hidden = true;
+  document.querySelector('.export-section').hidden = true;
 }
 
 async function showApp(user) {
-  if (initializedUserId === user.id && currentUser) return;
-  initializedUserId = user.id;
+  if (!currentSite?.type || !currentSite?.name) {
+    showAuth();
+    setAuthMode('login');
+    $('authError').textContent = t('siteRequired');
+    return;
+  }
   currentUser = user;
   authView.hidden = true;
-  sessionView.hidden = true;
-  appView.hidden = true;
-  document.querySelector('.sticky-bar').hidden = false;
+  appView.hidden = false;
+  document.querySelector('.export-section').hidden = false;
   $('currentUserEmail').textContent = user.email || '';
   $('currentUserName').textContent = user.user_metadata?.display_name || user.email?.split('@')[0] || t('user');
+  $('currentSiteName').textContent = `${siteTypeLabel(currentSite.type)} — ${currentSite.name}`;
   await loadRecords();
-  currentInventorySession = loadInventorySession(user.id);
-  openInventorySession();
 }
 
 function fromDb(row) {
   const savedType = row.device_type && row.device_type !== 'other' ? row.device_type : inferDeviceType(row.model);
-  return { id:row.id, serial:row.serial, asset:row.asset_number, deviceType:savedType, model:row.model, status:row.status, notes:row.notes, scannedAt:row.scanned_at };
+  return { id:row.id, serial:row.serial, asset:row.asset_number, deviceType:savedType, model:row.model, status:row.status, notes:row.notes, siteType:row.site_type||'', siteName:row.site_name||'', scannedAt:row.scanned_at };
 }
 
 async function loadRecords() {
   recordsList.innerHTML = `<div class="records-empty">${t('loadingRecords')}</div>`;
-  const { data, error } = await db.from('assets').select('id,serial,asset_number,device_type,model,status,notes,scanned_at').order('scanned_at', { ascending:true });
+  const { data, error } = await db.from('assets').select('id,serial,asset_number,device_type,model,status,notes,site_type,site_name,scanned_at').order('scanned_at', { ascending:true });
   if (error) {
     records = [];
     renderRecords(); updateCounts();
@@ -926,7 +853,7 @@ function updateManualEntry() {
 
 function resetCurrentScan(showMessage = true) {
   lastScanCard.style.display = 'none';
-  document.querySelector('.sticky-bar').hidden = false;
+  document.querySelector('.export-section').hidden = false;
   pendingSerial = null;
   pendingAsset = null;
   scanStep = 'serial';
@@ -964,7 +891,7 @@ function showScanForm(serial, asset) {
 
   lastScanCard.className = 'last-scan';
   lastScanCard.style.display = 'block';
-  document.querySelector('.sticky-bar').hidden = true;
+  document.querySelector('.export-section').hidden = true;
   lastScanCard.innerHTML = `
     ${warning}
     <div class="label">${t('newScan')}</div>
@@ -972,7 +899,7 @@ function showScanForm(serial, asset) {
     ${assetDisplay}
     <div class="field" style="margin-top:14px;">
       <label>${t('assetManual')}</label>
-      <input type="text" id="assetEditInput" placeholder="Asset Number" autocomplete="off" value="${escapeHtml(asset||exists?.asset||'')}">
+      <input type="text" id="assetEditInput" placeholder="ZATCA-XXXXX" autocomplete="off" value="${escapeHtml(asset||exists?.asset||'')}">
     </div>
     <div class="field">
       <label>${t('deviceType')}</label>
@@ -1010,7 +937,12 @@ function showScanForm(serial, asset) {
   let selectedDeviceType = exists?.deviceType || null;
 
   function renderModelSuggestions() {
-    const items = MODEL_SUGGESTIONS[selectedDeviceType] || [];
+    const savedModels = records
+      .filter(record => record.deviceType === selectedDeviceType && record.model)
+      .map(record => record.model.trim())
+      .filter(Boolean);
+    const items = [...new Set([...(MODEL_SUGGESTIONS[selectedDeviceType] || []), ...savedModels])]
+      .sort((a, b) => a.localeCompare(b, currentLang === 'ar' ? 'ar' : 'en', { sensitivity:'base' }));
     $('modelSuggestions').innerHTML = items.map(model => `<button class="model-suggestion" type="button" data-model="${escapeHtml(model)}">${escapeHtml(model)}</button>`).join('');
     $('modelSuggestions').querySelectorAll('.model-suggestion').forEach(button => button.addEventListener('click', () => {
       $('modelInput').value = button.dataset.model;
@@ -1051,6 +983,8 @@ function showScanForm(serial, asset) {
       model:  $('modelInput').value.trim(),
       status: selectedStatus,
       notes:  $('notesInput').value.trim(),
+      siteType:currentSite.type,
+      siteName:currentSite.name,
       scannedAt: exists?.scannedAt || new Date().toISOString()
     };
     const { data, error } = await db.from('assets').upsert({
@@ -1061,8 +995,10 @@ function showScanForm(serial, asset) {
       model:record.model,
       status:record.status,
       notes:record.notes,
+      site_type:record.siteType,
+      site_name:record.siteName,
       scanned_at:record.scannedAt
-    }, { onConflict:'user_id,serial' }).select('id,serial,asset_number,device_type,model,status,notes,scanned_at').single();
+    }, { onConflict:'user_id,serial' }).select('id,serial,asset_number,device_type,model,status,notes,site_type,site_name,scanned_at').single();
     if (error) { saveBtn.disabled = false; showToast(t('saveFailed') + authMessage(error), 'error'); return; }
     const saved = fromDb(data);
     const existsIdx = records.findIndex(r => r.serial === cleanSerial);
@@ -1365,43 +1301,20 @@ async function stopScanner() {
 // ── Export ────────────────────────────────────────────────────────────────────
 function exportToExcel() {
   if (!records.length) return;
-  const employee = currentUser?.user_metadata?.display_name || currentUser?.email || '';
-  const locationType = locationTypeLabel(currentInventorySession?.type);
-  const locationName = currentInventorySession?.name || '';
-  const sessionStartedAt = currentInventorySession?.startedAt || new Date().toISOString();
   const data = records.map((r,i) => currentLang === 'ar' ? ({
-    '#':i+1,'نوع الموقع':locationType,'اسم الموقع':locationName,'نوع الجهاز':deviceTypeLabel(r.deviceType),'الرقم التسلسلي':r.serial,'رقم الأصل':r.asset||'','الموديل':r.model||'','الحالة':r.status,'ملاحظات':r.notes||'','تاريخ السكان':new Date(r.scannedAt).toLocaleString('ar-SA')
+    '#':i+1,'نوع الموقع':siteTypeLabel(r.siteType||currentSite?.type),'اسم الموقع':r.siteName||currentSite?.name||'','نوع الجهاز':deviceTypeLabel(r.deviceType),'الرقم التسلسلي':r.serial,'رقم الأصل':r.asset||'','الموديل':r.model||'','الحالة':r.status,'ملاحظات':r.notes||'','تاريخ السكان':new Date(r.scannedAt).toLocaleString('ar-SA')
   }) : ({
-    '#':i+1,'Location type':locationType,'Location name':locationName,'Device type':deviceTypeLabel(r.deviceType),'Serial number':r.serial,'Asset number':r.asset||'','Model':r.model||'','Status':statusLabel(r.status),'Notes':r.notes||'','Scan date':new Date(r.scannedAt).toLocaleString('en-US')
+    '#':i+1,'Site type':siteTypeLabel(r.siteType||currentSite?.type),'Site name':r.siteName||currentSite?.name||'','Device type':deviceTypeLabel(r.deviceType),'Serial number':r.serial,'Asset number':r.asset||'','Model':r.model||'','Status':statusLabel(r.status),'Notes':r.notes||'','Scan date':new Date(r.scannedAt).toLocaleString('en-US')
   }));
-  const summaryRows = currentLang === 'ar' ? [
-    [t('inventorySummary'),''],
-    [t('employeeName'),employee],
-    [t('locationType'),locationType],
-    [t('locationName'),locationName],
-    [t('inventoryDate'),new Date(sessionStartedAt).toLocaleString('ar-SA')],
-    [t('totalDevices'),records.length],
-    [t('sessionNotes'),currentInventorySession?.notes || '—']
-  ] : [
-    [t('inventorySummary'),''],
-    [t('employeeName'),employee],
-    [t('locationType'),locationType],
-    [t('locationName'),locationName],
-    [t('inventoryDate'),new Date(sessionStartedAt).toLocaleString('en-US')],
-    [t('totalDevices'),records.length],
-    [t('sessionNotes'),currentInventorySession?.notes || '—']
-  ];
-  const summaryWs = XLSX.utils.aoa_to_sheet(summaryRows);
-  summaryWs['!cols'] = [{wch:24},{wch:42}];
   const ws = XLSX.utils.json_to_sheet(data);
-  ws['!cols'] = [{wch:5},{wch:16},{wch:24},{wch:18},{wch:25},{wch:22},{wch:25},{wch:12},{wch:30},{wch:22}];
+  ws['!cols'] = [{wch:5},{wch:18},{wch:25},{wch:18},{wch:25},{wch:22},{wch:25},{wch:12},{wch:30},{wch:22}];
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, summaryWs, t('inventorySummary').slice(0,31));
-  XLSX.utils.book_append_sheet(wb, ws, t('inventoryDetails').slice(0,31));
+  XLSX.utils.book_append_sheet(wb, ws, currentLang === 'ar' ? 'جرد الأجهزة' : 'Asset Inventory');
   if (!wb.Workbook) wb.Workbook = {};
-  wb.Workbook.Views = [{ RTL:currentLang === 'ar' }];
-  const safeLocation = (locationName || 'Location').replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,'_').slice(0,50);
-  XLSX.writeFile(wb, `Asset_Inventory_${safeLocation}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  if (!wb.Workbook.Views) wb.Workbook.Views = [{}];
+  wb.Workbook.Views[0].RTL = currentLang === 'ar';
+  const safeSiteName = String(currentSite?.name || 'Site').replace(/[^\p{L}\p{N}_-]+/gu, '_').replace(/^_+|_+$/g, '');
+  XLSX.writeFile(wb, `Asset_Inventory_${safeSiteName}_${new Date().toISOString().slice(0,10)}.xlsx`);
   showToast(`${t('exported')} ${records.length} ${t('devices')}`);
 }
 
@@ -1416,44 +1329,23 @@ async function clearAll() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-$('authSwitch').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'signup' : 'login'));
 $('forgotPasswordBtn').addEventListener('click', () => setAuthMode('forgot'));
+$('authBackBtn').addEventListener('click', () => setAuthMode('login'));
+$('siteTypeInput').addEventListener('change', () => {
+  $('siteNameInput').value = '';
+  $('siteNameInput').focus();
+});
 $('authLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('appLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('manualSubmitBtn').addEventListener('click', submitManualBarcode);
 $('manualBarcodeInput').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); submitManualBarcode(); } });
 $('manualSkipBtn').addEventListener('click', () => { if (scanStep === 'asset') { pendingAsset = ''; proceedToForm(); } });
 $('manualResetBtn').addEventListener('click', () => resetCurrentScan());
-$('sessionForm').addEventListener('submit', event => {
-  event.preventDefault();
-  const type = $('locationType').value;
-  const name = $('locationName').value.trim();
-  if (!type || !name) { $('sessionError').textContent = t('locationRequired'); return; }
-  currentInventorySession = {
-    type,
-    name,
-    notes:$('sessionNotes').value.trim(),
-    startedAt:currentInventorySession?.startedAt || new Date().toISOString()
-  };
-  localStorage.setItem(inventorySessionKey(), JSON.stringify(currentInventorySession));
-  $('sessionError').textContent = '';
-  enterInventoryApp();
-});
-$('changeSessionBtn').addEventListener('click', async () => {
-  if (records.length) { showToast(t('locationLocked'), 'error'); return; }
-  await stopScanner();
-  openInventorySession();
-});
-$('sessionLogoutBtn').addEventListener('click', async () => {
-  initializedUserId = null;
-  await db.auth.signOut();
-});
 $('authForm').addEventListener('submit', async event => {
   event.preventDefault();
   if (!configReady) { $('authError').textContent = t('configMissing'); return; }
   const email = $('emailInput').value.trim().toLowerCase();
   const password = $('passwordInput').value;
-  const displayName = $('displayName').value.trim();
   const confirmPassword = $('confirmPasswordInput').value;
   if (authMode === 'forgot') {
     if (!email) { $('authError').textContent = t('invalidForm'); return; }
@@ -1480,29 +1372,35 @@ $('authForm').addEventListener('submit', async event => {
     setAuthMode('login');
     return;
   }
-  if (!email || password.length < 8 || (authMode === 'signup' && displayName.length < 2)) {
+  const selectedSite = { type:$('siteTypeInput').value, name:$('siteNameInput').value.trim() };
+  if (!selectedSite.type || !selectedSite.name) { $('authError').textContent = t('siteRequired'); return; }
+  if (!email || password.length < 8) {
     $('authError').textContent = t('invalidForm');
     return;
   }
   const submit = $('authSubmit');
   submit.disabled = true;
   $('authError').textContent = '';
-  const result = authMode === 'signup'
-    ? await db.auth.signUp({ email, password, options:{ data:{ display_name:displayName } } })
-    : await db.auth.signInWithPassword({ email, password });
+  const result = await db.auth.signInWithPassword({ email, password });
   submit.disabled = false;
   if (result.error) { $('authError').textContent = authMessage(result.error); return; }
-  if (authMode === 'signup' && !result.data.session) {
-    $('authError').style.color = 'var(--green)';
-    $('authError').textContent = currentLang === 'ar' ? 'تم إنشاء الحساب. افتح رسالة التفعيل في بريدك ثم سجّل الدخول.' : 'Account created. Open the confirmation email, then sign in.';
-    setTimeout(() => { $('authError').style.color = ''; setAuthMode('login'); }, 5000);
-  }
+  currentSite = selectedSite;
+  localStorage.setItem('assetScannerCurrentSite', JSON.stringify(currentSite));
 });
 
 $('logoutBtn').addEventListener('click', async () => {
   await stopScanner();
-  initializedUserId = null;
+  currentSite = null;
+  localStorage.removeItem('assetScannerCurrentSite');
   await db.auth.signOut();
+});
+
+$('changeSiteBtn').addEventListener('click', async () => {
+  await stopScanner();
+  currentSite = null;
+  localStorage.removeItem('assetScannerCurrentSite');
+  showAuth();
+  setAuthMode('login');
 });
 
 startBtn.addEventListener('click', startScanner);
@@ -1519,7 +1417,7 @@ if (!configReady) {
     setTimeout(async () => {
       if (event === 'PASSWORD_RECOVERY') { showAuth(); setAuthMode('update-password'); return; }
       if (session?.user) await showApp(session.user);
-      else { currentUser = null; currentInventorySession = null; initializedUserId = null; records = []; renderRecords(); updateCounts(); showAuth(); }
+      else { currentUser = null; records = []; renderRecords(); updateCounts(); showAuth(); }
     }, 0);
   });
   db.auth.getSession().then(({ data }) => data.session?.user ? showApp(data.session.user) : showAuth());
