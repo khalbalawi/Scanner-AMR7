@@ -60,6 +60,8 @@
   .user-info { min-width:0; }
   .user-name { font-weight:600; font-size:13px; }
   .user-email { color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .user-site { color:var(--accent); font-size:11px; font-weight:600; margin-top:2px; }
+  .user-actions { display:flex; gap:6px; align-items:center; }
   .logout-btn { background:transparent; border:1px solid var(--border); color:var(--text-dim); border-radius:7px; padding:7px 10px; font-family:inherit; cursor:pointer; white-space:nowrap; }
   .page-footer { color:var(--text-dim); text-align:center; font-size:11px; padding:28px 0 4px; }
   .auth-page-footer { padding-top:22px; }
@@ -303,6 +305,22 @@
         <label id="passwordLabel" for="passwordInput">الرقم السري</label>
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="8 أحرف على الأقل" required>
       </div>
+      <div id="siteTypeField" class="field">
+        <label id="siteTypeLabel" for="siteTypeInput">نوع الموقع</label>
+        <select id="siteTypeInput" required>
+          <option value="">اختر نوع الموقع</option>
+          <option value="border_crossing">منفذ بري</option>
+          <option value="airport">مطار</option>
+          <option value="seaport">ميناء</option>
+          <option value="branch">فرع</option>
+          <option value="other">موقع آخر</option>
+        </select>
+      </div>
+      <div id="siteNameField" class="field">
+        <label id="siteNameLabel" for="siteNameInput">اسم الموقع</label>
+        <input id="siteNameInput" type="text" list="siteSuggestions" maxlength="120" placeholder="مثال: منفذ حالة عمار" autocomplete="off" required>
+        <datalist id="siteSuggestions"></datalist>
+      </div>
       <div id="confirmPasswordField" class="field" hidden>
         <label id="confirmPasswordLabel" for="confirmPasswordInput">تأكيد الرقم السري الجديد</label>
         <input id="confirmPasswordInput" type="password" autocomplete="new-password" minlength="8" placeholder="أعد كتابة الرقم السري">
@@ -336,8 +354,12 @@
     <div class="user-info">
       <div id="currentUserName" class="user-name">—</div>
       <div id="currentUserEmail" class="user-email">—</div>
+      <div id="currentSiteName" class="user-site">—</div>
     </div>
-    <button id="logoutBtn" class="logout-btn" type="button">تسجيل الخروج</button>
+    <div class="user-actions">
+      <button id="changeSiteBtn" class="logout-btn" type="button">تغيير الموقع</button>
+      <button id="logoutBtn" class="logout-btn" type="button">تسجيل الخروج</button>
+    </div>
   </div>
 
   <div id="scanHint" class="scan-hint" style="display:none;"></div>
@@ -436,6 +458,7 @@ const db = configReady ? window.supabase.createClient(config.SUPABASE_URL, confi
 }) : null;
 let records = [];
 let currentUser = null;
+let currentSite = JSON.parse(localStorage.getItem('assetScannerCurrentSite') || 'null');
 let authMode = 'login';
 let isScanning    = false;
 let scanStep      = 'serial';
@@ -479,7 +502,8 @@ const translations = {
     cameraMissing:'لم يتم العثور على كاميرا في الجهاز', cameraFailed:'تعذّر فتح الكاميرا — تأكد من الإذن واتصال HTTPS', scannerFailed:'تعذّر تشغيل السكانر',
     libraryFailed:'فشل تحميل المكتبة الاحتياطية', starting:'جاري التشغيل...', exported:'تم تصدير', devices:'جهاز', clearConfirm:'سيتم حذف جميع السجلات. هل أنت متأكد؟',
     clearFailed:'تعذّر مسح السجلات', cleared:'تم مسح الكل', resetSent:'تم إرسال رابط الاستعادة. افحص بريدك الإلكتروني.', resetSuccess:'تم تحديث الرقم السري بنجاح.',
-    passwordsMismatch:'الرقمان السريان غير متطابقين', invalidForm:'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف', configMissing:'يلزم ربط المشروع بـ Supabase من ملف config.js'
+    passwordsMismatch:'الرقمان السريان غير متطابقين', invalidForm:'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف', configMissing:'يلزم ربط المشروع بـ Supabase من ملف config.js',
+    siteType:'نوع الموقع', chooseSiteType:'اختر نوع الموقع', siteName:'اسم الموقع', siteNamePlaceholder:'مثال: منفذ حالة عمار', siteRequired:'اختر نوع الموقع واكتب اسمه', changeSite:'تغيير الموقع', borderCrossing:'منفذ بري', airport:'مطار', seaport:'ميناء', branch:'فرع', otherSite:'موقع آخر'
   },
   en: {
     appTitle:'Asset Inventory', device:'devices', logout:'Sign out', startCamera:'Start camera', stop:'Stop',
@@ -505,9 +529,21 @@ const translations = {
     cameraMissing:'No camera was found', cameraFailed:'Could not open the camera — check permission and HTTPS', scannerFailed:'Could not start the scanner',
     libraryFailed:'Could not load the fallback scanner', starting:'Starting...', exported:'Exported', devices:'devices', clearConfirm:'All records will be deleted. Are you sure?',
     clearFailed:'Could not clear the records', cleared:'All records cleared', resetSent:'Reset link sent. Check your email.', resetSuccess:'Password updated successfully.',
-    passwordsMismatch:'The passwords do not match', invalidForm:'Check the name and email. Password must be at least 8 characters.', configMissing:'Connect Supabase in config.js first'
+    passwordsMismatch:'The passwords do not match', invalidForm:'Check the name and email. Password must be at least 8 characters.', configMissing:'Connect Supabase in config.js first',
+    siteType:'Site type', chooseSiteType:'Choose site type', siteName:'Site name', siteNamePlaceholder:'Example: Halat Ammar border crossing', siteRequired:'Choose a site type and enter its name', changeSite:'Change site', borderCrossing:'Border crossing', airport:'Airport', seaport:'Seaport', branch:'Branch', otherSite:'Other site'
   }
 };
+
+const SITE_SUGGESTIONS = {
+  border_crossing:['منفذ حالة عمار','منفذ الحديثة','منفذ الدرة','منفذ جديدة عرعر','منفذ البطحاء','منفذ سلوى','منفذ الوديعة','منفذ الخفجي','منفذ الرقعي','منفذ الطوال'],
+  airport:['مطار الملك خالد الدولي','مطار الملك عبدالعزيز الدولي','مطار الأمير محمد بن عبدالعزيز الدولي','مطار تبوك','مطار نيوم'],
+  seaport:['ميناء ضباء','ميناء جدة الإسلامي','ميناء الملك عبدالعزيز بالدمام','ميناء ينبع التجاري','ميناء جازان'],
+  branch:[], other:[]
+};
+
+function siteTypeLabel(type) {
+  return ({border_crossing:t('borderCrossing'),airport:t('airport'),seaport:t('seaport'),branch:t('branch'),other:t('otherSite')})[type] || type;
+}
 
 const t = key => translations[currentLang][key] || translations.ar[key] || key;
 
@@ -590,6 +626,17 @@ function applyLanguage(lang) {
   $('appTitle').textContent = t('appTitle');
   $('deviceCountLabel').textContent = t('device');
   $('logoutBtn').textContent = t('logout');
+  $('changeSiteBtn').textContent = t('changeSite');
+  $('siteTypeLabel').textContent = t('siteType');
+  $('siteNameLabel').textContent = t('siteName');
+  $('siteNameInput').placeholder = t('siteNamePlaceholder');
+  const siteTypeSelect = $('siteTypeInput');
+  siteTypeSelect.options[0].textContent = t('chooseSiteType');
+  siteTypeSelect.options[1].textContent = t('borderCrossing');
+  siteTypeSelect.options[2].textContent = t('airport');
+  siteTypeSelect.options[3].textContent = t('seaport');
+  siteTypeSelect.options[4].textContent = t('branch');
+  siteTypeSelect.options[5].textContent = t('otherSite');
   $('scannerEmptyTitle').textContent = t('scannerEmptyTitle');
   $('scannerEmptyNote').textContent = t('scannerEmptyNote');
   $('recordsTitle').textContent = t('inventoryRecords');
@@ -627,10 +674,14 @@ function setAuthMode(mode) {
   const updating = mode === 'update-password';
   $('emailField').hidden = updating;
   $('passwordField').hidden = forgot;
+  $('siteTypeField').hidden = forgot || updating;
+  $('siteNameField').hidden = forgot || updating;
   $('confirmPasswordField').hidden = !updating;
   $('forgotRow').hidden = mode !== 'login';
   $('emailInput').required = !updating;
   $('passwordInput').required = !forgot;
+  $('siteTypeInput').required = !(forgot || updating);
+  $('siteNameInput').required = !(forgot || updating);
   $('confirmPasswordInput').required = updating;
   $('passwordInput').autocomplete = updating ? 'new-password' : 'current-password';
   $('passwordLabel').textContent = updating ? t('newPassword') : t('password');
@@ -649,23 +700,30 @@ function showAuth() {
 }
 
 async function showApp(user) {
+  if (!currentSite?.type || !currentSite?.name) {
+    showAuth();
+    setAuthMode('login');
+    $('authError').textContent = t('siteRequired');
+    return;
+  }
   currentUser = user;
   authView.hidden = true;
   appView.hidden = false;
   document.querySelector('.sticky-bar').hidden = false;
   $('currentUserEmail').textContent = user.email || '';
   $('currentUserName').textContent = user.user_metadata?.display_name || user.email?.split('@')[0] || t('user');
+  $('currentSiteName').textContent = `${siteTypeLabel(currentSite.type)} — ${currentSite.name}`;
   await loadRecords();
 }
 
 function fromDb(row) {
   const savedType = row.device_type && row.device_type !== 'other' ? row.device_type : inferDeviceType(row.model);
-  return { id:row.id, serial:row.serial, asset:row.asset_number, deviceType:savedType, model:row.model, status:row.status, notes:row.notes, scannedAt:row.scanned_at };
+  return { id:row.id, serial:row.serial, asset:row.asset_number, deviceType:savedType, model:row.model, status:row.status, notes:row.notes, siteType:row.site_type||'', siteName:row.site_name||'', scannedAt:row.scanned_at };
 }
 
 async function loadRecords() {
   recordsList.innerHTML = `<div class="records-empty">${t('loadingRecords')}</div>`;
-  const { data, error } = await db.from('assets').select('id,serial,asset_number,device_type,model,status,notes,scanned_at').order('scanned_at', { ascending:true });
+  const { data, error } = await db.from('assets').select('id,serial,asset_number,device_type,model,status,notes,site_type,site_name,scanned_at').order('scanned_at', { ascending:true });
   if (error) {
     records = [];
     renderRecords(); updateCounts();
@@ -934,6 +992,8 @@ function showScanForm(serial, asset) {
       model:  $('modelInput').value.trim(),
       status: selectedStatus,
       notes:  $('notesInput').value.trim(),
+      siteType:currentSite.type,
+      siteName:currentSite.name,
       scannedAt: exists?.scannedAt || new Date().toISOString()
     };
     const { data, error } = await db.from('assets').upsert({
@@ -944,8 +1004,10 @@ function showScanForm(serial, asset) {
       model:record.model,
       status:record.status,
       notes:record.notes,
+      site_type:record.siteType,
+      site_name:record.siteName,
       scanned_at:record.scannedAt
-    }, { onConflict:'user_id,serial' }).select('id,serial,asset_number,device_type,model,status,notes,scanned_at').single();
+    }, { onConflict:'user_id,serial' }).select('id,serial,asset_number,device_type,model,status,notes,site_type,site_name,scanned_at').single();
     if (error) { saveBtn.disabled = false; showToast(t('saveFailed') + authMessage(error), 'error'); return; }
     const saved = fromDb(data);
     const existsIdx = records.findIndex(r => r.serial === cleanSerial);
@@ -1249,18 +1311,19 @@ async function stopScanner() {
 function exportToExcel() {
   if (!records.length) return;
   const data = records.map((r,i) => currentLang === 'ar' ? ({
-    '#':i+1,'نوع الجهاز':deviceTypeLabel(r.deviceType),'الرقم التسلسلي':r.serial,'رقم الأصل':r.asset||'','الموديل':r.model||'','الحالة':r.status,'ملاحظات':r.notes||'','تاريخ السكان':new Date(r.scannedAt).toLocaleString('ar-SA')
+    '#':i+1,'نوع الموقع':siteTypeLabel(r.siteType||currentSite?.type),'اسم الموقع':r.siteName||currentSite?.name||'','نوع الجهاز':deviceTypeLabel(r.deviceType),'الرقم التسلسلي':r.serial,'رقم الأصل':r.asset||'','الموديل':r.model||'','الحالة':r.status,'ملاحظات':r.notes||'','تاريخ السكان':new Date(r.scannedAt).toLocaleString('ar-SA')
   }) : ({
-    '#':i+1,'Device type':deviceTypeLabel(r.deviceType),'Serial number':r.serial,'Asset number':r.asset||'','Model':r.model||'','Status':statusLabel(r.status),'Notes':r.notes||'','Scan date':new Date(r.scannedAt).toLocaleString('en-US')
+    '#':i+1,'Site type':siteTypeLabel(r.siteType||currentSite?.type),'Site name':r.siteName||currentSite?.name||'','Device type':deviceTypeLabel(r.deviceType),'Serial number':r.serial,'Asset number':r.asset||'','Model':r.model||'','Status':statusLabel(r.status),'Notes':r.notes||'','Scan date':new Date(r.scannedAt).toLocaleString('en-US')
   }));
   const ws = XLSX.utils.json_to_sheet(data);
-  ws['!cols'] = [{wch:5},{wch:18},{wch:25},{wch:22},{wch:25},{wch:12},{wch:30},{wch:22}];
+  ws['!cols'] = [{wch:5},{wch:18},{wch:25},{wch:18},{wch:25},{wch:22},{wch:25},{wch:12},{wch:30},{wch:22}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, currentLang === 'ar' ? 'جرد الأجهزة' : 'Asset Inventory');
   if (!wb.Workbook) wb.Workbook = {};
   if (!wb.Workbook.Views) wb.Workbook.Views = [{}];
   wb.Workbook.Views[0].RTL = currentLang === 'ar';
-  XLSX.writeFile(wb, `Asset_Inventory_${new Date().toISOString().slice(0,10)}.xlsx`);
+  const safeSiteName = String(currentSite?.name || 'Site').replace(/[^\p{L}\p{N}_-]+/gu, '_').replace(/^_+|_+$/g, '');
+  XLSX.writeFile(wb, `Asset_Inventory_${safeSiteName}_${new Date().toISOString().slice(0,10)}.xlsx`);
   showToast(`${t('exported')} ${records.length} ${t('devices')}`);
 }
 
@@ -1277,6 +1340,11 @@ async function clearAll() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 $('forgotPasswordBtn').addEventListener('click', () => setAuthMode('forgot'));
 $('authBackBtn').addEventListener('click', () => setAuthMode('login'));
+$('siteTypeInput').addEventListener('change', () => {
+  $('siteSuggestions').innerHTML = (SITE_SUGGESTIONS[$('siteTypeInput').value] || []).map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
+  $('siteNameInput').value = '';
+  $('siteNameInput').focus();
+});
 $('authLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('appLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('manualSubmitBtn').addEventListener('click', submitManualBarcode);
@@ -1314,6 +1382,8 @@ $('authForm').addEventListener('submit', async event => {
     setAuthMode('login');
     return;
   }
+  const selectedSite = { type:$('siteTypeInput').value, name:$('siteNameInput').value.trim() };
+  if (!selectedSite.type || !selectedSite.name) { $('authError').textContent = t('siteRequired'); return; }
   if (!email || password.length < 8) {
     $('authError').textContent = t('invalidForm');
     return;
@@ -1324,11 +1394,23 @@ $('authForm').addEventListener('submit', async event => {
   const result = await db.auth.signInWithPassword({ email, password });
   submit.disabled = false;
   if (result.error) { $('authError').textContent = authMessage(result.error); return; }
+  currentSite = selectedSite;
+  localStorage.setItem('assetScannerCurrentSite', JSON.stringify(currentSite));
 });
 
 $('logoutBtn').addEventListener('click', async () => {
   await stopScanner();
+  currentSite = null;
+  localStorage.removeItem('assetScannerCurrentSite');
   await db.auth.signOut();
+});
+
+$('changeSiteBtn').addEventListener('click', async () => {
+  await stopScanner();
+  currentSite = null;
+  localStorage.removeItem('assetScannerCurrentSite');
+  showAuth();
+  setAuthMode('login');
 });
 
 startBtn.addEventListener('click', startScanner);
