@@ -93,18 +93,19 @@
   .capture-scan-btn { min-width:112px; padding:10px 12px; border:1px solid var(--accent); background:#fff; color:var(--accent); border-radius:9px; font:700 12px inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
   .capture-scan-btn.active { color:#fff; background:var(--black); border-color:var(--black); }
   .capture-continue { width:100%; margin-top:14px; }
-  .scanner-wrap { display:none; position:relative; background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:0 0 12px; }
+  body.camera-open { overflow:hidden; touch-action:none; }
+  .scanner-wrap { display:none; position:fixed; inset:0; z-index:1000; background:#000; border:0; border-radius:0; overflow:hidden; margin:0; }
   .scanner-empty { aspect-ratio:4/3; display:grid; place-items:center; text-align:center; padding:30px; }
   .scanner-empty .icon { width:64px; height:64px; margin:0 auto 14px; border:2px dashed var(--accent); border-radius:12px; display:grid; place-items:center; color:var(--accent); }
   .scanner-empty p { color:var(--text-dim); font-size:13px; margin-top:4px; }
 
-  #scanContainer { position:relative; display:none; }
-  #scanVideo { width:100%; height:310px; display:block; object-fit:cover; }
+  #scanContainer { position:relative; display:none; width:100%; height:100dvh; background:#000; }
+  #scanVideo { width:100%; height:100dvh; display:block; object-fit:cover; }
   #scanCanvas { display:none; }
 
   .scan-frame {
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    width:94%; max-width:620px; height:150px;
+    width:94%; max-width:760px; height:clamp(150px,24vh,240px);
     border:2px solid var(--accent); border-radius:8px;
     box-shadow:0 0 0 9999px rgba(0,0,0,0.5);
     pointer-events:none;
@@ -132,7 +133,7 @@
   }
 
   .scan-status {
-    position:absolute; bottom:48px; left:0; right:0;
+    position:absolute; z-index:4; bottom:calc(64px + env(safe-area-inset-bottom)); left:0; right:0;
     background:rgba(15,20,25,0.8); padding:6px 14px;
     font-size:12px; color:var(--text-dim); text-align:center;
     font-family:'JetBrains Mono',monospace;
@@ -142,8 +143,10 @@
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
   .zoom-bar {
+    position:absolute; z-index:4; bottom:0; left:0; right:0;
     display:flex; align-items:center; gap:10px;
     background:rgba(15,20,25,0.95); padding:8px 14px;
+    padding-bottom:calc(8px + env(safe-area-inset-bottom));
     border-top:1px solid var(--border);
   }
   .zoom-btn {
@@ -157,7 +160,7 @@
     flex:1; accent-color:var(--accent); height:4px; cursor:pointer;
   }
   .zoom-label { font-size:12px; color:var(--accent); font-family:'JetBrains Mono',monospace; min-width:36px; text-align:center; }
-  .camera-close { position:absolute; z-index:4; top:8px; left:8px; border:1px solid rgba(255,255,255,.65); background:rgba(0,0,0,.65); color:#fff; border-radius:8px; padding:6px 9px; font:600 11px inherit; cursor:pointer; }
+  .camera-close { position:absolute; z-index:5; top:calc(12px + env(safe-area-inset-top)); left:12px; border:1px solid rgba(255,255,255,.75); background:rgba(0,0,0,.72); color:#fff; border-radius:10px; padding:10px 13px; font:700 12px inherit; cursor:pointer; }
 
   .btn-row { display:flex; gap:10px; margin-bottom:20px; }
   .btn { flex:1; padding:14px 16px; border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:10px; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s; }
@@ -231,8 +234,8 @@
   .toast.error { background:var(--red); color:#fff; }
 
   /* تحسين عرض html5-qrcode على iOS */
-  #fb_reader { width:100%; }
-  #fb_reader video { width:100% !important; height:310px !important; object-fit:cover; }
+  #fb_reader { width:100%; height:100dvh; overflow:hidden; }
+  #fb_reader video { width:100% !important; height:100dvh !important; object-fit:cover; }
   #fb_reader img { display:none; }
 
   /* واجهة الأبيض والأسود والذهبي */
@@ -261,7 +264,7 @@
   @media (max-width:420px) {
     .capture-row { grid-template-columns:minmax(0,1fr) 96px; }
     .capture-scan-btn { min-width:0; padding:9px 7px; font-size:11px; }
-    #scanVideo,#fb_reader video { height:270px !important; }
+    .scan-frame { width:92%; height:clamp(150px,22vh,210px); }
   }
 
   .records { background:transparent; border:0; box-shadow:none; overflow:visible; }
@@ -847,8 +850,7 @@ async function beginFieldScan(target) {
   if (isScanning) await stopScanner();
   activeScanTarget = target;
   scanStep = target;
-  const targetField = $(target === 'serial' ? 'serialCaptureInput' : 'assetCaptureInput').closest('.capture-field');
-  targetField.after(scannerWrap);
+  document.body.appendChild(scannerWrap);
   $('scanSerialCodeBtn').classList.toggle('active', target === 'serial');
   $('scanAssetCodeBtn').classList.toggle('active', target === 'asset');
   await startScanner();
@@ -1153,6 +1155,7 @@ async function detectLoop() {
 // ── Start Scanner ─────────────────────────────────────────────────────────────
 async function startScanner() {
   if (isScanning) return;
+  document.body.classList.add('camera-open');
   scannerWrap.style.display = 'block';
 
   try {
@@ -1216,7 +1219,7 @@ function loadFallbackLib() {
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
     s.onload = () => { startFallbackScanner(); resolve(); };
-    s.onerror = () => { showToast(t('libraryFailed'), 'error'); resolve(); };
+    s.onerror = () => { showToast(t('libraryFailed'), 'error'); stopScanner(); resolve(); };
     document.head.appendChild(s);
   });
 }
@@ -1233,6 +1236,7 @@ async function startFallbackScanner() {
     </div>`;
   scanContainer.style.display = 'block';
   scannerWrap.style.display = 'block';
+  document.body.classList.add('camera-open');
   isScanning = true;
   updateScanHint();
   $('cameraCloseBtn').addEventListener('click', stopScanner);
@@ -1282,6 +1286,7 @@ async function stopScanner() {
 
   currentZoom = 1;
   isScanning  = false;
+  document.body.classList.remove('camera-open');
 
   scannerWrap.style.display = 'none';
   scanContainer.style.display = 'none';
