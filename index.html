@@ -84,18 +84,27 @@
   .hint-actions { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
   .hint-cancel { border-color:var(--red); color:var(--red); }
 
-  .scanner-wrap { position:relative; background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:16px; }
+  .capture-card { background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:12px; box-shadow:var(--shadow); }
+  .capture-field+.capture-field { margin-top:14px; padding-top:14px; border-top:1px solid #ece9e3; }
+  .capture-field label { display:block; margin-bottom:7px; font-size:12px; font-weight:700; color:var(--text); }
+  .capture-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; direction:rtl; }
+  .capture-row input { min-width:0; width:100%; padding:12px; background:#fff; border:1px solid var(--border); border-radius:9px; color:var(--text); font:700 14px 'JetBrains Mono',monospace; direction:ltr; text-align:left; }
+  .capture-row input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-dim); }
+  .capture-scan-btn { min-width:112px; padding:10px 12px; border:1px solid var(--accent); background:#fff; color:var(--accent); border-radius:9px; font:700 12px inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .capture-scan-btn.active { color:#fff; background:var(--black); border-color:var(--black); }
+  .capture-continue { width:100%; margin-top:14px; }
+  .scanner-wrap { display:none; position:relative; background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:0 0 12px; }
   .scanner-empty { aspect-ratio:4/3; display:grid; place-items:center; text-align:center; padding:30px; }
   .scanner-empty .icon { width:64px; height:64px; margin:0 auto 14px; border:2px dashed var(--accent); border-radius:12px; display:grid; place-items:center; color:var(--accent); }
   .scanner-empty p { color:var(--text-dim); font-size:13px; margin-top:4px; }
 
   #scanContainer { position:relative; display:none; }
-  #scanVideo { width:100%; display:block; max-height:55vh; object-fit:cover; }
+  #scanVideo { width:100%; height:190px; display:block; object-fit:cover; }
   #scanCanvas { display:none; }
 
   .scan-frame {
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    width:80%; max-width:340px; height:100px;
+    width:82%; max-width:340px; height:70px;
     border:2px solid var(--accent); border-radius:8px;
     box-shadow:0 0 0 9999px rgba(0,0,0,0.5);
     pointer-events:none;
@@ -148,6 +157,7 @@
     flex:1; accent-color:var(--accent); height:4px; cursor:pointer;
   }
   .zoom-label { font-size:12px; color:var(--accent); font-family:'JetBrains Mono',monospace; min-width:36px; text-align:center; }
+  .camera-close { position:absolute; z-index:4; top:8px; left:8px; border:1px solid rgba(255,255,255,.65); background:rgba(0,0,0,.65); color:#fff; border-radius:8px; padding:6px 9px; font:600 11px inherit; cursor:pointer; }
 
   .btn-row { display:flex; gap:10px; margin-bottom:20px; }
   .btn { flex:1; padding:14px 16px; border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:10px; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s; }
@@ -222,7 +232,7 @@
 
   /* تحسين عرض html5-qrcode على iOS */
   #fb_reader { width:100%; }
-  #fb_reader video { width:100% !important; max-height:55vh; object-fit:cover; }
+  #fb_reader video { width:100% !important; height:190px !important; object-fit:cover; }
   #fb_reader img { display:none; }
 
   /* واجهة الأبيض والأسود والذهبي */
@@ -247,6 +257,12 @@
   .model-suggestions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
   .model-suggestion { border:1px solid var(--border); background:#fff; color:var(--text-dim); border-radius:7px; padding:5px 9px; font:600 11px 'JetBrains Mono',monospace; cursor:pointer; }
   .model-suggestion:hover,.model-suggestion:focus { border-color:var(--accent); color:var(--accent); }
+
+  @media (max-width:420px) {
+    .capture-row { grid-template-columns:minmax(0,1fr) 96px; }
+    .capture-scan-btn { min-width:0; padding:9px 7px; font-size:11px; }
+    #scanVideo,#fb_reader video { height:170px !important; }
+  }
 
   .records { background:transparent; border:0; box-shadow:none; overflow:visible; }
   .records-header { background:transparent; border:0; padding:4px 2px 12px; }
@@ -362,19 +378,27 @@
     </div>
   </div>
 
+  <div class="capture-card">
+    <div class="capture-field">
+      <label id="serialCaptureLabel" for="serialCaptureInput">الرقم التسلسلي</label>
+      <div class="capture-row">
+        <input id="serialCaptureInput" type="text" autocomplete="off" placeholder="اكتب الرقم أو اقرأ الباركود">
+        <button id="scanSerialCodeBtn" class="capture-scan-btn" type="button">▥ قراءة الباركود</button>
+      </div>
+    </div>
+    <div class="capture-field">
+      <label id="assetCaptureLabel" for="assetCaptureInput">رقم الأصل</label>
+      <div class="capture-row">
+        <input id="assetCaptureInput" type="text" autocomplete="off" placeholder="اكتب الرقم أو اقرأ الباركود">
+        <button id="scanAssetCodeBtn" class="capture-scan-btn" type="button">▥ قراءة الباركود</button>
+      </div>
+    </div>
+    <button id="continueCaptureBtn" class="btn primary capture-continue" type="button">متابعة بيانات الجهاز</button>
+  </div>
+
   <div id="scanHint" class="scan-hint" style="display:none;"></div>
 
-  <div class="scanner-wrap">
-    <div id="scannerEmpty" class="scanner-empty">
-      <div class="icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-      </div>
-      <strong id="scannerEmptyTitle">اضغط "تشغيل الكاميرا"</strong>
-      <p id="scannerEmptyNote">سكان الرقم التسلسلي ثم رقم الأصل</p>
-    </div>
+  <div id="scannerWrap" class="scanner-wrap">
 
     <div id="scanContainer">
       <video id="scanVideo" autoplay muted playsinline></video>
@@ -385,6 +409,7 @@
         <div class="dot"></div>
         <span id="scanStatusText">جاهز للسكان...</span>
       </div>
+      <button id="cameraCloseBtn" class="camera-close" type="button">إغلاق الكاميرا</button>
       <div class="zoom-bar">
         <button class="zoom-btn" id="zoomOut">−</button>
         <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="5" step="0.1" value="1">
@@ -392,27 +417,6 @@
         <span class="zoom-label" id="zoomLabel">1×</span>
       </div>
     </div>
-  </div>
-
-  <div class="btn-row">
-    <button id="startBtn" class="btn primary">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-        <circle cx="12" cy="13" r="4"/>
-      </svg>
-      تشغيل الكاميرا
-    </button>
-    <button id="stopBtn" class="btn" style="display:none; flex:0 0 auto;">إيقاف</button>
-  </div>
-
-  <div class="manual-entry">
-    <label id="manualEntryLabel" for="manualBarcodeInput">إدخال يدوي للرقم التسلسلي (بديل للكاميرا)</label>
-    <div class="manual-row">
-      <input id="manualBarcodeInput" type="text" autocomplete="off" placeholder="اكتب أو الصق الباركود">
-      <button id="manualSubmitBtn" class="btn" type="button">إضافة</button>
-    </div>
-    <button id="manualSkipBtn" class="link-btn manual-skip" type="button" hidden>تخطي رقم الأصل</button>
-    <button id="manualResetBtn" class="link-btn manual-skip" type="button" hidden>إلغاء العملية وبدء جهاز جديد</button>
   </div>
 
   <div id="lastScanCard" style="display:none;"></div>
@@ -459,6 +463,7 @@ let currentSite = JSON.parse(localStorage.getItem('assetScannerCurrentSite') || 
 let authMode = 'login';
 let isScanning    = false;
 let scanStep      = 'serial';
+let activeScanTarget = null;
 let pendingSerial = null;
 let pendingAsset  = null;
 let lastScanTime  = 0;
@@ -500,7 +505,8 @@ const translations = {
     libraryFailed:'فشل تحميل المكتبة الاحتياطية', starting:'جاري التشغيل...', exported:'تم تصدير', devices:'جهاز', clearConfirm:'سيتم حذف جميع السجلات. هل أنت متأكد؟',
     clearFailed:'تعذّر مسح السجلات', cleared:'تم مسح الكل', resetSent:'تم إرسال رابط الاستعادة. افحص بريدك الإلكتروني.', resetSuccess:'تم تحديث الرقم السري بنجاح.',
     passwordsMismatch:'الرقمان السريان غير متطابقين', invalidForm:'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف', configMissing:'يلزم ربط المشروع بـ Supabase من ملف config.js',
-    siteType:'نوع الموقع', chooseSiteType:'اختر نوع الموقع', siteName:'اسم الموقع', siteNamePlaceholder:'اكتب اسم الموقع بالعربي أو الإنجليزي', siteRequired:'اختر نوع الموقع واكتب اسمه', changeSite:'تغيير الموقع', borderCrossing:'منفذ بري', airport:'مطار', seaport:'ميناء', branch:'فرع', otherSite:'موقع آخر'
+    siteType:'نوع الموقع', chooseSiteType:'اختر نوع الموقع', siteName:'اسم الموقع', siteNamePlaceholder:'اكتب اسم الموقع بالعربي أو الإنجليزي', siteRequired:'اختر نوع الموقع واكتب اسمه', changeSite:'تغيير الموقع', borderCrossing:'منفذ بري', airport:'مطار', seaport:'ميناء', branch:'فرع', otherSite:'موقع آخر',
+    readBarcode:'قراءة الباركود', continueDevice:'متابعة بيانات الجهاز', closeCamera:'إغلاق الكاميرا', serialPlaceholder:'اكتب الرقم أو اقرأ الباركود', assetPlaceholder:'اختياري — اكتب الرقم أو اقرأ الباركود'
   },
   en: {
     appTitle:'Asset Inventory', device:'devices', logout:'Sign out', startCamera:'Start camera', stop:'Stop',
@@ -527,7 +533,8 @@ const translations = {
     libraryFailed:'Could not load the fallback scanner', starting:'Starting...', exported:'Exported', devices:'devices', clearConfirm:'All records will be deleted. Are you sure?',
     clearFailed:'Could not clear the records', cleared:'All records cleared', resetSent:'Reset link sent. Check your email.', resetSuccess:'Password updated successfully.',
     passwordsMismatch:'The passwords do not match', invalidForm:'Check the name and email. Password must be at least 8 characters.', configMissing:'Connect Supabase in config.js first',
-    siteType:'Site type', chooseSiteType:'Choose site type', siteName:'Site name', siteNamePlaceholder:'Enter the site name in Arabic or English', siteRequired:'Choose a site type and enter its name', changeSite:'Change site', borderCrossing:'Border crossing', airport:'Airport', seaport:'Seaport', branch:'Branch', otherSite:'Other site'
+    siteType:'Site type', chooseSiteType:'Choose site type', siteName:'Site name', siteNamePlaceholder:'Enter the site name in Arabic or English', siteRequired:'Choose a site type and enter its name', changeSite:'Change site', borderCrossing:'Border crossing', airport:'Airport', seaport:'Seaport', branch:'Branch', otherSite:'Other site',
+    readBarcode:'Scan barcode', continueDevice:'Continue device details', closeCamera:'Close camera', serialPlaceholder:'Type or scan the serial number', assetPlaceholder:'Optional — type or scan the asset number'
   }
 };
 
@@ -571,10 +578,8 @@ function inferDeviceType(model='') {
 
 const $ = id => document.getElementById(id);
 
-const startBtn       = $('startBtn');
-const stopBtn        = $('stopBtn');
-const scannerEmpty   = $('scannerEmpty');
 const scanContainer  = $('scanContainer');
+const scannerWrap    = $('scannerWrap');
 const lastScanCard   = $('lastScanCard');
 const recordsList    = $('recordsList');
 const recordsMeta    = $('recordsMeta');
@@ -627,22 +632,21 @@ function applyLanguage(lang) {
   siteTypeSelect.options[3].textContent = t('seaport');
   siteTypeSelect.options[4].textContent = t('branch');
   siteTypeSelect.options[5].textContent = t('otherSite');
-  $('scannerEmptyTitle').textContent = t('scannerEmptyTitle');
-  $('scannerEmptyNote').textContent = t('scannerEmptyNote');
   $('recordsTitle').textContent = t('inventoryRecords');
-  startBtn.lastChild.textContent = ' ' + t('startCamera');
-  stopBtn.textContent = t('stop');
   $('exportBtnText').textContent = t('export');
   exportBtn.setAttribute('aria-label', t('export'));
   clearBtn.textContent = t('clearAllRecords');
   $('recordsAdminNote').textContent = t('recordsAdminNote');
-  $('manualSubmitBtn').textContent = t('add');
-  $('manualSkipBtn').textContent = t('skipAsset');
-  $('manualResetBtn').textContent = `${t('cancelOperation')} — ${t('startNewDevice')}`;
-  $('manualBarcodeInput').placeholder = t('manualPlaceholder');
+  $('serialCaptureLabel').textContent = t('serialColumn');
+  $('assetCaptureLabel').textContent = t('assetColumn');
+  $('serialCaptureInput').placeholder = t('serialPlaceholder');
+  $('assetCaptureInput').placeholder = t('assetPlaceholder');
+  $('scanSerialCodeBtn').textContent = `▥ ${t('readBarcode')}`;
+  $('scanAssetCodeBtn').textContent = `▥ ${t('readBarcode')}`;
+  $('continueCaptureBtn').textContent = t('continueDevice');
+  if ($('cameraCloseBtn')) $('cameraCloseBtn').textContent = t('closeCamera');
   if ($('scanStatusText') && scanStep === 'serial') $('scanStatusText').textContent = t('readyScan');
   setAuthMode(authMode);
-  updateManualEntry();
   renderRecords();
   updateCounts();
   updateScanHint();
@@ -813,88 +817,53 @@ function renderRecords() {
 // ── Scan Hint ─────────────────────────────────────────────────────────────────
 function updateScanHint() {
   const el = $('scanHint');
-  updateManualEntry();
   if (!isScanning) { el.style.display = 'none'; return; }
   el.style.display = 'flex';
-  if (scanStep === 'serial') {
-    el.innerHTML = `
-      <div class="hint-num">1</div>
-      <div class="hint-text">
-        <strong>${t('scanSerial')}</strong>
-        <span>${t('pointCamera')}</span>
-      </div>`;
-  } else if (scanStep === 'asset-ready') {
-    el.innerHTML = `
-      <div class="hint-num done">✓</div>
-      <div class="hint-text">
-        <strong>${t('serialDone')}</strong>
-        <span>${t('serial')}: ${escapeHtml(pendingSerial)}</span>
-      </div>
-      <div class="hint-actions">
-        <button class="hint-skip" id="startAssetScanBtn">${t('startAssetScan')}</button>
-        <button class="hint-skip" id="skipAssetBtn">${t('skipAsset')}</button>
-        <button class="hint-skip hint-cancel" id="cancelScanBtn">${t('cancelOperation')}</button>
-      </div>`;
-    $('startAssetScanBtn').addEventListener('click', e => {
-      e.stopPropagation();
-      scanStep = 'asset';
-      lastScanTime = Date.now() + 500;
-      updateScanHint();
-      if ($('scanStatusText')) $('scanStatusText').textContent = t('scanAsset');
-    });
-    $('skipAssetBtn').addEventListener('click', e => {
-      e.stopPropagation(); pendingAsset = ''; proceedToForm();
-    });
-    $('cancelScanBtn').addEventListener('click', e => { e.stopPropagation(); resetCurrentScan(); });
-  } else if (scanStep === 'asset') {
-    el.innerHTML = `
-      <div class="hint-num done">✓</div>
-      <div class="hint-text">
-        <strong>${t('scanAsset')}</strong>
-        <span>${t('serial')}: ${escapeHtml(pendingSerial)}</span>
-      </div>
-      <div class="hint-actions">
-        <button class="hint-skip" id="skipAssetBtn">${t('skipAsset')}</button>
-        <button class="hint-skip hint-cancel" id="cancelScanBtn">${t('cancelOperation')}</button>
-      </div>`;
-    $('skipAssetBtn').addEventListener('click', e => {
-      e.stopPropagation(); pendingAsset = ''; proceedToForm();
-    });
-    $('cancelScanBtn').addEventListener('click', e => { e.stopPropagation(); resetCurrentScan(); });
-  } else {
-    el.style.display = 'none';
-  }
-}
-
-function updateManualEntry() {
-  const assetStep = scanStep === 'asset' || scanStep === 'asset-ready';
-  $('manualEntryLabel').textContent = assetStep ? t('manualAsset') : t('manualSerial');
-  $('manualSkipBtn').hidden = !assetStep;
-  $('manualResetBtn').hidden = !assetStep;
-  $('manualBarcodeInput').placeholder = t('manualPlaceholder');
+  const isSerial = activeScanTarget === 'serial';
+  el.innerHTML = `
+    <div class="hint-num">${isSerial ? '1' : '2'}</div>
+    <div class="hint-text">
+      <strong>${isSerial ? t('scanSerial') : t('scanAsset')}</strong>
+      <span>${t('pointCamera')}</span>
+    </div>`;
 }
 
 function resetCurrentScan(showMessage = true) {
+  stopScanner();
   lastScanCard.style.display = 'none';
   document.querySelector('.export-section').hidden = false;
   pendingSerial = null;
   pendingAsset = null;
   scanStep = 'serial';
+  activeScanTarget = null;
   lastScanTime = 0;
-  $('manualBarcodeInput').value = '';
+  $('serialCaptureInput').value = '';
+  $('assetCaptureInput').value = '';
   updateScanHint();
-  updateManualEntry();
   if (showMessage) showToast(t('scanCancelled'));
 }
 
-function submitManualBarcode() {
-  const input = $('manualBarcodeInput');
-  const value = input.value.trim();
-  if (!value) { showToast(t('requiredBarcode'), 'error'); input.focus(); return; }
-  input.value = '';
-  if (scanStep === 'asset-ready') scanStep = 'asset';
-  onScanResult(value, 'manual');
-  updateManualEntry();
+async function beginFieldScan(target) {
+  if (isScanning) await stopScanner();
+  activeScanTarget = target;
+  scanStep = target;
+  const targetField = $(target === 'serial' ? 'serialCaptureInput' : 'assetCaptureInput').closest('.capture-field');
+  targetField.after(scannerWrap);
+  $('scanSerialCodeBtn').classList.toggle('active', target === 'serial');
+  $('scanAssetCodeBtn').classList.toggle('active', target === 'asset');
+  await startScanner();
+}
+
+function continueCapturedDevice() {
+  const serial = $('serialCaptureInput').value.trim();
+  const asset = $('assetCaptureInput').value.trim();
+  if (!serial) { showToast(t('requiredBarcode'), 'error'); $('serialCaptureInput').focus(); return; }
+  if (isAssetCode(serial)) { showToast(t('serialCodeExpected'), 'error'); return; }
+  if (asset && !isAssetCode(asset)) { showToast(t('assetCodeExpected'), 'error'); return; }
+  pendingSerial = serial;
+  pendingAsset = asset;
+  stopScanner();
+  proceedToForm();
 }
 
 // ── Form ──────────────────────────────────────────────────────────────────────
@@ -1056,7 +1025,7 @@ function playBeep() {
 
 // ── On Scan Result ────────────────────────────────────────────────────────────
 function onScanResult(text, source = 'camera') {
-  if (scanStep === 'paused' || scanStep === 'asset-ready') return;
+  if (scanStep === 'paused' || !activeScanTarget) return;
   text = String(text || '').trim();
   if (!text) return;
   const now = Date.now();
@@ -1079,18 +1048,20 @@ function onScanResult(text, source = 'camera') {
 
   if (scanStep === 'serial') {
     pendingSerial = text;
-    scanStep = 'asset-ready';
-    updateScanHint();
+    $('serialCaptureInput').value = text;
     if (statusEl) statusEl.textContent = t('serialDone');
-    showToast(t('serialDoneToast'));
+    showToast(t('serialDone'));
   } else if (scanStep === 'asset') {
     if (text === pendingSerial) {
       showToast(t('sameSerial'), 'error');
       return;
     }
     pendingAsset = text;
-    proceedToForm();
+    $('assetCaptureInput').value = text;
+    showToast(t('scanAsset') + ' ✓');
   }
+  activeScanTarget = null;
+  stopScanner();
 }
 
 function isAssetCode(value) {
@@ -1182,8 +1153,7 @@ async function detectLoop() {
 // ── Start Scanner ─────────────────────────────────────────────────────────────
 async function startScanner() {
   if (isScanning) return;
-  startBtn.disabled = true;
-  startBtn.textContent = t('starting');
+  scannerWrap.style.display = 'block';
 
   try {
     // iOS Safari لا يدعم BarcodeDetector — روح للـ fallback مباشرة
@@ -1225,12 +1195,8 @@ async function startScanner() {
       return;
     }
 
-    scannerEmpty.style.display = 'none';
     scanContainer.style.display = 'block';
-    startBtn.style.display = 'none';
-    stopBtn.style.display  = 'flex';
     isScanning = true;
-    if (!pendingSerial) scanStep = 'serial';
     updateScanHint();
     animFrameId = requestAnimationFrame(detectLoop);
 
@@ -1239,14 +1205,8 @@ async function startScanner() {
     if (err?.name === 'NotAllowedError') showToast(t('cameraDenied'), 'error');
     else if (err?.name === 'NotFoundError') showToast(t('cameraMissing'), 'error');
     else showToast(t('cameraFailed'), 'error');
-  } finally {
-    startBtn.disabled = false;
-    startBtn.innerHTML = `
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-        <circle cx="12" cy="13" r="4"/>
-      </svg> ${t('startCamera')}`;
-  }
+    await stopScanner();
+  } finally {}
 }
 
 // ── Fallback (iOS / متصفحات قديمة) ───────────────────────────────────────────
@@ -1264,6 +1224,7 @@ function loadFallbackLib() {
 async function startFallbackScanner() {
   scanContainer.innerHTML = `
     <div id="fb_reader"></div>
+    <button id="cameraCloseBtn" class="camera-close" type="button">${t('closeCamera')}</button>
     <div class="zoom-bar">
       <button class="zoom-btn" id="zoomOut">−</button>
       <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="5" step="0.1" value="1">
@@ -1271,12 +1232,10 @@ async function startFallbackScanner() {
       <span class="zoom-label" id="zoomLabel">1×</span>
     </div>`;
   scanContainer.style.display = 'block';
-  scannerEmpty.style.display = 'none';
-  startBtn.style.display = 'none';
-  stopBtn.style.display  = 'flex';
+  scannerWrap.style.display = 'block';
   isScanning = true;
-  if (!pendingSerial) scanStep = 'serial';
   updateScanHint();
+  $('cameraCloseBtn').addEventListener('click', stopScanner);
 
   const slider = $('zoomSlider');
   if (slider) {
@@ -1324,7 +1283,7 @@ async function stopScanner() {
   currentZoom = 1;
   isScanning  = false;
 
-  scannerEmpty.style.display = 'grid';
+  scannerWrap.style.display = 'none';
   scanContainer.style.display = 'none';
   scanContainer.innerHTML = `
     <video id="scanVideo" autoplay muted playsinline></video>
@@ -1332,6 +1291,7 @@ async function stopScanner() {
     <div class="scan-frame"><div class="scan-line"></div></div>
     <div class="scan-frame-sm"></div>
     <div class="scan-status"><div class="dot"></div><span id="scanStatusText">${t('readyScan')}</span></div>
+    <button id="cameraCloseBtn" class="camera-close" type="button">${t('closeCamera')}</button>
     <div class="zoom-bar">
       <button class="zoom-btn" id="zoomOut">−</button>
       <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="5" step="0.1" value="1">
@@ -1339,8 +1299,9 @@ async function stopScanner() {
       <span class="zoom-label" id="zoomLabel">1×</span>
     </div>`;
 
-  startBtn.style.display = 'flex';
-  stopBtn.style.display  = 'none';
+  $('cameraCloseBtn').addEventListener('click', stopScanner);
+  $('scanSerialCodeBtn').classList.remove('active');
+  $('scanAssetCodeBtn').classList.remove('active');
   updateScanHint();
 }
 
@@ -1383,10 +1344,10 @@ $('siteTypeInput').addEventListener('change', () => {
 });
 $('authLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('appLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
-$('manualSubmitBtn').addEventListener('click', submitManualBarcode);
-$('manualBarcodeInput').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); submitManualBarcode(); } });
-$('manualSkipBtn').addEventListener('click', () => { if (scanStep === 'asset' || scanStep === 'asset-ready') { pendingAsset = ''; proceedToForm(); } });
-$('manualResetBtn').addEventListener('click', () => resetCurrentScan());
+$('scanSerialCodeBtn').addEventListener('click', () => beginFieldScan('serial'));
+$('scanAssetCodeBtn').addEventListener('click', () => beginFieldScan('asset'));
+$('continueCaptureBtn').addEventListener('click', continueCapturedDevice);
+$('cameraCloseBtn').addEventListener('click', stopScanner);
 $('authForm').addEventListener('submit', async event => {
   event.preventDefault();
   if (!configReady) { $('authError').textContent = t('configMissing'); return; }
@@ -1449,8 +1410,6 @@ $('changeSiteBtn').addEventListener('click', async () => {
   setAuthMode('login');
 });
 
-startBtn.addEventListener('click', startScanner);
-stopBtn.addEventListener('click',  stopScanner);
 exportBtn.addEventListener('click', exportToExcel);
 clearBtn.addEventListener('click',  clearAll);
 
