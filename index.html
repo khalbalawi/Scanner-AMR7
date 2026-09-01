@@ -486,8 +486,8 @@ const translations = {
     updateTitle:'تعيين رقم سري جديد', updateNote:'اكتب الرقم السري الجديد ثم أكّده', updatePassword:'حفظ الرقم السري الجديد',
     manualSerial:'إدخال يدوي للرقم التسلسلي (بديل للكاميرا)', manualAsset:'إدخال يدوي لرقم الأصل', manualPlaceholder:'اكتب أو الصق الباركود',
     add:'إضافة', skipAsset:'تخطي رقم الأصل', scanSerial:'سكان الرقم التسلسلي', pointCamera:'وجّه الكاميرا على الباركود / QR',
-    scanAsset:'سكان رقم الأصل (ZATCA)', serial:'السيريال', readyScan:'جاهز للسكان...', serialDone:'السيريال تم ✓ — سكن رقم الأصل',
-    serialDoneToast:'✓ السيريال تم — سكن رقم الأصل', sameSerial:'هذا نفس السيريال — سكن رقم أصل مختلف', requiredBarcode:'أدخل قيمة الباركود أولاً',
+    scanAsset:'سكان رقم الأصل', serial:'السيريال', readyScan:'جاهز للسكان...', serialDone:'تم حفظ السيريال منفصلًا',
+    serialDoneToast:'✓ تم حفظ السيريال — اضغط لبدء رقم الأصل', startAssetScan:'ابدأ سكان رقم الأصل', serialCodeExpected:'هذا رقم أصل، وجّه الكاميرا إلى باركود السيريال', assetCodeExpected:'هذا ليس رقم الأصل، وجّه الكاميرا إلى باركود رقم الأصل', sameSerial:'هذا نفس السيريال — سكن رقم أصل مختلف', requiredBarcode:'أدخل قيمة الباركود أولاً',
     user:'مستخدم', editRecord:'تعديل', deleteRecord:'حذف', confirmDelete:'حذف الجهاز', deleteFailed:'تعذّر حذف السجل', deleted:'تم حذف السجل',
     cancelOperation:'إلغاء العملية', startNewDevice:'بدء جهاز جديد', scanCancelled:'تم إلغاء القراءة — جاهز لجهاز جديد', recordsAdminNote:'إدارة السجل — هذا الإجراء يحذف جميع الأجهزة نهائيًا', clearAllRecords:'مسح كل السجل',
     duplicate:'⚠ هذا السيريال مسجّل سابقاً (سيتم التحديث)', newScan:'السكان الجديد', assetNumber:'رقم الأصل:', assetMissing:'— لم يُسكن —',
@@ -513,8 +513,8 @@ const translations = {
     sendReset:'Send reset link', updateTitle:'Set a new password', updateNote:'Enter and confirm your new password', updatePassword:'Save new password',
     manualSerial:'Enter serial number manually (camera alternative)', manualAsset:'Enter asset number manually', manualPlaceholder:'Type or paste the barcode',
     add:'Add', skipAsset:'Skip asset number', scanSerial:'Scan serial number', pointCamera:'Point the camera at the barcode / QR code',
-    scanAsset:'Scan asset number (ZATCA)', serial:'Serial', readyScan:'Ready to scan...', serialDone:'Serial captured ✓ — scan the asset number',
-    serialDoneToast:'✓ Serial captured — scan the asset number', sameSerial:'This matches the serial number — scan a different asset number', requiredBarcode:'Enter a barcode value first',
+    scanAsset:'Scan asset number', serial:'Serial', readyScan:'Ready to scan...', serialDone:'Serial saved separately',
+    serialDoneToast:'✓ Serial saved — tap to start the asset number', startAssetScan:'Start asset number scan', serialCodeExpected:'This is an asset code. Point the camera at the serial barcode', assetCodeExpected:'This is not the asset code. Point the camera at the asset barcode', sameSerial:'This matches the serial number — scan a different asset number', requiredBarcode:'Enter a barcode value first',
     user:'User', editRecord:'Edit', deleteRecord:'Delete', confirmDelete:'Delete device', deleteFailed:'Could not delete the record', deleted:'Record deleted',
     cancelOperation:'Cancel scan', startNewDevice:'Start new device', scanCancelled:'Scan cancelled — ready for a new device', recordsAdminNote:'Record management — this permanently deletes every device', clearAllRecords:'Delete all records',
     duplicate:'⚠ This serial already exists and will be updated', newScan:'New scan', assetNumber:'Asset number:', assetMissing:'— Not scanned —',
@@ -823,6 +823,29 @@ function updateScanHint() {
         <strong>${t('scanSerial')}</strong>
         <span>${t('pointCamera')}</span>
       </div>`;
+  } else if (scanStep === 'asset-ready') {
+    el.innerHTML = `
+      <div class="hint-num done">✓</div>
+      <div class="hint-text">
+        <strong>${t('serialDone')}</strong>
+        <span>${t('serial')}: ${escapeHtml(pendingSerial)}</span>
+      </div>
+      <div class="hint-actions">
+        <button class="hint-skip" id="startAssetScanBtn">${t('startAssetScan')}</button>
+        <button class="hint-skip" id="skipAssetBtn">${t('skipAsset')}</button>
+        <button class="hint-skip hint-cancel" id="cancelScanBtn">${t('cancelOperation')}</button>
+      </div>`;
+    $('startAssetScanBtn').addEventListener('click', e => {
+      e.stopPropagation();
+      scanStep = 'asset';
+      lastScanTime = Date.now() + 500;
+      updateScanHint();
+      if ($('scanStatusText')) $('scanStatusText').textContent = t('scanAsset');
+    });
+    $('skipAssetBtn').addEventListener('click', e => {
+      e.stopPropagation(); pendingAsset = ''; proceedToForm();
+    });
+    $('cancelScanBtn').addEventListener('click', e => { e.stopPropagation(); resetCurrentScan(); });
   } else if (scanStep === 'asset') {
     el.innerHTML = `
       <div class="hint-num done">✓</div>
@@ -844,7 +867,7 @@ function updateScanHint() {
 }
 
 function updateManualEntry() {
-  const assetStep = scanStep === 'asset';
+  const assetStep = scanStep === 'asset' || scanStep === 'asset-ready';
   $('manualEntryLabel').textContent = assetStep ? t('manualAsset') : t('manualSerial');
   $('manualSkipBtn').hidden = !assetStep;
   $('manualResetBtn').hidden = !assetStep;
@@ -869,6 +892,7 @@ function submitManualBarcode() {
   const value = input.value.trim();
   if (!value) { showToast(t('requiredBarcode'), 'error'); input.focus(); return; }
   input.value = '';
+  if (scanStep === 'asset-ready') scanStep = 'asset';
   onScanResult(value, 'manual');
   updateManualEntry();
 }
@@ -1032,12 +1056,21 @@ function playBeep() {
 
 // ── On Scan Result ────────────────────────────────────────────────────────────
 function onScanResult(text, source = 'camera') {
-  if (scanStep === 'paused') return;
+  if (scanStep === 'paused' || scanStep === 'asset-ready') return;
   text = String(text || '').trim();
   if (!text) return;
   const now = Date.now();
   if (source === 'camera' && now - lastScanTime < 800) return;
   lastScanTime = now;
+
+  if (scanStep === 'serial' && isAssetCode(text)) {
+    showToast(t('serialCodeExpected'), 'error');
+    return;
+  }
+  if (scanStep === 'asset' && !isAssetCode(text)) {
+    showToast(t('assetCodeExpected'), 'error');
+    return;
+  }
 
   if (navigator.vibrate) navigator.vibrate([60,30,60]);
   playBeep();
@@ -1046,7 +1079,7 @@ function onScanResult(text, source = 'camera') {
 
   if (scanStep === 'serial') {
     pendingSerial = text;
-    scanStep = 'asset';
+    scanStep = 'asset-ready';
     updateScanHint();
     if (statusEl) statusEl.textContent = t('serialDone');
     showToast(t('serialDoneToast'));
@@ -1058,6 +1091,17 @@ function onScanResult(text, source = 'camera') {
     pendingAsset = text;
     proceedToForm();
   }
+}
+
+function isAssetCode(value) {
+  return String(value || '').trim().replace(/[\s_-]+/g, '').toUpperCase().startsWith('ZATCA');
+}
+
+function chooseDetectedCode(results) {
+  const values = [...new Set((results || []).map(result => String(result.rawValue || '').trim()).filter(Boolean))];
+  if (scanStep === 'serial') return values.find(value => !isAssetCode(value)) || null;
+  if (scanStep === 'asset') return values.find(value => isAssetCode(value)) || null;
+  return null;
 }
 
 // ── Zoom ──────────────────────────────────────────────────────────────────────
@@ -1119,14 +1163,16 @@ async function detectLoop() {
       cvs.width = bigW; cvs.height = bigH;
       ctx.drawImage(vid, bigX, bigY, bigW, bigH, 0, 0, bigW, bigH);
       const bigRes = await barcodeDetector.detect(cvs);
-      if (bigRes.length) { onScanResult(bigRes[0].rawValue); animFrameId = requestAnimationFrame(detectLoop); return; }
+      const bigValue = chooseDetectedCode(bigRes);
+      if (bigValue) { onScanResult(bigValue); animFrameId = requestAnimationFrame(detectLoop); return; }
 
       const smX = Math.floor(vw * 0.30), smY = Math.floor(vh * 0.425);
       const smW = Math.floor(vw * 0.40), smH = Math.floor(vh * 0.15);
       cvs.width = smW; cvs.height = smH;
       ctx.drawImage(vid, smX, smY, smW, smH, 0, 0, smW, smH);
       const smRes = await barcodeDetector.detect(cvs);
-      if (smRes.length) { onScanResult(smRes[0].rawValue); }
+      const smallValue = chooseDetectedCode(smRes);
+      if (smallValue) { onScanResult(smallValue); }
     } catch(e) {}
   }
 
@@ -1339,7 +1385,7 @@ $('authLangBtn').addEventListener('click', () => applyLanguage(currentLang === '
 $('appLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('manualSubmitBtn').addEventListener('click', submitManualBarcode);
 $('manualBarcodeInput').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); submitManualBarcode(); } });
-$('manualSkipBtn').addEventListener('click', () => { if (scanStep === 'asset') { pendingAsset = ''; proceedToForm(); } });
+$('manualSkipBtn').addEventListener('click', () => { if (scanStep === 'asset' || scanStep === 'asset-ready') { pendingAsset = ''; proceedToForm(); } });
 $('manualResetBtn').addEventListener('click', () => resetCurrentScan());
 $('authForm').addEventListener('submit', async event => {
   event.preventDefault();
