@@ -558,7 +558,7 @@ const MODEL_SUGGESTIONS = {
     'HP EliteOne 800 G3 23.8-in Touch All-in-One',
     'HP EliteOne 870 27 inch G9 All-in-One'
   ],
-  scanner:['EPSON DS-410'],
+  scanner:['Scanner - EPSON DS-410'],
   printer:['HP MFP M528','EPSON TM-T88VII','HP P57750dw','HP M603','HP Color LaserJet Enterprise MFP 5800'],
   cisco_phone:['Cisco IP Phone 7945','Cisco IP Phone 7911','Cisco IP Phone 7962','Cisco IP Phone 7975','Cisco CP-7841'],
   other:[]
@@ -571,6 +571,19 @@ function normalizeModelSuggestion(model) {
   if (key === 'HPELITEDESK') return 'HP EliteDesk';
   if (key.startsWith('HPELITEONE800G323.8INTOUCHALLINONE')) return 'HP EliteOne 800 G3 23.8-in Touch All-in-One';
   if (key.startsWith('HPELITEONE87027INCHG9ALLINONE')) return 'HP EliteOne 870 27 inch G9 All-in-One';
+  if (key.includes('HPP27G5MONITOR')) return 'HP P27 G5 Monitor';
+  if (key.includes('HPZ27MONITOR')) return 'HP Z27 Monitor';
+  if (key.includes('EPSONDS410')) return 'Scanner - EPSON DS-410';
+  if (key.includes('HPMFPM528')) return 'HP MFP M528';
+  if (key.includes('EPSON') && key.includes('TMT88VII')) return 'EPSON TM-T88VII';
+  if (key.includes('HPP57750DW')) return 'HP P57750dw';
+  if (key.includes('HPM603')) return 'HP M603';
+  if (key.includes('HPCOLORLASERJETENTERPRISEMFP5800') || key.includes('HPLASERJETENTERPRISEMFP5800')) return 'HP Color LaserJet Enterprise MFP 5800';
+  if (key.includes('CISCO') && key.includes('CP7841')) return 'Cisco CP-7841';
+  if (key.includes('CISCO') && key.includes('7945')) return 'Cisco IP Phone 7945';
+  if (key.includes('CISCO') && key.includes('7911')) return 'Cisco IP Phone 7911';
+  if (key.includes('CISCO') && key.includes('7962')) return 'Cisco IP Phone 7962';
+  if (key.includes('CISCO') && key.includes('7975')) return 'Cisco IP Phone 7975';
   return value;
 }
 
