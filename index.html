@@ -99,12 +99,12 @@
   .scanner-empty p { color:var(--text-dim); font-size:13px; margin-top:4px; }
 
   #scanContainer { position:relative; display:none; }
-  #scanVideo { width:100%; height:190px; display:block; object-fit:cover; }
+  #scanVideo { width:100%; height:310px; display:block; object-fit:cover; }
   #scanCanvas { display:none; }
 
   .scan-frame {
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    width:82%; max-width:340px; height:70px;
+    width:94%; max-width:620px; height:150px;
     border:2px solid var(--accent); border-radius:8px;
     box-shadow:0 0 0 9999px rgba(0,0,0,0.5);
     pointer-events:none;
@@ -128,7 +128,7 @@
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
     width:38%; max-width:150px; height:44px;
     border:1px dashed rgba(255,182,39,0.5);
-    border-radius:4px; pointer-events:none;
+    border-radius:4px; pointer-events:none; display:none;
   }
 
   .scan-status {
@@ -232,7 +232,7 @@
 
   /* تحسين عرض html5-qrcode على iOS */
   #fb_reader { width:100%; }
-  #fb_reader video { width:100% !important; height:190px !important; object-fit:cover; }
+  #fb_reader video { width:100% !important; height:310px !important; object-fit:cover; }
   #fb_reader img { display:none; }
 
   /* واجهة الأبيض والأسود والذهبي */
@@ -261,7 +261,7 @@
   @media (max-width:420px) {
     .capture-row { grid-template-columns:minmax(0,1fr) 96px; }
     .capture-scan-btn { min-width:0; padding:9px 7px; font-size:11px; }
-    #scanVideo,#fb_reader video { height:170px !important; }
+    #scanVideo,#fb_reader video { height:270px !important; }
   }
 
   .records { background:transparent; border:0; box-shadow:none; overflow:visible; }
@@ -1129,8 +1129,8 @@ async function detectLoop() {
       const cvs = document.getElementById('scanCanvas');
       const ctx = cvs.getContext('2d');
 
-      const bigX = Math.floor(vw * 0.10), bigY = Math.floor(vh * 0.325);
-      const bigW = Math.floor(vw * 0.80), bigH = Math.floor(vh * 0.35);
+      const bigX = Math.floor(vw * 0.03), bigY = Math.floor(vh * 0.20);
+      const bigW = Math.floor(vw * 0.94), bigH = Math.floor(vh * 0.60);
       cvs.width = bigW; cvs.height = bigH;
       ctx.drawImage(vid, bigX, bigY, bigW, bigH, 0, 0, bigW, bigH);
       const bigRes = await barcodeDetector.detect(cvs);
@@ -1250,7 +1250,7 @@ async function startFallbackScanner() {
       { facingMode:'environment' },
       {
         fps: 15,
-        qrbox: (w,h) => ({ width:Math.min(Math.floor(w*.8),350), height:Math.min(Math.floor(h*.3),110) }),
+        qrbox: (w,h) => ({ width:Math.min(Math.floor(w*.94),620), height:Math.min(Math.floor(h*.55),220) }),
         experimentalFeatures: { useBarCodeDetectorIfSupported:true },
         formatsToSupport: [
           Html5QrcodeSupportedFormats.QR_CODE,
