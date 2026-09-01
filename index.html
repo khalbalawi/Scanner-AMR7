@@ -553,7 +553,6 @@ const DEVICE_TYPES = ['monitor','pc','scanner','printer','cisco_phone','other'];
 const MODEL_SUGGESTIONS = {
   monitor:['HP P27 G5 Monitor','HP Z27 Monitor'],
   pc:[
-    'HP Z2',
     'HP EliteDesk',
     'HP Z2 SFF Workstation G9',
     'HP EliteOne 800 G3 23.8-in Touch All-in-One',
@@ -564,6 +563,20 @@ const MODEL_SUGGESTIONS = {
   cisco_phone:['Cisco IP Phone 7945','Cisco IP Phone 7911','Cisco IP Phone 7962','Cisco IP Phone 7975','Cisco CP-7841'],
   other:[]
 };
+
+function normalizeModelSuggestion(model) {
+  const value = String(model || '').trim();
+  const key = value.toUpperCase().replace(/[\s_-]+/g, '');
+  if (key === 'HPZ2') return '';
+  if (key === 'HPELITEDESK') return 'HP EliteDesk';
+  if (key.startsWith('HPELITEONE800G323.8INTOUCHALLINONE')) return 'HP EliteOne 800 G3 23.8-in Touch All-in-One';
+  if (key.startsWith('HPELITEONE87027INCHG9ALLINONE')) return 'HP EliteOne 870 27 inch G9 All-in-One';
+  return value;
+}
+
+function modelSuggestionKey(model) {
+  return String(model || '').toUpperCase().replace(/[\s_-]+/g, '');
+}
 const DEVICE_ICONS = {
   monitor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
   pc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="12" height="12" rx="2"/><path d="M7 20h4M9 16v4M18 7h3v13h-6v-2"/></svg>',
@@ -942,9 +955,10 @@ function showScanForm(serial, asset) {
   function renderModelSuggestions() {
     const savedModels = records
       .filter(record => record.deviceType === selectedDeviceType && record.model)
-      .map(record => record.model.trim())
+      .map(record => normalizeModelSuggestion(record.model))
       .filter(Boolean);
-    const items = [...new Set([...(MODEL_SUGGESTIONS[selectedDeviceType] || []), ...savedModels])]
+    const allModels = [...(MODEL_SUGGESTIONS[selectedDeviceType] || []), ...savedModels];
+    const items = [...new Map(allModels.map(model => [modelSuggestionKey(model), model])).values()]
       .sort((a, b) => a.localeCompare(b, currentLang === 'ar' ? 'ar' : 'en', { sensitivity:'base' }));
     $('modelSuggestions').innerHTML = items.map(model => `<button class="model-suggestion" type="button" data-model="${escapeHtml(model)}">${escapeHtml(model)}</button>`).join('');
     $('modelSuggestions').querySelectorAll('.model-suggestion').forEach(button => button.addEventListener('click', () => {
