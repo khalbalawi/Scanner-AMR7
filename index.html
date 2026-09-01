@@ -551,10 +551,16 @@ const t = key => translations[currentLang][key] || translations.ar[key] || key;
 
 const DEVICE_TYPES = ['monitor','pc','scanner','printer','cisco_phone','other'];
 const MODEL_SUGGESTIONS = {
-  monitor:['HP P27 G5 Monitor'],
-  pc:['HP Z2','HP EliteDesk','HP Z2 SFF Workstation G9','HP EliteOne 870 27 inch G9 All-in-One'],
+  monitor:['HP P27 G5 Monitor','HP Z27 Monitor'],
+  pc:[
+    'HP Z2',
+    'HP EliteDesk',
+    'HP Z2 SFF Workstation G9',
+    'HP EliteOne 800 G3 23.8-in Touch All-in-One',
+    'HP EliteOne 870 27 inch G9 All-in-One'
+  ],
   scanner:['EPSON DS-410'],
-  printer:['HP MFP M528','EPSON TM-T88VII','HP P57750dw','HP M603','HP LaserJet Enterprise MFP 5800'],
+  printer:['HP MFP M528','EPSON TM-T88VII','HP P57750dw','HP M603','HP Color LaserJet Enterprise MFP 5800'],
   cisco_phone:['Cisco IP Phone 7945','Cisco IP Phone 7911','Cisco IP Phone 7962','Cisco IP Phone 7975','Cisco CP-7841'],
   other:[]
 };
