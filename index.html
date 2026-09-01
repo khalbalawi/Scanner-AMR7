@@ -283,10 +283,10 @@
   .group-table-head,.record { display:grid; grid-template-columns:minmax(110px,1.2fr) minmax(100px,1fr) minmax(80px,.8fr); gap:8px; align-items:center; }
   .group-table-head { padding:8px 14px; background:var(--panel-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); color:var(--text-dim); font-size:10px; font-weight:700; }
   .record { padding:11px 14px; }
-  .record { position:relative; padding-left:42px; }
+  .record { position:relative; padding-left:50px; }
   .record .serial { font-size:11px; direction:ltr; text-align:start; }
   .record .model { grid-column:auto; font-size:11px; color:var(--text); }
-  .record .asset-cell { color:var(--text-dim); font:600 10px 'JetBrains Mono',monospace; direction:ltr; text-align:start; }
+  .record .asset-cell { color:var(--text-dim); font:600 10px 'JetBrains Mono',monospace; direction:ltr; text-align:start; overflow-wrap:anywhere; }
   .record .status-pill { grid-row:auto; justify-self:start; font-size:10px; padding:3px 7px; }
   .group-empty { padding:16px; text-align:center; color:var(--text-dim); font-size:12px; border-top:1px solid var(--border); }
   .records-admin { margin:16px 2px 0; padding:14px; border-top:1px solid var(--border); text-align:center; }
@@ -298,7 +298,9 @@
     .page-heading { margin-bottom:10px; }
     header { margin-bottom:14px; padding-bottom:14px; }
     .device-type-options { grid-template-columns:repeat(3,1fr); }
-    .group-table-head,.record { grid-template-columns:minmax(90px,1.15fr) minmax(88px,1fr) minmax(68px,.75fr); padding-left:10px; padding-right:10px; }
+    .group-table-head,.record { grid-template-columns:minmax(90px,1.15fr) minmax(88px,1fr) minmax(68px,.75fr); padding-right:10px; }
+    .group-table-head { padding-left:10px; }
+    .record { padding-left:50px; }
     .record .serial,.record .model { font-size:10px; }
   }
 
@@ -549,10 +551,16 @@ const t = key => translations[currentLang][key] || translations.ar[key] || key;
 
 const DEVICE_TYPES = ['monitor','pc','scanner','printer','cisco_phone','other'];
 const MODEL_SUGGESTIONS = {
-  monitor:['HP P27 G5 Monitor'],
-  pc:['HP Z2','HP EliteDesk','HP Z2 SFF Workstation G9','HP EliteOne 870 27 inch G9 All-in-One'],
+  monitor:['HP P27 G5 Monitor','HP Z27 Monitor'],
+  pc:[
+    'HP Z2',
+    'HP EliteDesk',
+    'HP Z2 SFF Workstation G9',
+    'HP EliteOne 800 G3 23.8-in Touch All-in-One',
+    'HP EliteOne 870 27 inch G9 All-in-One'
+  ],
   scanner:['EPSON DS-410'],
-  printer:['HP MFP M528','EPSON TM-T88VII','HP P57750dw','HP M603','HP LaserJet Enterprise MFP 5800'],
+  printer:['HP MFP M528','EPSON TM-T88VII','HP P57750dw','HP M603','HP Color LaserJet Enterprise MFP 5800'],
   cisco_phone:['Cisco IP Phone 7945','Cisco IP Phone 7911','Cisco IP Phone 7962','Cisco IP Phone 7975','Cisco CP-7841'],
   other:[]
 };
