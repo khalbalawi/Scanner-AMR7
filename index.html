@@ -208,6 +208,9 @@
   .records-header h2 { font-size:14px; font-weight:600; }
   .records-header .meta { font-size:11px; color:var(--text-dim); font-family:'JetBrains Mono',monospace; }
   .records-empty { padding:40px 20px; text-align:center; color:var(--text-dim); font-size:13px; }
+  .legacy-records-note { display:flex; gap:10px; align-items:flex-start; margin:0 0 10px; padding:11px 12px; border:1px solid #d7b46a; border-radius:10px; background:#fff8e8; color:#6f531c; font-size:11px; line-height:1.65; }
+  .legacy-records-note b { flex:0 0 auto; min-width:23px; height:23px; border-radius:50%; display:grid; place-items:center; background:var(--accent); color:#fff; font:700 11px 'JetBrains Mono',monospace; }
+  .legacy-dashboard-notice { margin-top:12px; padding:9px 10px; border:1px solid #d7b46a; border-radius:9px; background:#fff8e8; color:#6f531c; font-size:10px; line-height:1.6; }
   .record { padding:14px 16px; border-bottom:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:4px 12px; align-items:center; }
   .record:last-child { border-bottom:none; }
   .record .serial { font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:600; color:var(--text); word-break:break-all; }
@@ -522,6 +525,7 @@
           <div><span id="activeCustodyLabel">إجمالي العهدة النشطة</span><br><strong id="dashboardTotal">0</strong> <span id="dashboardDeviceLabel">جهاز</span></div>
           <div class="dashboard-site" id="dashboardSite">—</div>
         </div>
+        <div id="legacyDashboardNotice" class="legacy-dashboard-notice" hidden></div>
         <div id="dashboardStatusSummary" class="dashboard-summary"></div>
       </article>
 
@@ -643,7 +647,7 @@ const translations = {
     passwordsMismatch:'الرقمان السريان غير متطابقين', invalidForm:'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف', configMissing:'يلزم ربط المشروع بـ Supabase من ملف config.js',
     siteType:'نوع الموقع', chooseSiteType:'اختر نوع الموقع', siteName:'اسم الموقع', siteNamePlaceholder:'اكتب اسم الموقع بالعربي أو الإنجليزي', siteRequired:'اختر نوع الموقع واكتب اسمه', changeSite:'تغيير الموقع', borderCrossing:'منفذ بري', airport:'مطار', seaport:'ميناء', branch:'فرع', otherSite:'موقع آخر',
     readBarcode:'قراءة الباركود', continueDevice:'متابعة بيانات الجهاز', closeCamera:'إغلاق الكاميرا', serialPlaceholder:'اكتب الرقم أو اقرأ الباركود', assetPlaceholder:'اختياري — اكتب الرقم أو اقرأ الباركود',
-    inventoryTab:'الجرد', dashboardTab:'لوحة التحكم', activeCustody:'إجمالي العهدة النشطة', typeDistribution:'توزيع الأجهزة حسب النوع', returnDevices:'استرجاع أجهزة إلى IT Store', returnDevicesNote:'حدد جهازًا أو أكثر لإنشاء بوليصة استرجاع', selectAll:'تحديد الكل', clearSelection:'إلغاء التحديد', selected:'محدد', createReturn:'إنشاء استرجاع للـ IT Store', recentReturns:'الاسترجاعات الأخيرة', exportReturnLog:'تصدير السجل', noReturns:'لا توجد استرجاعات مسجلة بعد', returnedToStore:'مسترجع للستور', returnModalTitle:'إنشاء استرجاع إلى IT Store', sourceSite:'الموقع المصدر', destination:'الوجهة', waybillNumber:'رقم البوليصة *', waybillPlaceholder:'أدخل رقم البوليصة', returnNotes:'ملاحظات (اختياري)', returnNotesPlaceholder:'أي تفاصيل إضافية عن الاسترجاع', confirmReturn:'تأكيد الاسترجاع', chooseReturnAssets:'حدد جهازًا واحدًا على الأقل', waybillRequired:'رقم البوليصة مطلوب', returnSuccess:'تم تسجيل الاسترجاع وإخراج الأجهزة من عهدة الموقع', returnFailed:'تعذّر تسجيل الاسترجاع: ', loadingDashboard:'جاري تحميل لوحة التحكم...'
+    inventoryTab:'الجرد', dashboardTab:'لوحة التحكم', activeCustody:'إجمالي العهدة النشطة', typeDistribution:'توزيع الأجهزة حسب النوع', returnDevices:'استرجاع أجهزة إلى IT Store', returnDevicesNote:'حدد جهازًا أو أكثر لإنشاء بوليصة استرجاع', selectAll:'تحديد الكل', clearSelection:'إلغاء التحديد', selected:'محدد', createReturn:'إنشاء استرجاع للـ IT Store', recentReturns:'الاسترجاعات الأخيرة', exportReturnLog:'تصدير السجل', noReturns:'لا توجد استرجاعات مسجلة بعد', returnedToStore:'مسترجع للستور', returnModalTitle:'إنشاء استرجاع إلى IT Store', sourceSite:'الموقع المصدر', destination:'الوجهة', waybillNumber:'رقم البوليصة *', waybillPlaceholder:'أدخل رقم البوليصة', returnNotes:'ملاحظات (اختياري)', returnNotesPlaceholder:'أي تفاصيل إضافية عن الاسترجاع', confirmReturn:'تأكيد الاسترجاع', chooseReturnAssets:'حدد جهازًا واحدًا على الأقل', waybillRequired:'رقم البوليصة مطلوب', returnSuccess:'تم تسجيل الاسترجاع وإخراج الأجهزة من عهدة الموقع', returnFailed:'تعذّر تسجيل الاسترجاع: ', loadingDashboard:'جاري تحميل لوحة التحكم...', legacyRecordsNotice:'أجهزة قديمة محفوظة قبل إضافة اختيار الموقع. أظهرناها هنا حتى لا تبدو مفقودة، ولا تُحسب على عهدة الموقع الحالية حتى تُعدّل السجل وتحفظه.', legacyDashboardNotice:'جهاز قديم بلا موقع ظاهر في سجل الجرد، لكنه غير محسوب ضمن عهدة هذا الموقع.'
   },
   en: {
     appTitle:'Asset Inventory', device:'devices', logout:'Sign out', startCamera:'Start camera', stop:'Stop',
@@ -672,7 +676,7 @@ const translations = {
     passwordsMismatch:'The passwords do not match', invalidForm:'Check the name and email. Password must be at least 8 characters.', configMissing:'Connect Supabase in config.js first',
     siteType:'Site type', chooseSiteType:'Choose site type', siteName:'Site name', siteNamePlaceholder:'Enter the site name in Arabic or English', siteRequired:'Choose a site type and enter its name', changeSite:'Change site', borderCrossing:'Border crossing', airport:'Airport', seaport:'Seaport', branch:'Branch', otherSite:'Other site',
     readBarcode:'Scan barcode', continueDevice:'Continue device details', closeCamera:'Close camera', serialPlaceholder:'Type or scan the serial number', assetPlaceholder:'Optional — type or scan the asset number',
-    inventoryTab:'Inventory', dashboardTab:'Dashboard', activeCustody:'Active site custody', typeDistribution:'Devices by type', returnDevices:'Return devices to IT Store', returnDevicesNote:'Select one or more devices to create a return waybill', selectAll:'Select all', clearSelection:'Clear selection', selected:'selected', createReturn:'Create IT Store return', recentReturns:'Recent returns', exportReturnLog:'Export log', noReturns:'No returns recorded yet', returnedToStore:'Returned to store', returnModalTitle:'Create return to IT Store', sourceSite:'Source site', destination:'Destination', waybillNumber:'Waybill number *', waybillPlaceholder:'Enter waybill number', returnNotes:'Notes (optional)', returnNotesPlaceholder:'Additional return details', confirmReturn:'Confirm return', chooseReturnAssets:'Select at least one device', waybillRequired:'Waybill number is required', returnSuccess:'Return recorded and devices removed from site custody', returnFailed:'Could not record return: ', loadingDashboard:'Loading dashboard...'
+    inventoryTab:'Inventory', dashboardTab:'Dashboard', activeCustody:'Active site custody', typeDistribution:'Devices by type', returnDevices:'Return devices to IT Store', returnDevicesNote:'Select one or more devices to create a return waybill', selectAll:'Select all', clearSelection:'Clear selection', selected:'selected', createReturn:'Create IT Store return', recentReturns:'Recent returns', exportReturnLog:'Export log', noReturns:'No returns recorded yet', returnedToStore:'Returned to store', returnModalTitle:'Create return to IT Store', sourceSite:'Source site', destination:'Destination', waybillNumber:'Waybill number *', waybillPlaceholder:'Enter waybill number', returnNotes:'Notes (optional)', returnNotesPlaceholder:'Additional return details', confirmReturn:'Confirm return', chooseReturnAssets:'Select at least one device', waybillRequired:'Waybill number is required', returnSuccess:'Return recorded and devices removed from site custody', returnFailed:'Could not record return: ', loadingDashboard:'Loading dashboard...', legacyRecordsNotice:'Older devices saved before site selection was added. They are visible here so they are not mistaken for missing records, and are not counted in the current site custody until the record is edited and saved.', legacyDashboardNotice:'older device(s) without a site are visible in Inventory but are not counted in this site custody.'
   }
 };
 
@@ -907,21 +911,50 @@ function fromDb(row) {
   return { id:row.id, serial:row.serial, asset:row.asset_number, deviceType:savedType, model:row.model, status:row.status, notes:row.notes, siteType:row.site_type||'', siteName:row.site_name||'', custodyState:row.custody_state||'active', scannedAt:row.scanned_at };
 }
 
+function normalizedSiteValue(value) {
+  return String(value || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('en');
+}
+
+function isCurrentSiteRecord(record) {
+  return normalizedSiteValue(record.siteType) === normalizedSiteValue(currentSite?.type)
+    && normalizedSiteValue(record.siteName) === normalizedSiteValue(currentSite?.name);
+}
+
+function isLegacySiteRecord(record) {
+  return !normalizedSiteValue(record.siteType) || !normalizedSiteValue(record.siteName);
+}
+
+function currentSiteRecords() {
+  return records.filter(isCurrentSiteRecord);
+}
+
+function legacySiteRecords() {
+  return records.filter(isLegacySiteRecord);
+}
+
 async function loadRecords() {
   recordsList.innerHTML = `<div class="records-empty">${t('loadingRecords')}</div>`;
-  const { data, error } = await db.from('assets')
-    .select('id,serial,asset_number,device_type,model,status,notes,site_type,site_name,custody_state,scanned_at')
-    .eq('custody_state', 'active')
-    .eq('site_type', currentSite.type)
-    .eq('site_name', currentSite.name)
-    .order('scanned_at', { ascending:true });
+  const columns = 'id,serial,asset_number,device_type,model,status,notes,site_type,site_name,custody_state,scanned_at';
+  const [siteResult, legacyResult] = await Promise.all([
+    db.from('assets').select(columns)
+      .eq('custody_state', 'active')
+      .eq('site_type', currentSite.type)
+      .eq('site_name', currentSite.name),
+    db.from('assets').select(columns)
+      .eq('custody_state', 'active')
+      .eq('site_type', '')
+      .eq('site_name', '')
+  ]);
+  const error = siteResult.error || legacyResult.error;
   if (error) {
     records = [];
     renderRecords(); updateCounts(); renderDashboard();
     showToast(t('loadFailed') + authMessage(error), 'error');
     return;
   }
-  records = (data || []).map(fromDb);
+  records = [...(legacyResult.data || []), ...(siteResult.data || [])]
+    .map(fromDb)
+    .sort((a, b) => new Date(a.scannedAt) - new Date(b.scannedAt));
   renderRecords(); updateCounts(); renderDashboard();
 }
 
@@ -962,20 +995,26 @@ function switchAppView(view) {
 
 function renderDashboard() {
   if (!$('dashboardTotal')) return;
-  selectedReturnIds = new Set([...selectedReturnIds].filter(id => records.some(record => record.id === id)));
-  $('dashboardTotal').textContent = records.length;
+  const siteRecords = currentSiteRecords();
+  const legacyCount = legacySiteRecords().length;
+  selectedReturnIds = new Set([...selectedReturnIds].filter(id => siteRecords.some(record => record.id === id)));
+  $('dashboardTotal').textContent = siteRecords.length;
   $('dashboardSite').textContent = `${siteTypeLabel(currentSite?.type || '')} — ${currentSite?.name || '—'}`;
+  $('legacyDashboardNotice').hidden = legacyCount === 0;
+  $('legacyDashboardNotice').textContent = legacyCount
+    ? (currentLang === 'ar' ? `${legacyCount} ${t('legacyDashboardNotice')}` : `${legacyCount} ${t('legacyDashboardNotice')}`)
+    : '';
 
   const statusCounts = ['جديد','مستعمل','للصيانة','تالف'].map(status => ({
     status,
-    count:records.filter(record => record.status === status).length
+    count:siteRecords.filter(record => record.status === status).length
   }));
   $('dashboardStatusSummary').innerHTML = statusCounts.map(item => `
     <div class="summary-item"><b>${item.count}</b><span>${statusLabel(item.status)}</span></div>`).join('');
 
   const typeCounts = DEVICE_TYPES.map(type => ({
     type,
-    count:records.filter(record => record.deviceType === type).length
+    count:siteRecords.filter(record => record.deviceType === type).length
   })).filter(item => item.count > 0);
   const maxTypeCount = Math.max(1, ...typeCounts.map(item => item.count));
   $('dashboardTypeBars').innerHTML = typeCounts.length ? typeCounts.map(item => `
@@ -985,7 +1024,7 @@ function renderDashboard() {
       <span class="type-bar-count">${item.count}</span>
     </div>`).join('') : `<div class="dashboard-empty">${t('noRecords')}</div>`;
 
-  $('returnDeviceList').innerHTML = records.length ? records.map(record => `
+  $('returnDeviceList').innerHTML = siteRecords.length ? siteRecords.map(record => `
     <label class="return-device">
       <input type="checkbox" data-return-id="${record.id}" ${selectedReturnIds.has(record.id) ? 'checked' : ''}>
       <span><strong>${escapeHtml(record.serial)}</strong><span>${escapeHtml(record.model || deviceTypeLabel(record.deviceType))} · ${escapeHtml(record.asset || '—')}</span></span>
@@ -1013,15 +1052,17 @@ function renderDashboard() {
 }
 
 function updateReturnSelectionUI() {
+  const siteRecords = currentSiteRecords();
   const count = selectedReturnIds.size;
   $('returnSelectedCount').textContent = `${count} ${t('selected')}`;
   $('openReturnModalBtn').disabled = count === 0;
-  $('selectAllReturnsBtn').textContent = count === records.length && records.length ? t('clearSelection') : t('selectAll');
+  $('selectAllReturnsBtn').textContent = count === siteRecords.length && siteRecords.length ? t('clearSelection') : t('selectAll');
 }
 
 function toggleSelectAllReturns() {
-  if (selectedReturnIds.size === records.length) selectedReturnIds.clear();
-  else selectedReturnIds = new Set(records.map(record => record.id));
+  const siteRecords = currentSiteRecords();
+  if (selectedReturnIds.size === siteRecords.length) selectedReturnIds.clear();
+  else selectedReturnIds = new Set(siteRecords.map(record => record.id));
   renderDashboard();
 }
 
@@ -1102,8 +1143,10 @@ function exportReturnLog() {
 
 // ── Counts ────────────────────────────────────────────────────────────────────
 function updateCounts() {
+  const siteRecords = currentSiteRecords();
   totalCount.textContent = records.length;
-  exportBtn.disabled = clearBtn.disabled = records.length === 0;
+  exportBtn.disabled = records.length === 0;
+  clearBtn.disabled = siteRecords.length === 0;
   if (!records.length) { recordsMeta.textContent = '—'; return; }
   const s = records.reduce((a,r) => { a[r.status]=(a[r.status]||0)+1; return a; }, {});
   recordsMeta.textContent = Object.entries(s).map(([k,v]) => `${statusLabel(k)}: ${v}`).join(' • ');
@@ -1131,7 +1174,9 @@ function renderRecords() {
     grouped[type].push({ record, idx });
   });
 
-  recordsList.innerHTML = `<div class="records-groups">${DEVICE_TYPES.filter(type => grouped[type].length).map((type, groupIndex) => `
+  const legacyCount = legacySiteRecords().length;
+  const legacyNotice = legacyCount ? `<div class="legacy-records-note"><b>${legacyCount}</b><span>${t('legacyRecordsNotice')}</span></div>` : '';
+  recordsList.innerHTML = `${legacyNotice}<div class="records-groups">${DEVICE_TYPES.filter(type => grouped[type].length).map((type, groupIndex) => `
     <details class="record-group" ${groupIndex < 2 ? 'open' : ''}>
       <summary>
         <span class="group-icon">${DEVICE_ICONS[type]}</span>
@@ -1686,9 +1731,9 @@ async function stopScanner() {
 function exportToExcel() {
   if (!records.length) return;
   const data = records.map((r,i) => currentLang === 'ar' ? ({
-    '#':i+1,'نوع الموقع':siteTypeLabel(r.siteType||currentSite?.type),'اسم الموقع':r.siteName||currentSite?.name||'','نوع الجهاز':deviceTypeLabel(r.deviceType),'الرقم التسلسلي':r.serial,'رقم الأصل':r.asset||'','الموديل':r.model||'','الحالة':r.status,'ملاحظات':r.notes||'','تاريخ السكان':new Date(r.scannedAt).toLocaleString('ar-SA')
+    '#':i+1,'نوع الموقع':siteTypeLabel(r.siteType),'اسم الموقع':r.siteName||'','نوع الجهاز':deviceTypeLabel(r.deviceType),'الرقم التسلسلي':r.serial,'رقم الأصل':r.asset||'','الموديل':r.model||'','الحالة':r.status,'ملاحظات':r.notes||'','تاريخ السكان':new Date(r.scannedAt).toLocaleString('ar-SA')
   }) : ({
-    '#':i+1,'Site type':siteTypeLabel(r.siteType||currentSite?.type),'Site name':r.siteName||currentSite?.name||'','Device type':deviceTypeLabel(r.deviceType),'Serial number':r.serial,'Asset number':r.asset||'','Model':r.model||'','Status':statusLabel(r.status),'Notes':r.notes||'','Scan date':new Date(r.scannedAt).toLocaleString('en-US')
+    '#':i+1,'Site type':siteTypeLabel(r.siteType),'Site name':r.siteName||'','Device type':deviceTypeLabel(r.deviceType),'Serial number':r.serial,'Asset number':r.asset||'','Model':r.model||'','Status':statusLabel(r.status),'Notes':r.notes||'','Scan date':new Date(r.scannedAt).toLocaleString('en-US')
   }));
   const ws = XLSX.utils.json_to_sheet(data);
   ws['!cols'] = [{wch:5},{wch:18},{wch:25},{wch:18},{wch:25},{wch:22},{wch:25},{wch:12},{wch:30},{wch:22}];
@@ -1703,8 +1748,9 @@ function exportToExcel() {
 }
 
 async function clearAll() {
-  if (!records.length) return;
-  if (!confirm(`${t('clearConfirm')} (${records.length})`)) return;
+  const siteRecords = currentSiteRecords();
+  if (!siteRecords.length) return;
+  if (!confirm(`${t('clearConfirm')} (${siteRecords.length})`)) return;
   clearBtn.disabled = true;
   const { error } = await db.from('assets').delete()
     .eq('user_id', currentUser.id)
@@ -1712,7 +1758,7 @@ async function clearAll() {
     .eq('site_type', currentSite.type)
     .eq('site_name', currentSite.name);
   if (error) { clearBtn.disabled = false; showToast(t('clearFailed'), 'error'); return; }
-  records = []; renderRecords(); updateCounts();
+  await loadRecords();
   showToast(t('cleared'));
 }
 
