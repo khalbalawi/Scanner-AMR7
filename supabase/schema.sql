@@ -129,3 +129,6 @@ grant select, update on public.profiles to authenticated;
 grant select, insert, update, delete on public.assets to authenticated;
 revoke all on public.profiles from anon;
 revoke all on public.assets from anon;
+
+-- عمليات الاسترجاع إلى IT Store موجودة في migration:
+-- supabase/migrations/20261008_add_it_store_returns.sql
