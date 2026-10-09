@@ -53,13 +53,12 @@
   .auth-title { font-size:15px; margin-bottom:4px; }
   .auth-note { margin-bottom:16px; }
   .auth-switch { text-align:center; color:var(--text-dim); font-size:13px; margin-top:16px; }
-  .forgot-row { text-align:end; margin-top:-4px; margin-bottom:12px; }
   .link-btn { border:0; background:none; color:var(--accent); font-family:inherit; font-weight:600; cursor:pointer; padding:4px; }
   .auth-error { min-height:20px; color:var(--red); font-size:12px; margin-top:10px; }
   .user-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:14px; }
   .user-info { min-width:0; }
   .user-name { font-weight:600; font-size:13px; }
-  .user-email { color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .user-username { color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .user-site { color:var(--accent); font-size:11px; font-weight:600; margin-top:2px; }
   .user-actions { display:flex; gap:6px; align-items:center; }
   .logout-btn { background:transparent; border:1px solid var(--border); color:var(--text-dim); border-radius:7px; padding:7px 10px; font-family:inherit; cursor:pointer; white-space:nowrap; }
@@ -298,8 +297,12 @@
   .admin-users { display:grid; gap:8px; }
   .admin-user { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px 12px; align-items:center; padding:11px 12px; border:1px solid var(--border); border-radius:10px; }
   .admin-user strong { display:block; font-size:13px; }
-  .admin-user-email { color:var(--text-dim); font:500 10px 'JetBrains Mono',monospace; direction:ltr; text-align:start; overflow-wrap:anywhere; }
   .admin-user-site { grid-column:1/-1; color:var(--accent); font-size:11px; font-weight:700; }
+  .admin-password-reset { grid-column:1/-1; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:7px; }
+  .admin-password-reset input { min-width:0; padding:9px 10px; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font:500 12px inherit; }
+  .admin-password-reset input:focus { outline:none; border-color:var(--accent); }
+  .admin-password-reset button { border:1px solid var(--accent); background:var(--accent-dim); color:var(--accent); border-radius:8px; padding:8px 10px; font:700 11px inherit; cursor:pointer; white-space:nowrap; }
+  .admin-password-reset button:disabled { opacity:.45; cursor:not-allowed; }
   .admin-role { border:1px solid var(--border); border-radius:20px; padding:3px 8px; color:var(--text-dim); font-size:10px; white-space:nowrap; }
   .admin-role.is-admin { color:var(--accent); border-color:var(--accent); background:var(--accent-dim); }
   .admin-empty { color:var(--text-dim); text-align:center; padding:18px 8px; font-size:12px; }
@@ -336,7 +339,7 @@
   header { border-bottom-color:#ece9e3; }
   header .count { background:#fff; border-color:var(--black); }
   .user-bar { background:var(--black); border-color:var(--black); color:#fff; }
-  .user-email { color:#c9c6bf; }
+  .user-username { color:#c9c6bf; }
   .logout-btn { color:#fff; border-color:#4a4a4a; }
   .scanner-empty { min-height:260px; background:linear-gradient(180deg,#fff,#faf9f7); }
   .scanner-empty .icon { border-style:solid; }
@@ -418,24 +421,18 @@
     <h2 id="authTitle" class="auth-title">تسجيل الدخول</h2>
     <p id="authNote" class="auth-note">ادخل إلى سجلات أجهزتك المحفوظة</p>
     <form id="authForm" novalidate>
-      <div id="emailField" class="field">
-        <label id="emailLabel" for="emailInput">البريد الإلكتروني</label>
-        <input id="emailInput" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="name@example.com" required>
+      <div id="usernameField" class="field">
+        <label id="usernameLabel" for="usernameInput">اسم المستخدم</label>
+        <input id="usernameInput" type="text" autocomplete="username" maxlength="64" placeholder="اسم المستخدم" required>
       </div>
       <div id="passwordField" class="field">
         <label id="passwordLabel" for="passwordInput">الرقم السري</label>
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="8 أحرف على الأقل" required>
       </div>
-      <div id="confirmPasswordField" class="field" hidden>
-        <label id="confirmPasswordLabel" for="confirmPasswordInput">تأكيد الرقم السري الجديد</label>
-        <input id="confirmPasswordInput" type="password" autocomplete="new-password" minlength="8" placeholder="أعد كتابة الرقم السري">
-      </div>
-      <div id="forgotRow" class="forgot-row"><button id="forgotPasswordBtn" class="link-btn" type="button">نسيت الرقم السري؟</button></div>
       <button id="authSubmit" class="btn primary" type="submit">تسجيل الدخول</button>
       <div id="authError" class="auth-error" role="alert" aria-live="polite"></div>
     </form>
     <div id="adminOnlyNote" class="auth-switch">الحسابات الجديدة ينشئها مسؤول النظام فقط</div>
-    <div id="authBackRow" class="auth-switch" hidden><button id="authBackBtn" class="link-btn" type="button">العودة لتسجيل الدخول</button></div>
     <footer class="page-footer auth-page-footer">Khalid Albalawi — 2026–2027</footer>
   </div>
 </section>
@@ -458,7 +455,7 @@
   <div class="user-bar">
     <div class="user-info">
       <div id="currentUserName" class="user-name">—</div>
-      <div id="currentUserEmail" class="user-email">—</div>
+      <div id="currentUsername" class="user-username">—</div>
       <div id="currentSiteName" class="user-site">—</div>
     </div>
     <div class="user-actions">
@@ -607,10 +604,6 @@
             <input id="adminNameInput" type="text" maxlength="120" autocomplete="off" required>
           </div>
           <div class="field">
-            <label id="adminEmailLabel" for="adminEmailInput">البريد الإلكتروني</label>
-            <input id="adminEmailInput" type="email" inputmode="email" autocomplete="off" maxlength="254" required>
-          </div>
-          <div class="field">
             <label id="adminPasswordLabel" for="adminPasswordInput">رقم سري مؤقت</label>
             <input id="adminPasswordInput" type="password" autocomplete="new-password" minlength="8" required>
           </div>
@@ -676,7 +669,6 @@ let currentSite = null;
 let availableSites = [];
 let managedUsers = [];
 let adminDashboardSiteId = '';
-let authMode = 'login';
 let isScanning    = false;
 let scanStep      = 'serial';
 let activeScanTarget = null;
@@ -698,13 +690,9 @@ const translations = {
     appTitle:'جرد الأجهزة', device:'جهاز', logout:'تسجيل الخروج', startCamera:'تشغيل الكاميرا', stop:'إيقاف',
     scannerEmptyTitle:'اضغط "تشغيل الكاميرا"', scannerEmptyNote:'سكان الرقم التسلسلي ثم رقم الأصل', records:'السجل',
     noRecords:'لا توجد أجهزة مسجلة بعد', loadingRecords:'جاري تحميل السجلات...', export:'تصدير Excel', clearAll:'مسح الكل',
-    username:'اسم المستخدم', usernamePlaceholder:'مثال: خالد البلوي', email:'البريد الإلكتروني', password:'الرقم السري',
-    newPassword:'الرقم السري الجديد', confirmPassword:'تأكيد الرقم السري الجديد', passwordPlaceholder:'8 أحرف على الأقل',
-    confirmPasswordPlaceholder:'أعد كتابة الرقم السري', forgotPassword:'نسيت الرقم السري؟', login:'تسجيل الدخول',
-    backToLogin:'العودة لتسجيل الدخول', adminOnly:'الحسابات الجديدة ينشئها مسؤول النظام فقط',
-    loginNote:'ادخل إلى سجلات أجهزتك المحفوظة',
-    forgotTitle:'إعادة تعيين الرقم السري', forgotNote:'أدخل بريدك وسنرسل لك رابط إعادة التعيين', sendReset:'إرسال رابط الاستعادة',
-    updateTitle:'تعيين رقم سري جديد', updateNote:'اكتب الرقم السري الجديد ثم أكّده', updatePassword:'حفظ الرقم السري الجديد',
+    username:'اسم المستخدم', usernamePlaceholder:'اسم المستخدم', password:'الرقم السري', passwordPlaceholder:'8 أحرف على الأقل', login:'تسجيل الدخول',
+    adminOnly:'الحسابات والأرقام السرية يديرها مسؤول النظام فقط',
+    loginNote:'ادخل باسم المستخدم والرقم السري',
     manualSerial:'إدخال يدوي للرقم التسلسلي (بديل للكاميرا)', manualAsset:'إدخال يدوي لرقم الأصل', manualPlaceholder:'اكتب أو الصق الباركود',
     add:'إضافة', skipAsset:'تخطي رقم الأصل', scanSerial:'سكان الرقم التسلسلي', pointCamera:'وجّه الكاميرا على الباركود / QR',
     scanAsset:'سكان رقم الأصل', serial:'السيريال', readyScan:'جاهز للسكان...', serialDone:'تم حفظ السيريال منفصلًا',
@@ -719,22 +707,18 @@ const translations = {
     saved:'تم الحفظ ✓ — سكان جهاز جديد', loadFailed:'تعذّر تحميل السجلات: ', cameraDenied:'تم رفض إذن الكاميرا — اسمح به من إعدادات المتصفح',
     cameraMissing:'لم يتم العثور على كاميرا في الجهاز', cameraFailed:'تعذّر فتح الكاميرا — تأكد من الإذن واتصال HTTPS', scannerFailed:'تعذّر تشغيل السكانر',
     libraryFailed:'فشل تحميل المكتبة الاحتياطية', starting:'جاري التشغيل...', exported:'تم تصدير', devices:'جهاز', clearConfirm:'سيتم حذف جميع الأجهزة النشطة في هذا الموقع. هل أنت متأكد؟',
-    clearFailed:'تعذّر مسح السجلات', cleared:'تم مسح الكل', resetSent:'تم إرسال رابط الاستعادة. افحص بريدك الإلكتروني.', resetSuccess:'تم تحديث الرقم السري بنجاح.',
-    passwordsMismatch:'الرقمان السريان غير متطابقين', invalidForm:'تحقق من الاسم والبريد، والرقم السري يجب ألا يقل عن 8 أحرف', configMissing:'يلزم ربط المشروع بـ Supabase من ملف config.js',
+    clearFailed:'تعذّر مسح السجلات', cleared:'تم مسح الكل', invalidForm:'تحقق من اسم المستخدم، والرقم السري يجب ألا يقل عن 8 أحرف', configMissing:'يلزم ربط المشروع بـ Supabase من ملف config.js',
     siteType:'نوع الموقع', chooseSiteType:'اختر نوع الموقع', siteName:'اسم الموقع', siteNamePlaceholder:'اكتب اسم الموقع بالعربي أو الإنجليزي', siteRequired:'هذا الحساب غير مربوط بموقع. راجع مسؤول النظام', changeSite:'تغيير الموقع', borderCrossing:'منفذ بري', airport:'مطار', seaport:'ميناء', dryPort:'ميناء جاف', branch:'فرع', otherSite:'موقع آخر',
     readBarcode:'قراءة الباركود', continueDevice:'متابعة بيانات الجهاز', closeCamera:'إغلاق الكاميرا', serialPlaceholder:'اكتب الرقم أو اقرأ الباركود', assetPlaceholder:'اختياري — اكتب الرقم أو اقرأ الباركود',
     inventoryTab:'الجرد', dashboardTab:'لوحة التحكم', adminTab:'إدارة المستخدمين', activeCustody:'إجمالي العهدة النشطة', typeDistribution:'توزيع الأجهزة حسب النوع', returnDevices:'استرجاع أجهزة إلى IT Store', returnDevicesNote:'حدد جهازًا أو أكثر لإنشاء بوليصة استرجاع', selectAll:'تحديد الكل', clearSelection:'إلغاء التحديد', selected:'محدد', createReturn:'إنشاء استرجاع للـ IT Store', recentReturns:'الاسترجاعات الأخيرة', exportReturnLog:'تصدير السجل', noReturns:'لا توجد استرجاعات مسجلة بعد', returnedToStore:'مسترجع للستور', returnModalTitle:'إنشاء استرجاع إلى IT Store', sourceSite:'الموقع المصدر', destination:'الوجهة', waybillNumber:'رقم البوليصة *', waybillPlaceholder:'أدخل رقم البوليصة', returnNotes:'ملاحظات (اختياري)', returnNotesPlaceholder:'أي تفاصيل إضافية عن الاسترجاع', confirmReturn:'تأكيد الاسترجاع', chooseReturnAssets:'حدد جهازًا واحدًا على الأقل', waybillRequired:'رقم البوليصة مطلوب', returnSuccess:'تم تسجيل الاسترجاع وإخراج الأجهزة من عهدة الموقع', returnFailed:'تعذّر تسجيل الاسترجاع: ', loadingDashboard:'جاري تحميل لوحة التحكم...', legacyRecordsNotice:'أجهزة قديمة محفوظة قبل إضافة اختيار الموقع. أظهرناها هنا حتى لا تبدو مفقودة، ولا تُحسب على عهدة الموقع الحالية حتى تُعدّل السجل وتحفظه.', legacyDashboardNotice:'جهاز قديم بلا موقع ظاهر في سجل الجرد، لكنه غير محسوب ضمن عهدة هذا الموقع.',
-    adminCreateTitle:'إنشاء حساب مستخدم', adminCreateNote:'حدّد موقع المستخدم مرة واحدة. عند دخوله سيظهر له موقعه تلقائيًا.', adminName:'اسم المستخدم', adminEmail:'البريد الإلكتروني', adminPassword:'رقم سري مؤقت', adminSite:'الموقع المخصص', adminCreate:'إنشاء الحساب وربطه بالموقع', managedUsersTitle:'الحسابات والمواقع', managedUsersNote:'كل حساب يعمل على الموقع المحدد له فقط.', loadingSites:'جاري تحميل المواقع...', chooseAssignedSite:'اختر الموقع', loadingUsers:'جاري تحميل الحسابات...', noManagedUsers:'لا توجد حسابات بعد', adminRole:'أدمن', userRole:'مستخدم', noAssignedSite:'بلا موقع جرد', adminNoSite:'مسؤول النظام — جميع المواقع', createUserRequired:'أكمل الاسم والبريد والرقم السري والموقع', createUserSuccess:'تم إنشاء الحساب وربطه بالموقع', createUserFailed:'تعذّر إنشاء الحساب: ', profileLoadFailed:'تعذّر تحميل بيانات الحساب. تواصل مع مسؤول النظام.', allSites:'جميع المواقع', adminSitesOverview:'ملخص المواقع', adminAssets:'الأجهزة في النطاق المحدد', activeDevices:'نشط', returnedDevices:'مسترجع', noAssetsInScope:'لا توجد أجهزة في النطاق المحدد'
+    adminCreateTitle:'إنشاء حساب مستخدم', adminCreateNote:'أنشئ اسم مستخدم وحدد موقعه. لا يحتاج الموظف إلى بريد إلكتروني.', adminName:'اسم المستخدم', adminPassword:'رقم سري مؤقت', adminSite:'الموقع المخصص', adminCreate:'إنشاء الحساب وربطه بالموقع', managedUsersTitle:'الحسابات والمواقع', managedUsersNote:'يمكن للأدمن تغيير الرقم السري لأي حساب من هنا.', loadingSites:'جاري تحميل المواقع...', chooseAssignedSite:'اختر الموقع', loadingUsers:'جاري تحميل الحسابات...', noManagedUsers:'لا توجد حسابات بعد', adminRole:'أدمن', userRole:'مستخدم', noAssignedSite:'بلا موقع جرد', adminNoSite:'مسؤول النظام — جميع المواقع', createUserRequired:'أكمل اسم المستخدم والرقم السري والموقع', createUserSuccess:'تم إنشاء الحساب وربطه بالموقع', createUserFailed:'تعذّر إنشاء الحساب: ', usernameTaken:'اسم المستخدم مستخدم مسبقًا', newManagedPassword:'رقم سري جديد (8 أحرف على الأقل)', resetManagedPassword:'تغيير الرقم السري', resetManagedPasswordSuccess:'تم تغيير الرقم السري للحساب', resetManagedPasswordFailed:'تعذّر تغيير الرقم السري: ', profileLoadFailed:'تعذّر تحميل بيانات الحساب. تواصل مع مسؤول النظام.', allSites:'جميع المواقع', adminSitesOverview:'ملخص المواقع', adminAssets:'الأجهزة في النطاق المحدد', activeDevices:'نشط', returnedDevices:'مسترجع', noAssetsInScope:'لا توجد أجهزة في النطاق المحدد'
   },
   en: {
     appTitle:'Asset Inventory', device:'devices', logout:'Sign out', startCamera:'Start camera', stop:'Stop',
     scannerEmptyTitle:'Tap “Start camera”', scannerEmptyNote:'Scan the serial number, then the asset number', records:'Records',
     noRecords:'No devices recorded yet', loadingRecords:'Loading records...', export:'Export Excel', clearAll:'Clear all',
-    username:'Username', usernamePlaceholder:'Example: Khalid Albalawi', email:'Email', password:'Password', newPassword:'New password',
-    confirmPassword:'Confirm new password', passwordPlaceholder:'At least 8 characters', confirmPasswordPlaceholder:'Re-enter the password',
-    forgotPassword:'Forgot password?', login:'Sign in', backToLogin:'Back to sign in', adminOnly:'New accounts are created by the system administrator only', loginNote:'Access your saved device records',
-    forgotTitle:'Reset password', forgotNote:'Enter your email and we’ll send a reset link',
-    sendReset:'Send reset link', updateTitle:'Set a new password', updateNote:'Enter and confirm your new password', updatePassword:'Save new password',
+    username:'Username', usernamePlaceholder:'Username', password:'Password', passwordPlaceholder:'At least 8 characters',
+    login:'Sign in', adminOnly:'Accounts and passwords are managed by the system administrator only', loginNote:'Sign in with your username and password',
     manualSerial:'Enter serial number manually (camera alternative)', manualAsset:'Enter asset number manually', manualPlaceholder:'Type or paste the barcode',
     add:'Add', skipAsset:'Skip asset number', scanSerial:'Scan serial number', pointCamera:'Point the camera at the barcode / QR code',
     scanAsset:'Scan asset number', serial:'Serial', readyScan:'Ready to scan...', serialDone:'Serial saved separately',
@@ -749,12 +733,11 @@ const translations = {
     saved:'Saved ✓ — scan another device', loadFailed:'Could not load records: ', cameraDenied:'Camera permission was denied — allow it in browser settings',
     cameraMissing:'No camera was found', cameraFailed:'Could not open the camera — check permission and HTTPS', scannerFailed:'Could not start the scanner',
     libraryFailed:'Could not load the fallback scanner', starting:'Starting...', exported:'Exported', devices:'devices', clearConfirm:'All active devices at this site will be deleted. Are you sure?',
-    clearFailed:'Could not clear the records', cleared:'All records cleared', resetSent:'Reset link sent. Check your email.', resetSuccess:'Password updated successfully.',
-    passwordsMismatch:'The passwords do not match', invalidForm:'Check the name and email. Password must be at least 8 characters.', configMissing:'Connect Supabase in config.js first',
+    clearFailed:'Could not clear the records', cleared:'All records cleared', invalidForm:'Check the username. Password must be at least 8 characters.', configMissing:'Connect Supabase in config.js first',
     siteType:'Site type', chooseSiteType:'Choose site type', siteName:'Site name', siteNamePlaceholder:'Enter the site name in Arabic or English', siteRequired:'This account is not assigned to a site. Contact the administrator', changeSite:'Change site', borderCrossing:'Border crossing', airport:'Airport', seaport:'Seaport', dryPort:'Dry port', branch:'Branch', otherSite:'Other site',
     readBarcode:'Scan barcode', continueDevice:'Continue device details', closeCamera:'Close camera', serialPlaceholder:'Type or scan the serial number', assetPlaceholder:'Optional — type or scan the asset number',
     inventoryTab:'Inventory', dashboardTab:'Dashboard', adminTab:'User management', activeCustody:'Active site custody', typeDistribution:'Devices by type', returnDevices:'Return devices to IT Store', returnDevicesNote:'Select one or more devices to create a return waybill', selectAll:'Select all', clearSelection:'Clear selection', selected:'selected', createReturn:'Create IT Store return', recentReturns:'Recent returns', exportReturnLog:'Export log', noReturns:'No returns recorded yet', returnedToStore:'Returned to store', returnModalTitle:'Create return to IT Store', sourceSite:'Source site', destination:'Destination', waybillNumber:'Waybill number *', waybillPlaceholder:'Enter waybill number', returnNotes:'Notes (optional)', returnNotesPlaceholder:'Additional return details', confirmReturn:'Confirm return', chooseReturnAssets:'Select at least one device', waybillRequired:'Waybill number is required', returnSuccess:'Return recorded and devices removed from site custody', returnFailed:'Could not record return: ', loadingDashboard:'Loading dashboard...', legacyRecordsNotice:'Older devices saved before site selection was added. They are visible here so they are not mistaken for missing records, and are not counted in the current site custody until the record is edited and saved.', legacyDashboardNotice:'older device(s) without a site are visible in Inventory but are not counted in this site custody.',
-    adminCreateTitle:'Create user account', adminCreateNote:'Assign the user once. Their site will load automatically after sign-in.', adminName:'User name', adminEmail:'Email', adminPassword:'Temporary password', adminSite:'Assigned site', adminCreate:'Create account and assign site', managedUsersTitle:'Accounts and sites', managedUsersNote:'Each account works only on its assigned site.', loadingSites:'Loading sites...', chooseAssignedSite:'Choose a site', loadingUsers:'Loading accounts...', noManagedUsers:'No accounts yet', adminRole:'Admin', userRole:'User', noAssignedSite:'No inventory site', adminNoSite:'System administrator — all sites', createUserRequired:'Complete the name, email, password, and site', createUserSuccess:'Account created and assigned to the site', createUserFailed:'Could not create the account: ', profileLoadFailed:'Could not load the account profile. Contact the administrator.', allSites:'All sites', adminSitesOverview:'Site overview', adminAssets:'Devices in selected scope', activeDevices:'active', returnedDevices:'returned', noAssetsInScope:'No devices in the selected scope'
+    adminCreateTitle:'Create user account', adminCreateNote:'Create a username and assign its site. Staff do not need an email address.', adminName:'Username', adminPassword:'Temporary password', adminSite:'Assigned site', adminCreate:'Create account and assign site', managedUsersTitle:'Accounts and sites', managedUsersNote:'The administrator can change any account password here.', loadingSites:'Loading sites...', chooseAssignedSite:'Choose a site', loadingUsers:'Loading accounts...', noManagedUsers:'No accounts yet', adminRole:'Admin', userRole:'User', noAssignedSite:'No inventory site', adminNoSite:'System administrator — all sites', createUserRequired:'Complete the username, password, and site', createUserSuccess:'Account created and assigned to the site', createUserFailed:'Could not create the account: ', usernameTaken:'Username is already registered', newManagedPassword:'New password (at least 8 characters)', resetManagedPassword:'Change password', resetManagedPasswordSuccess:'Account password changed', resetManagedPasswordFailed:'Could not change the password: ', profileLoadFailed:'Could not load the account profile. Contact the administrator.', allSites:'All sites', adminSitesOverview:'Site overview', adminAssets:'Devices in selected scope', activeDevices:'active', returnedDevices:'returned', noAssetsInScope:'No devices in the selected scope'
   }
 };
 
@@ -862,13 +845,14 @@ function applyLanguage(lang) {
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   $('authLangBtn').textContent = currentLang === 'ar' ? 'English' : 'العربية';
   $('appLangBtn').textContent = currentLang === 'ar' ? 'English' : 'العربية';
-  $('emailLabel').textContent = t('email');
+  $('usernameLabel').textContent = t('username');
+  $('usernameInput').placeholder = t('usernamePlaceholder');
+  $('passwordLabel').textContent = t('password');
   $('passwordInput').placeholder = t('passwordPlaceholder');
-  $('confirmPasswordLabel').textContent = t('confirmPassword');
-  $('confirmPasswordInput').placeholder = t('confirmPasswordPlaceholder');
-  $('forgotPasswordBtn').textContent = t('forgotPassword');
   $('adminOnlyNote').textContent = t('adminOnly');
-  $('authBackBtn').textContent = t('backToLogin');
+  $('authTitle').textContent = t('login');
+  $('authNote').textContent = t('loginNote');
+  $('authSubmit').textContent = t('login');
   $('authBrandTitle').textContent = t('appTitle');
   $('appTitle').textContent = t('appTitle');
   $('deviceCountLabel').textContent = t('device');
@@ -907,7 +891,6 @@ function applyLanguage(lang) {
   $('adminCreateTitle').textContent = t('adminCreateTitle');
   $('adminCreateNote').textContent = t('adminCreateNote');
   $('adminNameLabel').textContent = t('adminName');
-  $('adminEmailLabel').textContent = t('adminEmail');
   $('adminPasswordLabel').textContent = t('adminPassword');
   $('adminSiteLabel').textContent = t('adminSite');
   $('adminCreateBtn').textContent = t('adminCreate');
@@ -917,7 +900,6 @@ function applyLanguage(lang) {
   $('adminAssetsTitle').textContent = t('adminAssets');
   if ($('cameraCloseBtn')) $('cameraCloseBtn').textContent = t('closeCamera');
   if ($('scanStatusText') && scanStep === 'serial') $('scanStatusText').textContent = t('readyScan');
-  setAuthMode(authMode);
   renderRecords();
   updateCounts();
   renderDashboard();
@@ -929,33 +911,11 @@ function applyLanguage(lang) {
 // ── Authentication & cloud storage ───────────────────────────────────────────
 function authMessage(error) {
   const msg = String(error?.message || error || 'حدث خطأ غير متوقع');
-  if (/Invalid login credentials/i.test(msg)) return currentLang === 'ar' ? 'البريد الإلكتروني أو الرقم السري غير صحيح' : 'Incorrect email or password';
-  if (/Email not confirmed/i.test(msg)) return currentLang === 'ar' ? 'فعّل حسابك من رسالة البريد الإلكتروني أولاً' : 'Confirm your account from the email message first';
-  if (/User already registered/i.test(msg)) return currentLang === 'ar' ? 'هذا البريد مسجل مسبقاً' : 'This email is already registered';
+  if (/Invalid (login credentials|username or password)/i.test(msg)) return currentLang === 'ar' ? 'اسم المستخدم أو الرقم السري غير صحيح' : 'Incorrect username or password';
+  if (/Username is already registered/i.test(msg)) return t('usernameTaken');
   if (/Password should be at least/i.test(msg)) return currentLang === 'ar' ? 'الرقم السري يجب ألا يقل عن 8 أحرف' : 'Password must be at least 8 characters';
   if (/rate limit/i.test(msg)) return currentLang === 'ar' ? 'محاولات كثيرة، انتظر قليلاً ثم أعد المحاولة' : 'Too many attempts. Wait a moment and try again';
   return msg;
-}
-
-function setAuthMode(mode) {
-  authMode = mode;
-  const forgot = mode === 'forgot';
-  const updating = mode === 'update-password';
-  $('emailField').hidden = updating;
-  $('passwordField').hidden = forgot;
-  $('confirmPasswordField').hidden = !updating;
-  $('forgotRow').hidden = mode !== 'login';
-  $('emailInput').required = !updating;
-  $('passwordInput').required = !forgot;
-  $('confirmPasswordInput').required = updating;
-  $('passwordInput').autocomplete = updating ? 'new-password' : 'current-password';
-  $('passwordLabel').textContent = updating ? t('newPassword') : t('password');
-  $('authTitle').textContent = forgot ? t('forgotTitle') : updating ? t('updateTitle') : t('login');
-  $('authNote').textContent = forgot ? t('forgotNote') : updating ? t('updateNote') : t('loginNote');
-  $('authSubmit').textContent = forgot ? t('sendReset') : updating ? t('updatePassword') : t('login');
-  $('adminOnlyNote').hidden = forgot || updating;
-  $('authBackRow').hidden = !(forgot || updating);
-  $('authError').textContent = '';
 }
 
 function showAuth() {
@@ -967,7 +927,7 @@ function showAuth() {
 
 async function showApp(user) {
   const { data:profile, error:profileError } = await db.from('user_profiles')
-    .select('user_id,email,display_name,role,site_type,site_name')
+    .select('user_id,username,display_name,role,site_type,site_name')
     .eq('user_id', user.id)
     .maybeSingle();
   if (profileError || !profile) {
@@ -976,7 +936,6 @@ async function showApp(user) {
     currentSite = null;
     await db.auth.signOut();
     showAuth();
-    setAuthMode('login');
     $('authError').textContent = t('profileLoadFailed');
     return;
   }
@@ -989,7 +948,6 @@ async function showApp(user) {
     currentProfile = null;
     await db.auth.signOut();
     showAuth();
-    setAuthMode('login');
     $('authError').textContent = t('siteRequired');
     return;
   }
@@ -1001,8 +959,8 @@ async function showApp(user) {
   $('inventoryTab').hidden = !currentSite;
   $('dashboardTab').hidden = !currentSite && !isAdmin;
   document.querySelector('.app-tabs').classList.toggle('admin-enabled', isAdmin && Boolean(currentSite));
-  $('currentUserEmail').textContent = user.email || '';
-  $('currentUserName').textContent = profile.display_name || user.user_metadata?.display_name || user.email?.split('@')[0] || t('user');
+  $('currentUsername').textContent = profile.username || '';
+  $('currentUserName').textContent = profile.display_name || profile.username || t('user');
   $('currentSiteName').textContent = currentSite
     ? `${siteTypeLabel(currentSite.type)} — ${currentSite.name}`
     : t('adminNoSite');
@@ -1182,11 +1140,18 @@ function renderManagedUsers() {
       ? `${siteTypeLabel(profile.site_type)} — ${profile.site_name}`
       : t('noAssignedSite');
     return `<div class="admin-user">
-      <div><strong>${escapeHtml(profile.display_name || profile.email)}</strong><div class="admin-user-email">${escapeHtml(profile.email)}</div></div>
+      <div><strong>${escapeHtml(profile.username || profile.display_name || t('user'))}</strong></div>
       <span class="admin-role${admin ? ' is-admin' : ''}">${admin ? t('adminRole') : t('userRole')}</span>
       <div class="admin-user-site">${escapeHtml(site)}</div>
+      <div class="admin-password-reset">
+        <input type="password" minlength="8" autocomplete="new-password" data-password-user="${profile.user_id}" placeholder="${escapeHtml(t('newManagedPassword'))}">
+        <button type="button" data-reset-password="${profile.user_id}">${escapeHtml(t('resetManagedPassword'))}</button>
+      </div>
     </div>`;
   }).join('');
+  list.querySelectorAll('[data-reset-password]').forEach(button => {
+    button.addEventListener('click', () => resetManagedUserPassword(button.dataset.resetPassword, button));
+  });
 }
 
 async function loadAdminData() {
@@ -1194,7 +1159,7 @@ async function loadAdminData() {
   $('managedUsersList').innerHTML = `<div class="admin-empty">${t('loadingUsers')}</div>`;
   const [sitesResult, usersResult] = await Promise.all([
     db.from('inventory_sites').select('id,site_type,name_ar,name_en,sort_order').eq('is_active', true).order('sort_order'),
-    db.from('user_profiles').select('user_id,email,display_name,role,site_type,site_name,created_at').order('created_at')
+    db.from('user_profiles').select('user_id,username,display_name,role,site_type,site_name,created_at').order('created_at')
   ]);
   if (sitesResult.error || usersResult.error) {
     showToast(t('loadFailed') + authMessage(sitesResult.error || usersResult.error), 'error');
@@ -1210,21 +1175,20 @@ async function loadAdminData() {
 async function createManagedUser(event) {
   event.preventDefault();
   if (currentProfile?.role !== 'admin') return;
-  const displayName = $('adminNameInput').value.trim();
-  const email = $('adminEmailInput').value.trim().toLowerCase();
+  const username = $('adminNameInput').value.normalize('NFKC').trim();
   const password = $('adminPasswordInput').value;
   const siteId = Number($('adminSiteSelect').value);
   const message = $('adminCreateMessage');
   message.style.color = 'var(--red)';
   message.textContent = '';
-  if (!displayName || !/^\S+@\S+\.\S+$/.test(email) || password.length < 8 || !Number.isSafeInteger(siteId)) {
+  if (username.length < 3 || username.length > 64 || password.length < 8 || !Number.isSafeInteger(siteId)) {
     message.textContent = t('createUserRequired');
     return;
   }
   const button = $('adminCreateBtn');
   button.disabled = true;
   const { data, error } = await db.functions.invoke('admin-create-user', {
-    body:{ displayName, email, password, siteId }
+    body:{ action:'create', username, password, siteId }
   });
   button.disabled = false;
   if (error || data?.error) {
@@ -1240,6 +1204,32 @@ async function createManagedUser(event) {
   message.textContent = t('createUserSuccess');
   showToast(t('createUserSuccess'));
   await loadAdminData();
+}
+
+async function resetManagedUserPassword(userId, button) {
+  if (currentProfile?.role !== 'admin' || !userId) return;
+  const input = $('managedUsersList').querySelector(`[data-password-user="${CSS.escape(userId)}"]`);
+  const password = input?.value || '';
+  if (password.length < 8) {
+    showToast(t('invalidForm'), 'error');
+    input?.focus();
+    return;
+  }
+  button.disabled = true;
+  const { data, error } = await db.functions.invoke('admin-create-user', {
+    body:{ action:'reset_password', userId, password }
+  });
+  button.disabled = false;
+  if (error || data?.error) {
+    let detail = data?.error || error?.message || '';
+    if (error?.context?.json) {
+      try { detail = (await error.context.json())?.error || detail; } catch (_) {}
+    }
+    showToast(t('resetManagedPasswordFailed') + authMessage(detail), 'error');
+    return;
+  }
+  input.value = '';
+  showToast(t('resetManagedPasswordSuccess'));
 }
 
 function dashboardReturnShipments() {
@@ -2105,8 +2095,6 @@ async function clearAll() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-$('forgotPasswordBtn').addEventListener('click', () => setAuthMode('forgot'));
-$('authBackBtn').addEventListener('click', () => setAuthMode('login'));
 $('authLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('appLangBtn').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 $('scanSerialCodeBtn').addEventListener('click', () => beginFieldScan('serial'));
@@ -2135,44 +2123,26 @@ document.addEventListener('keydown', event => {
 $('authForm').addEventListener('submit', async event => {
   event.preventDefault();
   if (!configReady) { $('authError').textContent = t('configMissing'); return; }
-  const email = $('emailInput').value.trim().toLowerCase();
+  const username = $('usernameInput').value.normalize('NFKC').trim();
   const password = $('passwordInput').value;
-  const confirmPassword = $('confirmPasswordInput').value;
-  if (authMode === 'forgot') {
-    if (!email) { $('authError').textContent = t('invalidForm'); return; }
-    const submit = $('authSubmit');
-    submit.disabled = true;
-    const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo:`${window.location.origin}${window.location.pathname}` });
-    submit.disabled = false;
-    if (error) { $('authError').textContent = authMessage(error); return; }
-    $('authError').style.color = 'var(--green)';
-    $('authError').textContent = t('resetSent');
-    return;
-  }
-  if (authMode === 'update-password') {
-    if (password.length < 8 || password !== confirmPassword) {
-      $('authError').textContent = password !== confirmPassword ? t('passwordsMismatch') : t('invalidForm');
-      return;
-    }
-    const submit = $('authSubmit');
-    submit.disabled = true;
-    const { error } = await db.auth.updateUser({ password });
-    submit.disabled = false;
-    if (error) { $('authError').textContent = authMessage(error); return; }
-    showToast(t('resetSuccess'));
-    setAuthMode('login');
-    return;
-  }
-  if (!email || password.length < 8) {
+  if (username.length < 3 || password.length < 8) {
     $('authError').textContent = t('invalidForm');
     return;
   }
   const submit = $('authSubmit');
   submit.disabled = true;
   $('authError').textContent = '';
-  const result = await db.auth.signInWithPassword({ email, password });
+  const { data, error } = await db.functions.invoke('username-auth', { body:{ username, password } });
+  let detail = data?.error || error?.message || '';
+  if (error?.context?.json) {
+    try { detail = (await error.context.json())?.error || detail; } catch (_) {}
+  }
+  if (!error && data?.session) {
+    const sessionResult = await db.auth.setSession(data.session);
+    if (sessionResult.error) detail = sessionResult.error.message;
+  }
   submit.disabled = false;
-  if (result.error) { $('authError').textContent = authMessage(result.error); return; }
+  if (error || !data?.session || detail) { $('authError').textContent = authMessage(detail || 'Invalid username or password'); }
 });
 
 $('logoutBtn').addEventListener('click', async () => {
@@ -2195,7 +2165,6 @@ if (!configReady) {
 } else {
   db.auth.onAuthStateChange((event, session) => {
     setTimeout(async () => {
-      if (event === 'PASSWORD_RECOVERY') { showAuth(); setAuthMode('update-password'); return; }
       if (session?.user) await showApp(session.user);
       else {
         currentUser = null;

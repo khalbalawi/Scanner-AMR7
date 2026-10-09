@@ -21,6 +21,17 @@ function reply(req: Request, body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders(req) })
 }
 
+function normalizeUsername(value: unknown) {
+  return String(value || '').normalize('NFKC').trim().toLowerCase()
+}
+
+async function internalEmail(usernameKey: string) {
+  const input = new TextEncoder().encode(`scanner9:${usernameKey}`)
+  const digest = await crypto.subtle.digest('SHA-256', input)
+  const hash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')
+  return `user-${hash}@accounts.scanner9.work`
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(req) })
   if (req.method !== 'POST') return reply(req, { error: 'Method not allowed' }, 405)
@@ -53,22 +64,60 @@ Deno.serve(async (req: Request) => {
     .maybeSingle()
   if (callerProfile?.role !== 'admin') return reply(req, { error: 'Admin access required' }, 403)
 
-  let body: { email?: string; password?: string; displayName?: string; siteId?: number }
+  let body: {
+    action?: string
+    username?: string
+    password?: string
+    siteId?: number
+    userId?: string
+  }
   try {
     body = await req.json()
   } catch {
     return reply(req, { error: 'Invalid request body' }, 400)
   }
 
-  const email = String(body.email || '').trim().toLowerCase()
+  const action = String(body.action || 'create')
   const password = String(body.password || '')
-  const displayName = String(body.displayName || '').trim()
+  if (password.length < 8) return reply(req, { error: 'Password must be at least 8 characters' }, 400)
+
+  if (action === 'reset_password') {
+    const userId = String(body.userId || '')
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)) {
+      return reply(req, { error: 'Valid user is required' }, 400)
+    }
+
+    const { data: targetProfile, error: targetError } = await adminClient
+      .from('user_profiles')
+      .select('user_id,username')
+      .eq('user_id', userId)
+      .maybeSingle()
+    if (targetError || !targetProfile) return reply(req, { error: 'User was not found' }, 404)
+
+    const { error: updateError } = await adminClient.auth.admin.updateUserById(userId, { password })
+    if (updateError) return reply(req, { error: updateError.message || 'Could not update password' }, 400)
+
+    return reply(req, { userId, username: targetProfile.username, passwordUpdated: true })
+  }
+
+  if (action !== 'create') return reply(req, { error: 'Unsupported action' }, 400)
+
+  const username = String(body.username || '').normalize('NFKC').trim()
+  const usernameKey = normalizeUsername(username)
   const siteId = Number(body.siteId)
 
-  if (!/^\S+@\S+\.\S+$/.test(email)) return reply(req, { error: 'Valid email is required' }, 400)
-  if (password.length < 8) return reply(req, { error: 'Password must be at least 8 characters' }, 400)
-  if (!displayName) return reply(req, { error: 'Display name is required' }, 400)
+  if (username.length < 3 || username.length > 64 || /[\u0000-\u001f\u007f]/.test(username)) {
+    return reply(req, { error: 'Username must be between 3 and 64 characters' }, 400)
+  }
   if (!Number.isSafeInteger(siteId) || siteId <= 0) return reply(req, { error: 'Site is required' }, 400)
+
+  const { data: existingProfile, error: existingError } = await adminClient
+    .from('user_profiles')
+    .select('user_id')
+    .eq('username_key', usernameKey)
+    .maybeSingle()
+  if (existingError) return reply(req, { error: 'Could not validate the username' }, 500)
+  if (existingProfile) return reply(req, { error: 'Username is already registered' }, 409)
 
   const { data: site, error: siteError } = await adminClient
     .from('inventory_sites')
@@ -78,11 +127,12 @@ Deno.serve(async (req: Request) => {
     .single()
   if (siteError || !site) return reply(req, { error: 'Selected site is unavailable' }, 400)
 
+  const email = await internalEmail(usernameKey)
   const { data: created, error: createError } = await adminClient.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
-    user_metadata: { display_name: displayName },
+    user_metadata: { display_name: username, username },
   })
   if (createError || !created.user) {
     return reply(req, { error: createError?.message || 'Could not create user' }, 400)
@@ -91,7 +141,9 @@ Deno.serve(async (req: Request) => {
   const { error: profileError } = await adminClient.from('user_profiles').upsert({
     user_id: created.user.id,
     email,
-    display_name: displayName,
+    username,
+    username_key: usernameKey,
+    display_name: username,
     role: 'user',
     site_type: site.site_type,
     site_name: site.name_ar,
@@ -106,8 +158,8 @@ Deno.serve(async (req: Request) => {
   return reply(req, {
     user: {
       id: created.user.id,
-      email,
-      display_name: displayName,
+      username,
+      display_name: username,
       role: 'user',
       site_type: site.site_type,
       site_name: site.name_ar,
