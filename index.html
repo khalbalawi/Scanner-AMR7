@@ -282,6 +282,9 @@
   .site-overview-row span { color:var(--text-dim); font-size:10px; white-space:nowrap; }
   .site-overview-row b { color:var(--accent); font:700 12px 'JetBrains Mono',monospace; }
   .admin-assets-list { border:1px solid var(--border); border-radius:11px; overflow:auto; max-height:430px; }
+  .admin-assets-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+  .admin-assets-head h2 { margin:0; }
+  .admin-export-btn { flex:0 0 auto; min-height:auto; padding:9px 12px; border-radius:8px; font-size:11px; }
   .admin-asset-row { display:grid; grid-template-columns:minmax(105px,1fr) minmax(120px,1.25fr) minmax(105px,1fr); gap:8px; padding:10px 11px; border-bottom:1px solid var(--border); align-items:center; }
   .admin-asset-row:last-child { border-bottom:0; }
   .admin-asset-row strong { font:700 10px 'JetBrains Mono',monospace; direction:ltr; text-align:start; overflow-wrap:anywhere; }
@@ -306,8 +309,8 @@
   .admin-role { border:1px solid var(--border); border-radius:20px; padding:3px 8px; color:var(--text-dim); font-size:10px; white-space:nowrap; }
   .admin-role.is-admin { color:var(--accent); border-color:var(--accent); background:var(--accent-dim); }
   .admin-empty { color:var(--text-dim); text-align:center; padding:18px 8px; font-size:12px; }
-  .modal-backdrop { position:fixed; inset:0; z-index:1100; background:rgba(0,0,0,.55); display:grid; align-items:end; }
-  .return-modal { width:100%; max-width:720px; margin:0 auto; background:#fff; border-radius:18px 18px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); max-height:90dvh; overflow:auto; }
+  .modal-backdrop { position:fixed; inset:0; z-index:1100; background:rgba(0,0,0,.55); display:grid; place-items:center; padding:max(16px,env(safe-area-inset-top)) 12px max(88px,calc(24px + env(safe-area-inset-bottom))); overflow:auto; }
+  .return-modal { width:100%; max-width:680px; margin:auto; background:#fff; border-radius:18px; padding:18px 16px; max-height:calc(100dvh - 120px); overflow:auto; box-shadow:0 22px 60px rgba(0,0,0,.24); }
   .modal-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; }
   .modal-head h2 { font-size:17px; }
   .modal-close { width:34px; height:34px; border:1px solid var(--border); border-radius:50%; background:#fff; color:var(--text); font-size:20px; cursor:pointer; }
@@ -564,7 +567,10 @@
       </article>
 
       <article id="adminAssetsCard" class="dashboard-card" hidden>
-        <h2 id="adminAssetsTitle">الأجهزة في النطاق المحدد</h2>
+        <div class="admin-assets-head">
+          <h2 id="adminAssetsTitle">الأجهزة في النطاق المحدد</h2>
+          <button id="adminExportBtn" class="btn primary admin-export-btn" type="button" disabled>تصدير Excel</button>
+        </div>
         <div id="adminAssetsList" class="admin-assets-list"></div>
       </article>
 
@@ -711,7 +717,7 @@ const translations = {
     siteType:'نوع الموقع', chooseSiteType:'اختر نوع الموقع', siteName:'اسم الموقع', siteNamePlaceholder:'اكتب اسم الموقع بالعربي أو الإنجليزي', siteRequired:'هذا الحساب غير مربوط بموقع. راجع مسؤول النظام', changeSite:'تغيير الموقع', borderCrossing:'منفذ بري', airport:'مطار', seaport:'ميناء', dryPort:'ميناء جاف', branch:'فرع', otherSite:'موقع آخر',
     readBarcode:'قراءة الباركود', continueDevice:'متابعة بيانات الجهاز', closeCamera:'إغلاق الكاميرا', serialPlaceholder:'اكتب الرقم أو اقرأ الباركود', assetPlaceholder:'اختياري — اكتب الرقم أو اقرأ الباركود',
     inventoryTab:'الجرد', dashboardTab:'لوحة التحكم', adminTab:'إدارة المستخدمين', activeCustody:'إجمالي العهدة النشطة', typeDistribution:'توزيع الأجهزة حسب النوع', returnDevices:'استرجاع أجهزة إلى IT Store', returnDevicesNote:'حدد جهازًا أو أكثر لإنشاء بوليصة استرجاع', selectAll:'تحديد الكل', clearSelection:'إلغاء التحديد', selected:'محدد', createReturn:'إنشاء استرجاع للـ IT Store', recentReturns:'الاسترجاعات الأخيرة', exportReturnLog:'تصدير السجل', noReturns:'لا توجد استرجاعات مسجلة بعد', returnedToStore:'مسترجع للستور', returnModalTitle:'إنشاء استرجاع إلى IT Store', sourceSite:'الموقع المصدر', destination:'الوجهة', waybillNumber:'رقم البوليصة *', waybillPlaceholder:'أدخل رقم البوليصة', returnNotes:'ملاحظات (اختياري)', returnNotesPlaceholder:'أي تفاصيل إضافية عن الاسترجاع', confirmReturn:'تأكيد الاسترجاع', chooseReturnAssets:'حدد جهازًا واحدًا على الأقل', waybillRequired:'رقم البوليصة مطلوب', returnSuccess:'تم تسجيل الاسترجاع وإخراج الأجهزة من عهدة الموقع', returnFailed:'تعذّر تسجيل الاسترجاع: ', loadingDashboard:'جاري تحميل لوحة التحكم...', legacyRecordsNotice:'أجهزة قديمة محفوظة قبل إضافة اختيار الموقع. أظهرناها هنا حتى لا تبدو مفقودة، ولا تُحسب على عهدة الموقع الحالية حتى تُعدّل السجل وتحفظه.', legacyDashboardNotice:'جهاز قديم بلا موقع ظاهر في سجل الجرد، لكنه غير محسوب ضمن عهدة هذا الموقع.',
-    adminCreateTitle:'إنشاء حساب مستخدم', adminCreateNote:'أنشئ اسم مستخدم وحدد موقعه. لا يحتاج الموظف إلى بريد إلكتروني.', adminName:'اسم المستخدم', adminPassword:'رقم سري مؤقت', adminSite:'الموقع المخصص', adminCreate:'إنشاء الحساب وربطه بالموقع', managedUsersTitle:'الحسابات والمواقع', managedUsersNote:'يمكن للأدمن تغيير الرقم السري لأي حساب من هنا.', loadingSites:'جاري تحميل المواقع...', chooseAssignedSite:'اختر الموقع', loadingUsers:'جاري تحميل الحسابات...', noManagedUsers:'لا توجد حسابات بعد', adminRole:'أدمن', userRole:'مستخدم', noAssignedSite:'بلا موقع جرد', adminNoSite:'مسؤول النظام — جميع المواقع', createUserRequired:'أكمل اسم المستخدم والرقم السري والموقع', createUserSuccess:'تم إنشاء الحساب وربطه بالموقع', createUserFailed:'تعذّر إنشاء الحساب: ', usernameTaken:'اسم المستخدم مستخدم مسبقًا', newManagedPassword:'رقم سري جديد (8 أحرف على الأقل)', resetManagedPassword:'تغيير الرقم السري', resetManagedPasswordSuccess:'تم تغيير الرقم السري للحساب', resetManagedPasswordFailed:'تعذّر تغيير الرقم السري: ', profileLoadFailed:'تعذّر تحميل بيانات الحساب. تواصل مع مسؤول النظام.', allSites:'جميع المواقع', adminSitesOverview:'ملخص المواقع', adminAssets:'الأجهزة في النطاق المحدد', activeDevices:'نشط', returnedDevices:'مسترجع', noAssetsInScope:'لا توجد أجهزة في النطاق المحدد'
+    adminCreateTitle:'إنشاء حساب مستخدم', adminCreateNote:'أنشئ اسم مستخدم وحدد موقعه. لا يحتاج الموظف إلى بريد إلكتروني.', adminName:'اسم المستخدم', adminPassword:'رقم سري مؤقت', adminSite:'الموقع المخصص', adminCreate:'إنشاء الحساب وربطه بالموقع', managedUsersTitle:'الحسابات والمواقع', managedUsersNote:'يمكن للأدمن تغيير الرقم السري لأي حساب من هنا.', loadingSites:'جاري تحميل المواقع...', chooseAssignedSite:'اختر الموقع', loadingUsers:'جاري تحميل الحسابات...', noManagedUsers:'لا توجد حسابات بعد', adminRole:'أدمن', userRole:'مستخدم', noAssignedSite:'بلا موقع جرد', adminNoSite:'مسؤول النظام — جميع المواقع', createUserRequired:'أكمل اسم المستخدم والرقم السري والموقع', createUserSuccess:'تم إنشاء الحساب وربطه بالموقع', createUserFailed:'تعذّر إنشاء الحساب: ', usernameTaken:'اسم المستخدم مستخدم مسبقًا', newManagedPassword:'رقم سري جديد (8 أحرف على الأقل)', resetManagedPassword:'تغيير الرقم السري', resetManagedPasswordSuccess:'تم تغيير الرقم السري للحساب', resetManagedPasswordFailed:'تعذّر تغيير الرقم السري: ', profileLoadFailed:'تعذّر تحميل بيانات الحساب. تواصل مع مسؤول النظام.', allSites:'جميع المواقع', adminSitesOverview:'ملخص المواقع', adminAssets:'الأجهزة في النطاق المحدد', exportAdminInventory:'تصدير Excel', activeDevices:'نشط', returnedDevices:'مسترجع', noAssetsInScope:'لا توجد أجهزة في النطاق المحدد'
   },
   en: {
     appTitle:'Asset Inventory', device:'devices', logout:'Sign out', startCamera:'Start camera', stop:'Stop',
@@ -737,7 +743,7 @@ const translations = {
     siteType:'Site type', chooseSiteType:'Choose site type', siteName:'Site name', siteNamePlaceholder:'Enter the site name in Arabic or English', siteRequired:'This account is not assigned to a site. Contact the administrator', changeSite:'Change site', borderCrossing:'Border crossing', airport:'Airport', seaport:'Seaport', dryPort:'Dry port', branch:'Branch', otherSite:'Other site',
     readBarcode:'Scan barcode', continueDevice:'Continue device details', closeCamera:'Close camera', serialPlaceholder:'Type or scan the serial number', assetPlaceholder:'Optional — type or scan the asset number',
     inventoryTab:'Inventory', dashboardTab:'Dashboard', adminTab:'User management', activeCustody:'Active site custody', typeDistribution:'Devices by type', returnDevices:'Return devices to IT Store', returnDevicesNote:'Select one or more devices to create a return waybill', selectAll:'Select all', clearSelection:'Clear selection', selected:'selected', createReturn:'Create IT Store return', recentReturns:'Recent returns', exportReturnLog:'Export log', noReturns:'No returns recorded yet', returnedToStore:'Returned to store', returnModalTitle:'Create return to IT Store', sourceSite:'Source site', destination:'Destination', waybillNumber:'Waybill number *', waybillPlaceholder:'Enter waybill number', returnNotes:'Notes (optional)', returnNotesPlaceholder:'Additional return details', confirmReturn:'Confirm return', chooseReturnAssets:'Select at least one device', waybillRequired:'Waybill number is required', returnSuccess:'Return recorded and devices removed from site custody', returnFailed:'Could not record return: ', loadingDashboard:'Loading dashboard...', legacyRecordsNotice:'Older devices saved before site selection was added. They are visible here so they are not mistaken for missing records, and are not counted in the current site custody until the record is edited and saved.', legacyDashboardNotice:'older device(s) without a site are visible in Inventory but are not counted in this site custody.',
-    adminCreateTitle:'Create user account', adminCreateNote:'Create a username and assign its site. Staff do not need an email address.', adminName:'Username', adminPassword:'Temporary password', adminSite:'Assigned site', adminCreate:'Create account and assign site', managedUsersTitle:'Accounts and sites', managedUsersNote:'The administrator can change any account password here.', loadingSites:'Loading sites...', chooseAssignedSite:'Choose a site', loadingUsers:'Loading accounts...', noManagedUsers:'No accounts yet', adminRole:'Admin', userRole:'User', noAssignedSite:'No inventory site', adminNoSite:'System administrator — all sites', createUserRequired:'Complete the username, password, and site', createUserSuccess:'Account created and assigned to the site', createUserFailed:'Could not create the account: ', usernameTaken:'Username is already registered', newManagedPassword:'New password (at least 8 characters)', resetManagedPassword:'Change password', resetManagedPasswordSuccess:'Account password changed', resetManagedPasswordFailed:'Could not change the password: ', profileLoadFailed:'Could not load the account profile. Contact the administrator.', allSites:'All sites', adminSitesOverview:'Site overview', adminAssets:'Devices in selected scope', activeDevices:'active', returnedDevices:'returned', noAssetsInScope:'No devices in the selected scope'
+    adminCreateTitle:'Create user account', adminCreateNote:'Create a username and assign its site. Staff do not need an email address.', adminName:'Username', adminPassword:'Temporary password', adminSite:'Assigned site', adminCreate:'Create account and assign site', managedUsersTitle:'Accounts and sites', managedUsersNote:'The administrator can change any account password here.', loadingSites:'Loading sites...', chooseAssignedSite:'Choose a site', loadingUsers:'Loading accounts...', noManagedUsers:'No accounts yet', adminRole:'Admin', userRole:'User', noAssignedSite:'No inventory site', adminNoSite:'System administrator — all sites', createUserRequired:'Complete the username, password, and site', createUserSuccess:'Account created and assigned to the site', createUserFailed:'Could not create the account: ', usernameTaken:'Username is already registered', newManagedPassword:'New password (at least 8 characters)', resetManagedPassword:'Change password', resetManagedPasswordSuccess:'Account password changed', resetManagedPasswordFailed:'Could not change the password: ', profileLoadFailed:'Could not load the account profile. Contact the administrator.', allSites:'All sites', adminSitesOverview:'Site overview', adminAssets:'Devices in selected scope', exportAdminInventory:'Export Excel', activeDevices:'active', returnedDevices:'returned', noAssetsInScope:'No devices in the selected scope'
   }
 };
 
@@ -898,6 +904,7 @@ function applyLanguage(lang) {
   $('managedUsersNote').textContent = t('managedUsersNote');
   $('adminSitesOverviewTitle').textContent = t('adminSitesOverview');
   $('adminAssetsTitle').textContent = t('adminAssets');
+  $('adminExportBtn').textContent = t('exportAdminInventory');
   if ($('cameraCloseBtn')) $('cameraCloseBtn').textContent = t('closeCamera');
   if ($('scanStatusText') && scanStep === 'serial') $('scanStatusText').textContent = t('readyScan');
   renderRecords();
@@ -1291,6 +1298,7 @@ function renderAdminDashboard(siteRecords) {
       <div><span>${escapeHtml(record.model || deviceTypeLabel(record.deviceType))}</span><small>${escapeHtml(record.asset || '—')}</small></div>
       <div><span>${escapeHtml(record.siteName || '—')}</span><small>${escapeHtml(deviceTypeLabel(record.deviceType))}</small></div>
     </div>`).join('') : `<div class="dashboard-empty">${t('noAssetsInScope')}</div>`;
+  $('adminExportBtn').disabled = siteRecords.length === 0;
 }
 
 function renderDashboard() {
@@ -1455,7 +1463,7 @@ function exportReturnLog() {
 function updateCounts() {
   const siteRecords = currentSiteRecords();
   totalCount.textContent = records.length;
-  exportBtn.disabled = records.length === 0;
+  exportBtn.disabled = siteRecords.length === 0;
   clearBtn.disabled = siteRecords.length === 0;
   if (!records.length) { recordsMeta.textContent = '—'; return; }
   const s = records.reduce((a,r) => { a[r.status]=(a[r.status]||0)+1; return a; }, {});
@@ -2061,9 +2069,9 @@ async function stopScanner() {
 }
 
 // ── Export ────────────────────────────────────────────────────────────────────
-function exportToExcel() {
-  if (!records.length) return;
-  const data = records.map((r,i) => currentLang === 'ar' ? ({
+function exportInventoryRecords(exportRecords, scopeName) {
+  if (!exportRecords.length || typeof XLSX === 'undefined') return;
+  const data = exportRecords.map((r,i) => currentLang === 'ar' ? ({
     '#':i+1,'نوع الموقع':siteTypeLabel(r.siteType),'اسم الموقع':r.siteName||'','نوع الجهاز':deviceTypeLabel(r.deviceType),'الرقم التسلسلي':r.serial,'رقم الأصل':r.asset||'','الموديل':r.model||'','الحالة':r.status,'ملاحظات':r.notes||'','تاريخ السكان':new Date(r.scannedAt).toLocaleString('ar-SA')
   }) : ({
     '#':i+1,'Site type':siteTypeLabel(r.siteType),'Site name':r.siteName||'','Device type':deviceTypeLabel(r.deviceType),'Serial number':r.serial,'Asset number':r.asset||'','Model':r.model||'','Status':statusLabel(r.status),'Notes':r.notes||'','Scan date':new Date(r.scannedAt).toLocaleString('en-US')
@@ -2075,9 +2083,22 @@ function exportToExcel() {
   if (!wb.Workbook) wb.Workbook = {};
   if (!wb.Workbook.Views) wb.Workbook.Views = [{}];
   wb.Workbook.Views[0].RTL = currentLang === 'ar';
-  const safeSiteName = String(currentSite?.name || 'Site').replace(/[^\p{L}\p{N}_-]+/gu, '_').replace(/^_+|_+$/g, '');
+  const safeSiteName = String(scopeName || 'Site').replace(/[^\p{L}\p{N}_-]+/gu, '_').replace(/^_+|_+$/g, '') || 'Site';
   XLSX.writeFile(wb, `Asset_Inventory_${safeSiteName}_${new Date().toISOString().slice(0,10)}.xlsx`);
-  showToast(`${t('exported')} ${records.length} ${t('devices')}`);
+  showToast(`${t('exported')} ${exportRecords.length} ${t('devices')}`);
+}
+
+function exportToExcel() {
+  exportInventoryRecords(currentSiteRecords(), currentSite?.name || 'Site');
+}
+
+function exportAdminInventory() {
+  if (currentProfile?.role !== 'admin' || currentSite) return;
+  const selectedSite = selectedAdminDashboardSite();
+  exportInventoryRecords(
+    dashboardRecords(),
+    selectedSite?.name_ar || (currentLang === 'ar' ? 'جميع_المواقع' : 'All_Sites')
+  );
 }
 
 async function clearAll() {
@@ -2117,6 +2138,7 @@ $('returnModalBackdrop').addEventListener('click', event => {
 });
 $('confirmReturnBtn').addEventListener('click', confirmReturnToStore);
 $('exportReturnsBtn').addEventListener('click', exportReturnLog);
+$('adminExportBtn').addEventListener('click', exportAdminInventory);
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && !$('returnModalBackdrop').hidden) closeReturnModal();
 });
