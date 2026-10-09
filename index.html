@@ -985,6 +985,11 @@ function normalizedSiteValue(value) {
   return String(value || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('en');
 }
 
+function localDateStamp(date = new Date()) {
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 10);
+}
+
 function isCurrentSiteRecord(record) {
   return normalizedSiteValue(record.siteType) === normalizedSiteValue(currentSite?.type)
     && normalizedSiteValue(record.siteName) === normalizedSiteValue(currentSite?.name);
@@ -1456,7 +1461,7 @@ function exportReturnLog() {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, currentLang === 'ar' ? 'سجل الاسترجاعات' : 'Return Log');
   const safeSiteName = String(currentSite?.name || 'Site').replace(/[^\p{L}\p{N}_-]+/gu, '_');
-  XLSX.writeFile(wb, `IT_Store_Returns_${safeSiteName}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.writeFile(wb, `IT_Store_Returns_${safeSiteName}_${localDateStamp()}.xlsx`);
 }
 
 // ── Counts ────────────────────────────────────────────────────────────────────
@@ -2084,7 +2089,7 @@ function exportInventoryRecords(exportRecords, scopeName) {
   if (!wb.Workbook.Views) wb.Workbook.Views = [{}];
   wb.Workbook.Views[0].RTL = currentLang === 'ar';
   const safeSiteName = String(scopeName || 'Site').replace(/[^\p{L}\p{N}_-]+/gu, '_').replace(/^_+|_+$/g, '') || 'Site';
-  XLSX.writeFile(wb, `Asset_Inventory_${safeSiteName}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.writeFile(wb, `Asset_Inventory_${safeSiteName}_${localDateStamp()}.xlsx`);
   showToast(`${t('exported')} ${exportRecords.length} ${t('devices')}`);
 }
 
